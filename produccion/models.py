@@ -5,12 +5,6 @@ from django.conf import settings
 class FormulaProducto(models.Model):
     """Fórmula de producción que define la receta de un producto terminado."""
 
-    empresa = models.ForeignKey(
-        'empresas.Empresa',
-        on_delete=models.CASCADE,
-        related_name='formulas',
-        verbose_name='empresa',
-    )
     producto_terminado = models.ForeignKey(
         'inventario.ProductoTerminado',
         on_delete=models.CASCADE,
@@ -67,12 +61,6 @@ class DetalleFormula(models.Model):
 class OrdenProduccion(models.Model):
     """Orden de producción que registra la fabricación de un producto."""
 
-    empresa = models.ForeignKey(
-        'empresas.Empresa',
-        on_delete=models.CASCADE,
-        related_name='ordenes_produccion',
-        verbose_name='empresa',
-    )
     producto_terminado = models.ForeignKey(
         'inventario.ProductoTerminado',
         on_delete=models.CASCADE,

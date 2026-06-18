@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('empresas', '0001_initial'),
         ('inventario', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -24,7 +23,6 @@ class Migration(migrations.Migration):
                 ('cantidad_resultante', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='cantidad resultante')),
                 ('activo', models.BooleanField(default=True, verbose_name='activo')),
                 ('fecha_creacion', models.DateTimeField(auto_now_add=True, verbose_name='fecha de creación')),
-                ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='formulas', to='empresas.empresa', verbose_name='empresa')),
                 ('producto_terminado', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='formulas', to='inventario.productoterminado', verbose_name='producto terminado')),
             ],
             options={
@@ -53,7 +51,6 @@ class Migration(migrations.Migration):
                 ('cantidad_producida', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='cantidad producida')),
                 ('observacion', models.TextField(blank=True, verbose_name='observación')),
                 ('fecha', models.DateTimeField(auto_now_add=True, verbose_name='fecha')),
-                ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes_produccion', to='empresas.empresa', verbose_name='empresa')),
                 ('formula', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes', to='produccion.formulaproducto', verbose_name='fórmula')),
                 ('producto_terminado', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes_produccion', to='inventario.productoterminado', verbose_name='producto terminado')),
                 ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ordenes_produccion', to=settings.AUTH_USER_MODEL, verbose_name='usuario')),

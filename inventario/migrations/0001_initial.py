@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('empresas', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -27,7 +26,6 @@ class Migration(migrations.Migration):
                 ('costo_unitario', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='costo unitario')),
                 ('activo', models.BooleanField(default=True, verbose_name='activo')),
                 ('fecha_creacion', models.DateTimeField(auto_now_add=True, verbose_name='fecha de creación')),
-                ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='materias_primas', to='empresas.empresa', verbose_name='empresa')),
             ],
             options={
                 'verbose_name': 'materia prima',
@@ -45,7 +43,6 @@ class Migration(migrations.Migration):
                 ('stock_actual', models.DecimalField(decimal_places=2, default=0, max_digits=12, verbose_name='stock actual')),
                 ('activo', models.BooleanField(default=True, verbose_name='activo')),
                 ('fecha_creacion', models.DateTimeField(auto_now_add=True, verbose_name='fecha de creación')),
-                ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='productos_terminados', to='empresas.empresa', verbose_name='empresa')),
             ],
             options={
                 'verbose_name': 'producto terminado',
@@ -61,7 +58,6 @@ class Migration(migrations.Migration):
                 ('cantidad', models.DecimalField(decimal_places=2, max_digits=12, verbose_name='cantidad')),
                 ('descripcion', models.TextField(blank=True, verbose_name='descripción')),
                 ('fecha', models.DateTimeField(auto_now_add=True, verbose_name='fecha')),
-                ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='movimientos', to='empresas.empresa', verbose_name='empresa')),
                 ('materia_prima', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='movimientos', to='inventario.materiaprima', verbose_name='materia prima')),
                 ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='movimientos', to=settings.AUTH_USER_MODEL, verbose_name='usuario')),
                 ('producto_terminado', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='movimientos', to='inventario.productoterminado', verbose_name='producto terminado')),
@@ -82,7 +78,6 @@ class Migration(migrations.Migration):
                 ('correo', models.EmailField(blank=True, max_length=254, verbose_name='correo electrónico')),
                 ('direccion', models.CharField(blank=True, max_length=300, verbose_name='dirección')),
                 ('activo', models.BooleanField(default=True, verbose_name='activo')),
-                ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='proveedores', to='empresas.empresa', verbose_name='empresa')),
             ],
             options={
                 'verbose_name': 'proveedor',

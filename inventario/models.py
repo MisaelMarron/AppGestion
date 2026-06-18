@@ -5,12 +5,6 @@ from django.conf import settings
 class Proveedor(models.Model):
     """Modelo que representa un proveedor de materias primas."""
 
-    empresa = models.ForeignKey(
-        'empresas.Empresa',
-        on_delete=models.CASCADE,
-        related_name='proveedores',
-        verbose_name='empresa',
-    )
     nombre = models.CharField('nombre', max_length=200)
     ruc = models.CharField('RUC', max_length=20, blank=True)
     telefono = models.CharField('teléfono', max_length=20, blank=True)
@@ -24,7 +18,7 @@ class Proveedor(models.Model):
         ordering = ['nombre']
 
     def __str__(self):
-        return f'{self.nombre} — {self.empresa}'
+        return self.nombre
 
 
 class MateriaPrima(models.Model):
@@ -37,12 +31,6 @@ class MateriaPrima(models.Model):
         ML = 'ml', 'Mililitros'
         UNIDAD = 'unidad', 'Unidad'
 
-    empresa = models.ForeignKey(
-        'empresas.Empresa',
-        on_delete=models.CASCADE,
-        related_name='materias_primas',
-        verbose_name='empresa',
-    )
     nombre = models.CharField('nombre', max_length=200)
     descripcion = models.TextField('descripción', blank=True)
     unidad_medida = models.CharField(
@@ -94,12 +82,6 @@ class ProductoTerminado(models.Model):
         ML = 'ml', 'Mililitros'
         UNIDAD = 'unidad', 'Unidad'
 
-    empresa = models.ForeignKey(
-        'empresas.Empresa',
-        on_delete=models.CASCADE,
-        related_name='productos_terminados',
-        verbose_name='empresa',
-    )
     nombre = models.CharField('nombre', max_length=200)
     descripcion = models.TextField('descripción', blank=True)
     unidad_medida = models.CharField(
@@ -130,12 +112,6 @@ class MovimientoInventario(models.Model):
         AJUSTE = 'AJUSTE', 'Ajuste'
         PRODUCCION = 'PRODUCCION', 'Producción'
 
-    empresa = models.ForeignKey(
-        'empresas.Empresa',
-        on_delete=models.CASCADE,
-        related_name='movimientos',
-        verbose_name='empresa',
-    )
     tipo = models.CharField(
         'tipo',
         max_length=15,

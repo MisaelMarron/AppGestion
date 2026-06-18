@@ -120,6 +120,15 @@
                                 <i class="bi bi-speedometer2 me-1"></i>Dashboard
                             </a>
                         </li>
+                        <!-- Gestión de Usuarios (solo admin) -->
+                        {% if user.is_superuser or user.rol == 'ADMINISTRADOR' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'accounts:user_list' %}">
+                                    <i class="bi bi-people-fill me-1"></i>Usuarios
+                                </a>
+                            </li>
+                           
+                        {% endif %}
                         <li class="nav-item">
                             <span class="nav-link text-light opacity-75">
                                 <i class="bi bi-person-circle me-1"></i>{{ user.username }}
@@ -169,7 +178,6 @@
 
     <!-- ═══════ FOOTER ═══════ -->
     <footer class="text-center py-4 footer-os">
-        <small>&copy; 2026 <strong>OperaStock</strong> — Sistema inteligente de gestión operativa</small>
     </footer>
 
     <!-- Bootstrap 5 JS -->
