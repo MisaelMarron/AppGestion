@@ -57,7 +57,7 @@
                     <th>ID Usuario</th>
                     <th>Usuario</th>
                     <th>Rol</th>
-                    <th>Sesión</th>
+                    
                     <th>Creada</th>
                     <th>Última actividad</th>
                     <th class="text-center">Acción</th>
@@ -68,7 +68,7 @@
                     {% if sesion.is_active %}
                     <tr class="session-row" data-session-id="{{ sesion.pk }}">
                         <td>
-                            <code class="text-muted">#{{ sesion.user.id }}</code>
+                            <code class="text-muted">{{ sesion.user.id }}</code>
                         </td>
                         <td>
                             <strong>{{ sesion.user.username }}</strong>
@@ -78,9 +78,7 @@
                                 {{ sesion.user.get_rol_display }}
                             </span>
                         </td>
-                        <td>
-                            <code class="text-muted">{{ sesion.session_key_partial }}</code>
-                        </td>
+                       
                         <td>
                             <small class="text-muted">
                                 {{ sesion.created_at|date:"d/m/Y H:i" }}
