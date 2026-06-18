@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión — OperaStock{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card card-os p-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-box-seam-fill text-danger" style="font-size:2.5rem"></i>
+                <h2 class="mt-2 fw-bold" style="color:var(--os-primary)">Iniciar sesión</h2>
+                <p class="text-muted mb-0">Ingresa tus credenciales para acceder a OperaStock</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_username" class="form-label fw-semibold">Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" name="username" id="id_username"
+                               class="form-control" placeholder="Tu usuario" required autofocus>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label for="id_password" class="form-label fw-semibold">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password" id="id_password"
+                               class="form-control" placeholder="Tu contraseña" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger w-100 fw-semibold py-2">
+                    <i class="bi bi-box-arrow-in-right me-1"></i>Ingresar
+                </button>
+            </form>
+
+            <hr class="my-4">
+            <p class="text-center text-muted mb-0">
+                ¿No tienes cuenta?
+                <a href="{% url 'accounts:register' %}" class="fw-semibold text-decoration-none" style="color:var(--os-highlight)">Regístrate aquí</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

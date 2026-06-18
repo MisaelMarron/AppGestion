@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrarse — OperaStock{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-os p-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-person-plus-fill text-danger" style="font-size:2.5rem"></i>
+                <h2 class="mt-2 fw-bold" style="color:var(--os-primary)">Crear cuenta</h2>
+                <p class="text-muted mb-0">Completa el formulario para registrarte en OperaStock</p>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                        {{ field.label }}
+                    </label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text|safe }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback d-block">
+                            <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <button type="submit" class="btn btn-danger w-100 fw-semibold py-2 mt-2">
+                    <i class="bi bi-person-check me-1"></i>Registrarse
+                </button>
+            </form>
+
+            <hr class="my-4">
+            <p class="text-center text-muted mb-0">
+                ¿Ya tienes cuenta?
+                <a href="{% url 'accounts:login' %}" class="fw-semibold text-decoration-none" style="color:var(--os-highlight)">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
