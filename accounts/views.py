@@ -70,6 +70,34 @@ def logout_view(request):
 
 
 # ═══════════════════════════════════════════════════════════
+# PERFIL DE USUARIO (todos los usuarios autenticados)
+# ═══════════════════════════════════════════════════════════
+
+def profile_edit(request):
+    """Permite al usuario autenticado editar su propia información."""
+    if not request.user.is_authenticated:
+        return redirect('accounts:login')
+
+    usuario = request.user
+
+    if request.method == 'POST':
+        form = UserEditForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Tu información ha sido actualizada correctamente.')
+            return redirect('accounts:profile_edit')
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
+    else:
+        form = UserEditForm(instance=usuario)
+
+    return render(request, 'accounts/profile_edit.html', {
+        'form': form,
+        'usuario': usuario
+    })
+
+
+# ═══════════════════════════════════════════════════════════
 # GESTIÓN DE USUARIOS (solo admin/superuser)
 # ═══════════════════════════════════════════════════════════
 

@@ -127,12 +127,11 @@
                                     <i class="bi bi-people-fill me-1"></i>Usuarios
                                 </a>
                             </li>
-                           
                         {% endif %}
                         <li class="nav-item">
-                            <span class="nav-link text-light opacity-75">
+                            <a class="nav-link" href="{% url 'accounts:profile_edit' %}">
                                 <i class="bi bi-person-circle me-1"></i>{{ user.username }}
-                            </span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="btn btn-sm btn-outline-light btn-os-logout ms-2" href="{% url 'accounts:logout' %}">
