@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Materias Primas — OperaStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .mp-header {
+        background: linear-gradient(135deg, var(--os-primary) 0%, var(--os-accent) 100%);
+        border-radius: 1rem;
+        padding: 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+    .mp-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .25rem; }
+    .mp-header p  { opacity: .8; margin: 0; }
+    .badge-unidad {
+        background: rgba(116,185,255,.15);
+        color: var(--os-info);
+        border: 1px solid rgba(116,185,255,.35);
+        font-size: .75rem;
+        padding: .25rem .6rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    .stock-pill {
+        font-weight: 700;
+        font-size: .9rem;
+    }
+    .stock-critico { color: var(--os-highlight); }
+    .stock-ok      { color: var(--os-success); }
+    .btn-action { font-size: .8rem; padding: .3rem .65rem; }
+    .table-mp thead th {
+        background: var(--os-light);
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #666;
+        border-bottom: 2px solid #e8ecf0;
+    }
+    .table-mp tbody tr { transition: background .15s; }
+    .search-bar { max-width: 360px; }
+    .empty-state { padding: 4rem 2rem; text-align: center; color: #aaa; }
+    .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- ─── HEADER ─── -->
+<div class="mp-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+        <h1><i class="bi bi-box-seam me-2"></i>Materias Primas</h1>
+        <p>Gestiona el inventario de insumos y materiales</p>
+    </div>
+    <a href="{% url 'inventario:materia_prima_create' %}" class="btn btn-light fw-bold px-4">
+        <i class="bi bi-plus-lg me-1"></i>Nueva materia prima
+    </a>
+</div>
+
+<!-- ─── BÚSQUEDA ─── -->
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <form method="get" class="search-bar d-flex gap-2">
+        <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar por nombre o código…">
+        <button type="submit" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+        {% if query %}
+        <a href="{% url 'inventario:materia_prima_list' %}" class="btn btn-outline-danger"><i class="bi bi-x"></i></a>
+        {% endif %}
+    </form>
+    <small class="text-muted">{{ materias.count }} resultado{{ materias.count|pluralize }}</small>
+</div>
+
+<!-- ─── TABLA ─── -->
+<div class="card card-os">
+    <div class="card-body p-0">
+        {% if materias %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 table-mp">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th class="text-end">Stock actual</th>
+                        <th class="text-end">Stock mínimo</th>
+                        <th>Unidad</th>
+                        <th>Última actualización</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mp in materias %}
+                    <tr>
+                        <td><code class="text-secondary">{{ mp.codigo }}</code></td>
+                        <td class="fw-semibold">{{ mp.nombre }}</td>
+                        <td class="text-end">
+                            <span class="stock-pill {% if mp.necesita_reposicion %}stock-critico{% else %}stock-ok{% endif %}">
+                                {% if mp.necesita_reposicion %}<i class="bi bi-exclamation-triangle-fill me-1"></i>{% endif %}
+                                {{ mp.stock_actual|floatformat:2 }}
+                            </span>
+                        </td>
+                        <td class="text-end text-muted">{{ mp.stock_minimo|floatformat:2 }}</td>
+                        <td><span class="badge-unidad">{{ mp.get_unidad_medida_display }}</span></td>
+                        <td><small class="text-muted">{{ mp.ultima_vez_actualizado|date:"d/m/Y H:i" }}</small></td>
+                        <td class="text-center">
+                            <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                <a href="{% url 'inventario:materia_prima_ajuste' mp.pk %}"
+                                   class="btn btn-sm btn-outline-primary btn-action" title="Ajustar stock">
+                                    <i class="bi bi-arrow-left-right"></i> Ajustar
+                                </a>
+                                <a href="{% url 'inventario:materia_prima_edit' mp.pk %}"
+                                   class="btn btn-sm btn-outline-secondary btn-action" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'inventario:materia_prima_delete' mp.pk %}"
+                                   class="btn btn-sm btn-outline-danger btn-action" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-box-seam"></i>
+            {% if query %}
+                <p class="fw-semibold mb-1">Sin resultados para «{{ query }}»</p>
+                <a href="{% url 'inventario:materia_prima_list' %}">Ver todas</a>
+            {% else %}
+                <p class="fw-semibold mb-1">No hay materias primas registradas</p>
+                <a href="{% url 'inventario:materia_prima_create' %}" class="btn btn-primary mt-2">
+                    <i class="bi bi-plus-lg me-1"></i>Crear primera materia prima
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

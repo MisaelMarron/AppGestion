@@ -1,5 +1,6 @@
-from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import models
 
 
 class Proveedor(models.Model):
@@ -31,6 +32,7 @@ class MateriaPrima(models.Model):
         ML = 'ml', 'Mililitros'
         UNIDAD = 'unidad', 'Unidad'
 
+    codigo = models.CharField('código', max_length=20, unique=True, blank=True)
     nombre = models.CharField('nombre', max_length=200)
     descripcion = models.TextField('descripción', blank=True)
     unidad_medida = models.CharField(
@@ -39,8 +41,8 @@ class MateriaPrima(models.Model):
         choices=UnidadMedida.choices,
         default=UnidadMedida.UNIDAD,
     )
-    stock_actual = models.DecimalField('stock actual', max_digits=12, decimal_places=2, default=0)
-    stock_minimo = models.DecimalField('stock mínimo', max_digits=12, decimal_places=2, default=0)
+    stock_actual = models.DecimalField('stock actual', max_digits=12, decimal_places=5, default=0)
+    stock_minimo = models.DecimalField('stock mínimo', max_digits=12, decimal_places=5, default=0)
     costo_unitario = models.DecimalField(
         'costo unitario',
         max_digits=10,
@@ -58,6 +60,7 @@ class MateriaPrima(models.Model):
     )
     activo = models.BooleanField('activo', default=True)
     fecha_creacion = models.DateTimeField('fecha de creación', auto_now_add=True)
+    ultima_vez_actualizado = models.DateTimeField('última vez actualizado', auto_now=True)
 
     class Meta:
         verbose_name = 'materia prima'
@@ -66,6 +69,35 @@ class MateriaPrima(models.Model):
 
     def __str__(self):
         return f'{self.nombre} ({self.stock_actual} {self.unidad_medida})'
+
+    def clean(self):
+        super().clean()
+        if self.stock_actual < 0:
+            raise ValidationError({'stock_actual': 'La cantidad debe ser positiva'})
+        if self.stock_minimo < 0:
+            raise ValidationError({'stock_minimo': 'El stock mínimo no puede ser negativo'})
+        if not self.codigo:
+            self.codigo = self.nombre.strip().lower().replace(' ', '-')[:20]
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
+    @property
+    def cantidad(self):
+        return self.stock_actual
+
+    @cantidad.setter
+    def cantidad(self, value):
+        self.stock_actual = value
+
+    @property
+    def unidad(self):
+        return self.unidad_medida
+
+    @unidad.setter
+    def unidad(self, value):
+        self.unidad_medida = value
 
     def necesita_reposicion(self):
         """Devuelve True cuando stock_actual <= stock_minimo."""
@@ -82,6 +114,7 @@ class ProductoTerminado(models.Model):
         ML = 'ml', 'Mililitros'
         UNIDAD = 'unidad', 'Unidad'
 
+    codigo = models.CharField('código', max_length=20, unique=True, blank=True)
     nombre = models.CharField('nombre', max_length=200)
     descripcion = models.TextField('descripción', blank=True)
     unidad_medida = models.CharField(
@@ -90,7 +123,8 @@ class ProductoTerminado(models.Model):
         choices=UnidadMedida.choices,
         default=UnidadMedida.UNIDAD,
     )
-    stock_actual = models.DecimalField('stock actual', max_digits=12, decimal_places=2, default=0)
+    stock_actual = models.DecimalField('stock actual', max_digits=12, decimal_places=5, default=0)
+    precio = models.DecimalField('precio', max_digits=10, decimal_places=2, default=0)
     activo = models.BooleanField('activo', default=True)
     fecha_creacion = models.DateTimeField('fecha de creación', auto_now_add=True)
 
@@ -101,6 +135,19 @@ class ProductoTerminado(models.Model):
 
     def __str__(self):
         return f'{self.nombre} ({self.stock_actual} {self.unidad_medida})'
+
+    def clean(self):
+        super().clean()
+        if self.stock_actual < 0:
+            raise ValidationError({'stock_actual': 'El stock no puede ser negativo'})
+        if self.precio < 0:
+            raise ValidationError({'precio': 'El precio no puede ser negativo'})
+        if not self.codigo:
+            self.codigo = self.nombre.strip().lower().replace(' ', '-')[:20]
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
 
 class MovimientoInventario(models.Model):

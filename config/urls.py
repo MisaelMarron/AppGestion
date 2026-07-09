@@ -20,6 +20,8 @@ urlpatterns = [
     path('', root_redirect, name='root'),
     path('accounts/', include('accounts.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('inventario/', include('inventario.urls')),
+    path('produccion/', include('produccion.urls')),
 ]
 
 # Personalización del panel de administración

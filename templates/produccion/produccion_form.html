@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Producción — OperaStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .prod-header {
+        background: linear-gradient(135deg, #0f3460 0%, #533483 100%);
+        border-radius: 1rem;
+        padding: 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+    .prod-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .25rem; }
+    .form-card { border-radius: 1rem; overflow: hidden; box-shadow: var(--os-card-shadow); border: none; }
+    .form-card .card-body { padding: 2rem; }
+    .form-label { font-weight: 600; color: #444; }
+    .hint-box {
+        background: rgba(116,185,255,.08);
+        border: 1px solid rgba(116,185,255,.25);
+        border-radius: .6rem;
+        padding: 1rem;
+        font-size: .88rem;
+        color: #555;
+    }
+    .hint-box i { color: var(--os-info); }
+    .step-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px; height: 28px;
+        background: var(--os-primary);
+        color: #fff;
+        border-radius: 50%;
+        font-weight: 700;
+        font-size: .8rem;
+        flex-shrink: 0;
+    }
+    .step-item { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .6rem; }
+    .step-text { font-size: .88rem; color: #555; padding-top: .2rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="prod-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+        <h1><i class="bi bi-gear-wide-connected me-2"></i>Producción</h1>
+        <p class="mb-0 opacity-75">Fabrica un producto y descuenta materias primas automáticamente</p>
+    </div>
+    <a href="{% url 'produccion:formula_list' %}" class="btn btn-light fw-bold">
+        <i class="bi bi-diagram-3 me-1"></i>Ver fórmulas
+    </a>
+</div>
+
+<div class="row g-4 justify-content-center">
+    <div class="col-lg-7">
+        <div class="card form-card">
+            <div class="card-body">
+                <h5 class="fw-bold mb-4" style="color:var(--os-primary)">
+                    <i class="bi bi-1-circle-fill me-2 text-primary"></i>Selecciona producto y cantidad
+                </h5>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.producto.id_for_label }}">{{ form.producto.label }}</label>
+                        {{ form.producto }}
+                        {% if form.producto.errors %}
+                        <div class="text-danger small mt-1">{{ form.producto.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" for="{{ form.cantidad.id_for_label }}">{{ form.cantidad.label }}</label>
+                        {{ form.cantidad }}
+                        {% if form.cantidad.errors %}
+                        <div class="text-danger small mt-1">{{ form.cantidad.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                        <i class="bi bi-eye me-2"></i>Previsualizar producción
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card form-card">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3" style="color:var(--os-primary)">
+                    <i class="bi bi-info-circle me-1"></i>¿Cómo funciona?
+                </h6>
+                <div class="step-item">
+                    <span class="step-badge">1</span>
+                    <span class="step-text">Elige el producto y la cantidad que deseas fabricar</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-badge">2</span>
+                    <span class="step-text">El sistema calcula cuánta materia prima se necesita y si hay stock suficiente</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-badge">3</span>
+                    <span class="step-text">Si todo está bien, confirmas la producción</span>
+                </div>
+                <div class="step-item">
+                    <span class="step-badge">4</span>
+                    <span class="step-text">El stock de materias primas se descuenta automáticamente</span>
+                </div>
+                <div class="hint-box mt-3">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    Si un producto no tiene fórmula definida, debes crearla primero en
+                    <a href="{% url 'produccion:formula_list' %}">Fórmulas</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

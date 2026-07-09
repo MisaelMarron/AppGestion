@@ -20,50 +20,59 @@
 <div class="row g-4 mb-5">
     <!-- Materias Primas -->
     <div class="col-md-6 col-xl-3">
-        <div class="card card-os h-100 border-start border-4" style="border-color:var(--os-info)!important">
+        <a href="{% url 'inventario:materia_prima_list' %}" class="text-decoration-none">
+        <div class="card card-os h-100 border-start border-4" style="border-color:var(--os-info)!important; cursor:pointer">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="rounded-circle d-flex align-items-center justify-content-center"
                      style="width:56px;height:56px;background:rgba(116,185,255,.15)">
                     <i class="bi bi-box-seam fs-3" style="color:var(--os-info)"></i>
                 </div>
                 <div>
-                    <h2 class="fw-bold mb-0">{{ total_materias_primas }}</h2>
+                    <h2 class="fw-bold mb-0" style="color:var(--os-primary)">{{ total_materias_primas }}</h2>
                     <small class="text-muted">Materias primas</small>
+                    <div style="font-size:.72rem;color:var(--os-info);margin-top:.1rem"><i class="bi bi-arrow-right-circle me-1"></i>Ver listado</div>
                 </div>
             </div>
         </div>
+        </a>
     </div>
 
     <!-- Productos Terminados -->
     <div class="col-md-6 col-xl-3">
-        <div class="card card-os h-100 border-start border-4" style="border-color:var(--os-success)!important">
+        <a href="{% url 'inventario:producto_terminado_list' %}" class="text-decoration-none">
+        <div class="card card-os h-100 border-start border-4" style="border-color:var(--os-success)!important; cursor:pointer">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="rounded-circle d-flex align-items-center justify-content-center"
                      style="width:56px;height:56px;background:rgba(0,184,148,.12)">
                     <i class="bi bi-check2-square fs-3" style="color:var(--os-success)"></i>
                 </div>
                 <div>
-                    <h2 class="fw-bold mb-0">{{ total_productos }}</h2>
+                    <h2 class="fw-bold mb-0" style="color:var(--os-primary)">{{ total_productos }}</h2>
                     <small class="text-muted">Productos terminados</small>
+                    <div style="font-size:.72rem;color:var(--os-success);margin-top:.1rem"><i class="bi bi-arrow-right-circle me-1"></i>Ver listado</div>
                 </div>
             </div>
         </div>
+        </a>
     </div>
 
     <!-- Stock Crítico -->
     <div class="col-md-6 col-xl-3">
-        <div class="card card-os h-100 border-start border-4" style="border-color:var(--os-highlight)!important">
+        <a href="{% url 'produccion:pronostico' %}" class="text-decoration-none">
+        <div class="card card-os h-100 border-start border-4" style="border-color:var(--os-highlight)!important; cursor:pointer">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="rounded-circle d-flex align-items-center justify-content-center"
                      style="width:56px;height:56px;background:rgba(233,69,96,.1)">
                     <i class="bi bi-exclamation-triangle-fill fs-3" style="color:var(--os-highlight)"></i>
                 </div>
                 <div>
-                    <h2 class="fw-bold mb-0">{{ total_stock_critico }}</h2>
+                    <h2 class="fw-bold mb-0" style="color:var(--os-primary)">{{ total_stock_critico }}</h2>
                     <small class="text-muted">Stock crítico</small>
+                    <div style="font-size:.72rem;color:var(--os-highlight);margin-top:.1rem"><i class="bi bi-graph-up-arrow me-1"></i>Ver pronóstico</div>
                 </div>
             </div>
         </div>
+        </a>
     </div>
 </div>
 
@@ -104,6 +113,7 @@
         </div>
     </div>
     {% endif %}
+
 
     <!-- ═══════ ÚLTIMAS PRODUCCIONES ═══════ -->
     <div class="col-lg-6">

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Ajuste de Stock — {{ mp.nombre }} — OperaStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ajuste-header {
+        background: linear-gradient(135deg, #0f3460, #533483);
+        border-radius: 1rem 1rem 0 0;
+        padding: 1.75rem 2rem;
+        color: #fff;
+    }
+    .ajuste-header h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: .25rem; }
+    .stock-info {
+        background: rgba(255,255,255,.15);
+        border-radius: .5rem;
+        padding: .75rem 1rem;
+        display: inline-block;
+        margin-top: .5rem;
+    }
+    .stock-info .val { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+    .stock-info .lab { font-size: .8rem; opacity: .8; }
+    .form-card { border-radius: 1rem; overflow: hidden; box-shadow: var(--os-card-shadow); border: none; }
+    .form-body { padding: 2rem; background: #fff; }
+    .tipo-card {
+        border: 2px solid #e0e5ee;
+        border-radius: .75rem;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all .2s;
+        text-align: center;
+    }
+    .tipo-card:hover { border-color: var(--os-accent); }
+    .tipo-card input[type="radio"] { display: none; }
+    .tipo-card.selected-entrada { border-color: var(--os-success); background: rgba(0,184,148,.06); }
+    .tipo-card.selected-salida  { border-color: var(--os-highlight); background: rgba(233,69,96,.06); }
+    .tipo-icon { font-size: 1.8rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-xl-5">
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'inventario:materia_prima_list' %}">Materias primas</a></li>
+                <li class="breadcrumb-item active">Ajuste de stock</li>
+            </ol>
+        </nav>
+
+        <div class="card form-card">
+            <!-- Header con stock actual -->
+            <div class="ajuste-header">
+                <h2><i class="bi bi-arrow-left-right me-2"></i>Ajuste de stock</h2>
+                <div class="fw-semibold opacity-90">{{ mp.nombre }}</div>
+                <div class="stock-info mt-2">
+                    <div class="val">{{ mp.stock_actual|floatformat:3 }}</div>
+                    <div class="lab">{{ mp.get_unidad_medida_display }} disponibles actualmente</div>
+                </div>
+            </div>
+
+            <div class="form-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Tipo de movimiento -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold mb-2">Tipo de movimiento</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="tipo-card w-100" id="card-entrada">
+                                    <input type="radio" name="tipo" value="ENTRADA"
+                                           {% if not form.tipo.value or form.tipo.value == 'ENTRADA' %}checked{% endif %}>
+                                    <div class="tipo-icon text-success"><i class="bi bi-plus-circle-fill"></i></div>
+                                    <div class="fw-bold mt-1">Entrada</div>
+                                    <small class="text-muted">Sumar al stock</small>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <label class="tipo-card w-100" id="card-salida">
+                                    <input type="radio" name="tipo" value="SALIDA"
+                                           {% if form.tipo.value == 'SALIDA' %}checked{% endif %}>
+                                    <div class="tipo-icon text-danger"><i class="bi bi-dash-circle-fill"></i></div>
+                                    <div class="fw-bold mt-1">Salida</div>
+                                    <small class="text-muted">Restar del stock</small>
+                                </label>
+                            </div>
+                        </div>
+                        {% if form.tipo.errors %}
+                        <div class="text-danger small mt-1">{{ form.tipo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Cantidad -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" for="{{ form.cantidad.id_for_label }}">
+                            Cantidad <span class="text-muted fw-normal">({{ mp.get_unidad_medida_display }})</span>
+                        </label>
+                        {{ form.cantidad }}
+                        {% if form.cantidad.errors %}
+                        <div class="text-danger small mt-1">{{ form.cantidad.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                        {{ form.descripcion }}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <a href="{% url 'inventario:materia_prima_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-1"></i>Aplicar ajuste
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Resaltar la tarjeta seleccionada
+    function updateCards() {
+        const radios = document.querySelectorAll('input[name="tipo"]');
+        const cardEntrada = document.getElementById('card-entrada');
+        const cardSalida  = document.getElementById('card-salida');
+        radios.forEach(r => {
+            if (r.checked) {
+                if (r.value === 'ENTRADA') {
+                    cardEntrada.classList.add('selected-entrada');
+                    cardSalida.classList.remove('selected-salida');
+                } else {
+                    cardSalida.classList.add('selected-salida');
+                    cardEntrada.classList.remove('selected-entrada');
+                }
+            }
+        });
+    }
+    document.querySelectorAll('input[name="tipo"]').forEach(r => r.addEventListener('change', updateCards));
+    updateCards();
+</script>
+{% endblock %}

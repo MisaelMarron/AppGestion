@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ titulo }} — OperaStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-header {
+        background: linear-gradient(135deg, var(--os-primary), var(--os-accent));
+        border-radius: 1rem 1rem 0 0;
+        padding: 1.5rem 2rem;
+        color: #fff;
+    }
+    .form-header h2 { font-size: 1.4rem; font-weight: 700; margin: 0; }
+    .form-card { border-radius: 1rem; overflow: hidden; box-shadow: var(--os-card-shadow); border: none; }
+    .form-body { padding: 2rem; background: #fff; }
+    .form-label { font-weight: 600; font-size: .9rem; color: #444; }
+    .field-hint { font-size: .8rem; color: #888; margin-top: .25rem; }
+    .btn-submit { min-width: 160px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'inventario:materia_prima_list' %}">Materias primas</a></li>
+                <li class="breadcrumb-item active">{{ titulo }}</li>
+            </ol>
+        </nav>
+
+        <div class="card form-card">
+            <div class="form-header">
+                <h2><i class="bi bi-box-seam me-2"></i>{{ titulo }}</h2>
+            </div>
+            <div class="form-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <!-- Código -->
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.codigo.id_for_label }}">{{ form.codigo.label }}</label>
+                            {{ form.codigo }}
+                            {% if form.codigo.errors %}
+                                <div class="text-danger small mt-1">{{ form.codigo.errors.0 }}</div>
+                            {% else %}
+                                <div class="field-hint">Se genera automáticamente si se deja vacío</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Nombre -->
+                        <div class="col-md-8">
+                            <label class="form-label" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Unidad de medida -->
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.unidad_medida.id_for_label }}">{{ form.unidad_medida.label }}</label>
+                            {{ form.unidad_medida }}
+                            {% if form.unidad_medida.errors %}
+                                <div class="text-danger small mt-1">{{ form.unidad_medida.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Stock mínimo -->
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.stock_minimo.id_for_label }}">{{ form.stock_minimo.label }}</label>
+                            {{ form.stock_minimo }}
+                            {% if form.stock_minimo.errors %}
+                                <div class="text-danger small mt-1">{{ form.stock_minimo.errors.0 }}</div>
+                            {% else %}
+                                <div class="field-hint">Se alertará cuando el stock baje de este valor</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Costo unitario -->
+                        <div class="col-md-4">
+                            <label class="form-label" for="{{ form.costo_unitario.id_for_label }}">{{ form.costo_unitario.label }}</label>
+                            {{ form.costo_unitario }}
+                            {% if form.costo_unitario.errors %}
+                                <div class="text-danger small mt-1">{{ form.costo_unitario.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Proveedor -->
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.proveedor.id_for_label }}">{{ form.proveedor.label }}</label>
+                            {{ form.proveedor }}
+                            {% if form.proveedor.errors %}
+                                <div class="text-danger small mt-1">{{ form.proveedor.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Descripción -->
+                        <div class="col-12">
+                            <label class="form-label" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Errores generales -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger mt-3">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <a href="{% url 'inventario:materia_prima_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-submit">
+                            <i class="bi bi-check-lg me-1"></i>{{ accion }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

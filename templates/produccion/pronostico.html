@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}Pronóstico de Reposición — OperaStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Header ── */
+    .pron-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        border-radius: 1rem;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .pron-header::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 200px; height: 200px;
+        background: rgba(255,255,255,.04);
+        border-radius: 50%;
+    }
+    .pron-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .2rem; }
+    .pron-header p  { opacity: .75; margin: 0; }
+
+    /* ── KPI chips ── */
+    .chip-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .chip {
+        display: flex; align-items: center; gap: .5rem;
+        padding: .6rem 1.1rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: .85rem;
+    }
+    .chip-critico  { background: rgba(233,69,96,.12);  color: #c0392b;  border: 1.5px solid rgba(233,69,96,.35); }
+    .chip-pronto   { background: rgba(243,156,18,.12); color: #e67e22;  border: 1.5px solid rgba(243,156,18,.35); }
+    .chip-ok       { background: rgba(0,184,148,.12);  color: #00695c;  border: 1.5px solid rgba(0,184,148,.35); }
+    .chip-sindat   { background: rgba(150,150,150,.1); color: #777;     border: 1.5px solid rgba(150,150,150,.3); }
+
+    /* ── Filtro de ventana ── */
+    .ventana-btns .btn { border-radius: 50px; font-size: .82rem; padding: .3rem .9rem; font-weight: 600; }
+    .ventana-btns .btn.active { background: var(--os-primary); color: #fff; border-color: var(--os-primary); }
+
+    /* ── Tabla ── */
+    .pron-table thead th {
+        background: #f4f6fb;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #666;
+        border-bottom: 2px solid #e0e5ee;
+        white-space: nowrap;
+    }
+    .pron-table tbody tr { transition: background .15s; vertical-align: middle; }
+    .pron-table tbody tr:hover { background: #fafbff; }
+
+    /* ── Badges de estado ── */
+    .badge-critico  { background: #fff0f0; color: #c0392b; border: 1.5px solid #f5b7b7; font-weight: 700; padding: .3rem .75rem; border-radius: 50px; font-size: .78rem; display:inline-flex; align-items:center; gap:.3rem; }
+    .badge-pronto   { background: #fff8ee; color: #e67e22; border: 1.5px solid #fad7a0; font-weight: 700; padding: .3rem .75rem; border-radius: 50px; font-size: .78rem; display:inline-flex; align-items:center; gap:.3rem; }
+    .badge-planif   { background: #fffde7; color: #b7950b; border: 1.5px solid #f9e79f; font-weight: 700; padding: .3rem .75rem; border-radius: 50px; font-size: .78rem; display:inline-flex; align-items:center; gap:.3rem; }
+    .badge-ok       { background: #f0fff8; color: #00695c; border: 1.5px solid #a9dfbf; font-weight: 700; padding: .3rem .75rem; border-radius: 50px; font-size: .78rem; display:inline-flex; align-items:center; gap:.3rem; }
+    .badge-sindat   { background: #f5f5f5; color: #888;    border: 1.5px solid #ddd;    font-weight: 600; padding: .3rem .75rem; border-radius: 50px; font-size: .78rem; display:inline-flex; align-items:center; gap:.3rem; }
+
+    /* ── Barra de días ── */
+    .dias-bar-wrap { display: flex; align-items: center; gap: .6rem; }
+    .dias-bar {
+        flex: 1;
+        height: 7px;
+        background: #eee;
+        border-radius: 10px;
+        overflow: hidden;
+        min-width: 60px;
+    }
+    .dias-bar-fill { height: 100%; border-radius: 10px; transition: width .4s; }
+    .fill-critico  { background: linear-gradient(90deg,#e74c3c,#c0392b); }
+    .fill-pronto   { background: linear-gradient(90deg,#f39c12,#e67e22); }
+    .fill-planif   { background: linear-gradient(90deg,#f1c40f,#b7950b); }
+    .fill-ok       { background: linear-gradient(90deg,#00b894,#00695c); }
+    .fill-sindat   { background: #ccc; }
+    .dias-num { font-weight: 700; min-width: 36px; text-align: right; font-size: .88rem; }
+
+    /* ── Tendencia ── */
+    .tend-up   { color: #e74c3c; font-weight: 700; }
+    .tend-down { color: #00695c; font-weight: 700; }
+    .tend-flat { color: #888; }
+
+    /* ── Empty ── */
+    .empty-state { padding: 4rem; text-align: center; color: #aaa; }
+    .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+
+    /* ── Tooltip explicativo ── */
+    .info-icon { cursor: help; color: #aaa; font-size: .9rem; }
+    .info-icon:hover { color: var(--os-accent); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ─── HEADER ─── -->
+<div class="pron-header d-flex justify-content-between align-items-start flex-wrap gap-3">
+    <div>
+        <h1><i class="bi bi-graph-up-arrow me-2"></i>Pronóstico de Reposición</h1>
+        <p>Predicción basada en el historial real de consumos — ventana de análisis: <strong>{{ ventana }} días</strong></p>
+    </div>
+</div>
+
+<!-- ─── CHIPS DE RESUMEN ─── -->
+<div class="chip-row">
+    <div class="chip chip-critico">
+        <i class="bi bi-exclamation-octagon-fill"></i>
+        {{ criticos }} crítico{{ criticos|pluralize }}
+    </div>
+    <div class="chip chip-pronto">
+        <i class="bi bi-clock-fill"></i>
+        {{ prontos }} próximo{{ prontos|pluralize }}
+    </div>
+    <div class="chip chip-ok">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ total }} materia{{ total|pluralize }} analizada{{ total|pluralize }}
+    </div>
+    {% if sin_datos > 0 %}
+    <div class="chip chip-sindat">
+        <i class="bi bi-question-circle"></i>
+        {{ sin_datos }} sin datos históricos
+    </div>
+    {% endif %}
+    <div class="ms-auto text-muted small d-flex align-items-center gap-1">
+        <i class="bi bi-info-circle info-icon" title="El pronóstico se recalcula en tiempo real cada vez que visitas esta página, usando el historial de consumos registrados en producciones confirmadas."></i>
+        Calculado en tiempo real
+    </div>
+</div>
+
+<!-- ─── TABLA PRINCIPAL ─── -->
+<div class="card card-os">
+    <div class="card-body p-0">
+        {% if pronosticos %}
+        <div class="table-responsive">
+            <table class="table pron-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Materia prima</th>
+                        <th class="text-end">Stock actual</th>
+                        <th class="text-end">
+                            Cons./día
+                            <i class="bi bi-info-circle info-icon ms-1"
+                               title="Consumo diario promedio en los últimos {{ ventana }} días, ajustado por tendencia si está subiendo."></i>
+                        </th>
+                        <th style="min-width:160px">
+                            Días restantes
+                            <i class="bi bi-info-circle info-icon ms-1"
+                               title="Stock actual ÷ consumo diario ajustado. Cuántos días dura el stock al ritmo actual."></i>
+                        </th>
+                        <th>Se agota</th>
+                        <th>Alerta stock mín.</th>
+                        <th class="text-center">
+                            Tendencia
+                            <i class="bi bi-info-circle info-icon ms-1"
+                               title="Compara el consumo de la primera mitad vs la segunda mitad de la ventana. ⬆ si la producción está acelerando."></i>
+                        </th>
+                        <th class="text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pronosticos %}
+                    <tr>
+                        <!-- Nombre -->
+                        <td>
+                            <div class="fw-semibold">{{ p.materia.nombre }}</div>
+                            <small class="text-muted">{{ p.materia.codigo }}</small>
+                        </td>
+
+                        <!-- Stock actual -->
+                        <td class="text-end">
+                            <span class="fw-bold {% if p.materia.necesita_reposicion %}text-danger{% endif %}">
+                                {{ p.materia.stock_actual|floatformat:2 }}
+                            </span>
+                            <small class="text-muted d-block">{{ p.materia.get_unidad_medida_display }}</small>
+                        </td>
+
+                        <!-- Consumo/día -->
+                        <td class="text-end">
+                            {% if p.estado == 'SIN_DATOS' %}
+                            <span class="text-muted">—</span>
+                            {% else %}
+                            <span class="fw-semibold">{{ p.consumo_ajustado|floatformat:3 }}</span>
+                            <small class="text-muted d-block">{{ p.materia.get_unidad_medida_display }}/día</small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Barra de días restantes -->
+                        <td>
+                            {% if p.dias_restantes is not None %}
+                            {% with pct=p.dias_restantes|floatformat:0 %}
+                            <div class="dias-bar-wrap">
+                                <div class="dias-bar">
+                                    <div class="dias-bar-fill
+                                        {% if p.estado == 'CRITICO' %}fill-critico
+                                        {% elif p.estado == 'PRONTO' %}fill-pronto
+                                        {% elif p.estado == 'PLANIFICAR' %}fill-planif
+                                        {% else %}fill-ok{% endif %}"
+                                        style="width: {% if p.dias_restantes >= 60 %}100{% elif p.dias_restantes >= 45 %}80{% elif p.dias_restantes >= 21 %}50{% elif p.dias_restantes >= 7 %}25{% else %}8{% endif %}%">
+                                    </div>
+                                </div>
+                                <span class="dias-num
+                                    {% if p.estado == 'CRITICO' %}text-danger
+                                    {% elif p.estado == 'PRONTO' %}text-warning
+                                    {% elif p.estado == 'PLANIFICAR' %}text-warning
+                                    {% else %}text-success{% endif %}">
+                                    {{ p.dias_restantes|floatformat:0 }}d
+                                </span>
+                            </div>
+                            {% endwith %}
+                            {% else %}
+                            <span class="text-muted small">Sin datos</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Fecha de agotamiento -->
+                        <td>
+                            {% if p.fecha_agotamiento %}
+                            <span class="fw-semibold {% if p.estado == 'CRITICO' %}text-danger{% elif p.estado == 'PRONTO' %}text-warning{% endif %}">
+                                {{ p.fecha_agotamiento|date:"d M Y" }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Fecha alerta stock mín. -->
+                        <td>
+                            {% if p.fecha_alerta %}
+                            <small class="text-muted">{{ p.fecha_alerta|date:"d M Y" }}</small>
+                            {% else %}
+                            <small class="text-muted">—</small>
+                            {% endif %}
+                        </td>
+
+                        <!-- Tendencia -->
+                        <td class="text-center">
+                            {% if p.estado == 'SIN_DATOS' %}
+                            <span class="tend-flat">—</span>
+                            {% elif p.tendencia_dir == 'subiendo' %}
+                            <span class="tend-up" title="Factor: {{ p.factor_tendencia }}×">
+                                <i class="bi bi-arrow-up-circle-fill"></i> ⬆ {{ p.factor_tendencia }}×
+                            </span>
+                            {% elif p.tendencia_dir == 'bajando' %}
+                            <span class="tend-down" title="Factor: {{ p.factor_tendencia }}×">
+                                <i class="bi bi-arrow-down-circle-fill"></i> ⬇ {{ p.factor_tendencia }}×
+                            </span>
+                            {% else %}
+                            <span class="tend-flat">
+                                <i class="bi bi-arrow-right-circle"></i> →
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Badge de estado -->
+                        <td class="text-center">
+                            {% if p.estado == 'CRITICO' %}
+                            <span class="badge-critico">
+                                <i class="bi bi-exclamation-octagon-fill"></i> Crítico
+                            </span>
+                            {% elif p.estado == 'PRONTO' %}
+                            <span class="badge-pronto">
+                                <i class="bi bi-clock-fill"></i> Pronto
+                            </span>
+                            {% elif p.estado == 'PLANIFICAR' %}
+                            <span class="badge-planif">
+                                <i class="bi bi-calendar-check"></i> Planificar
+                            </span>
+                            {% elif p.estado == 'OK' %}
+                            <span class="badge-ok">
+                                <i class="bi bi-check-circle-fill"></i> OK
+                            </span>
+                            {% else %}
+                            <span class="badge-sindat">
+                                <i class="bi bi-question-circle"></i> Sin datos
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-graph-up-arrow"></i>
+            <p class="fw-semibold mb-2">No hay materias primas registradas</p>
+            <a href="{% url 'inventario:materia_prima_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Registrar materia prima
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
