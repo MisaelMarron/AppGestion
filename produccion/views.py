@@ -180,7 +180,7 @@ def produccion_confirmar(request):
 @login_required
 def pronostico_reposicion(request):
     """
-    Vista del módulo predictivo.
+    Vista del módulo predictivo — ventana fija de 15 días.
 
     Calcula para cada materia prima:
     - Tasa de consumo diaria (basada en historial de producciones)
@@ -188,21 +188,19 @@ def pronostico_reposicion(request):
     - Fecha estimada de agotamiento
     - Factor de tendencia (subiendo / estable / bajando)
     - Clasificación de urgencia (CRÍTICO / PRONTO / PLANIFICAR / OK / SIN_DATOS)
+    """
+    VENTANA = 15  # Días fijos de análisis
 
-    # La ventana de análisis se fija en 15 días según lo solicitado
-    ventana = 15
-
-    pronosticos = calcular_todos_pronosticos(ventana)
+    pronosticos = calcular_todos_pronosticos(VENTANA)
 
     # Contadores por estado para el resumen superior
-    criticos    = sum(1 for p in pronosticos if p['estado'] == ESTADO_CRITICO)
-    prontos     = sum(1 for p in pronosticos if p['estado'] == ESTADO_PRONTO)
-    sin_datos   = sum(1 for p in pronosticos if p['estado'] == 'SIN_DATOS')
-    total       = len(pronosticos)
+    criticos  = sum(1 for p in pronosticos if p['estado'] == ESTADO_CRITICO)
+    prontos   = sum(1 for p in pronosticos if p['estado'] == ESTADO_PRONTO)
+    sin_datos = sum(1 for p in pronosticos if p['estado'] == 'SIN_DATOS')
+    total     = len(pronosticos)
 
     return render(request, 'produccion/pronostico.html', {
         'pronosticos': pronosticos,
-        'ventana':     ventana,
         'criticos':    criticos,
         'prontos':     prontos,
         'sin_datos':   sin_datos,

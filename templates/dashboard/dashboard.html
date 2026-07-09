@@ -68,7 +68,7 @@
                 <div>
                     <h2 class="fw-bold mb-0" style="color:var(--os-primary)">{{ total_stock_critico }}</h2>
                     <small class="text-muted">Stock crítico</small>
-                    <div style="font-size:.72rem;color:var(--os-highlight);margin-top:.1rem"><i class="bi bi-graph-up-arrow me-1"></i>Ver pronóstico</div>
+                    <div style="font-size:.72rem;color:var(--os-highlight);margin-top:.1rem"><i class="bi bi-arrow-right-circle me-1"></i>Ver pronóstico</div>
                 </div>
             </div>
         </div>
@@ -77,44 +77,6 @@
 </div>
 
 <div class="row g-4">
-    <!-- ═══════ MATERIAS PRIMAS CON STOCK CRÍTICO ═══════ -->
-    {% if materias_criticas %}
-    <div class="col-12">
-        <div class="card card-os">
-            <div class="card-header bg-danger bg-opacity-10 border-0">
-                <h5 class="mb-0 fw-bold text-danger">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Materias primas con stock crítico
-                </h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Materia prima</th>
-                                <th class="text-end">Stock actual</th>
-                                <th class="text-end">Stock mínimo</th>
-                                <th>Unidad</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for mp in materias_criticas %}
-                            <tr>
-                                <td class="fw-semibold">{{ mp.nombre }}</td>
-                                <td class="text-end text-danger fw-bold">{{ mp.stock_actual }}</td>
-                                <td class="text-end">{{ mp.stock_minimo }}</td>
-                                <td>{{ mp.get_unidad_medida_display }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-
     <!-- ═══════ ÚLTIMAS PRODUCCIONES ═══════ -->
     <div class="col-lg-6">
         <div class="card card-os">

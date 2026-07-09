@@ -3,7 +3,6 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from inventario.models import MateriaPrima, ProductoTerminado, MovimientoInventario
 from produccion.models import OrdenProduccion
-from produccion.prediccion import calcular_todos_pronosticos, ESTADO_CRITICO, ESTADO_PRONTO, ESTADO_PLANIFICAR
 
 
 @login_required
@@ -30,23 +29,11 @@ def dashboard_home(request):
         'materia_prima', 'producto_terminado', 'usuario',
     ).order_by('-fecha')[:5]
 
-    # ── Pronóstico: top 3 materias más urgentes para el widget ──────────────
-    todos_pronosticos = calcular_todos_pronosticos(ventana_dias=30)
-    # Solo mostrar las que tienen datos y son urgentes (excluir SIN_DATOS y OK)
-    pronosticos_widget = [
-        p for p in todos_pronosticos
-        if p['estado'] in (ESTADO_CRITICO, ESTADO_PRONTO, ESTADO_PLANIFICAR)
-    ][:3]
-    hay_alertas_reposicion = len(pronosticos_widget) > 0
-
     context = {
-        'total_materias_primas':   total_materias_primas,
-        'total_productos':         total_productos,
-        'total_stock_critico':     total_stock_critico,
-        'materias_criticas':       materias_criticas[:5],
-        'ultimas_producciones':    ultimas_producciones,
-        'ultimos_movimientos':     ultimos_movimientos,
-        'pronosticos_widget':      pronosticos_widget,
-        'hay_alertas_reposicion':  hay_alertas_reposicion,
+        'total_materias_primas': total_materias_primas,
+        'total_productos':       total_productos,
+        'total_stock_critico':   total_stock_critico,
+        'ultimas_producciones':  ultimas_producciones,
+        'ultimos_movimientos':   ultimos_movimientos,
     }
     return render(request, 'dashboard/dashboard.html', context)
