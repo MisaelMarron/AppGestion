@@ -1,47 +1,31 @@
-from django.db import models
-from django.shortcuts import render
+from datetime import timedelta
 from django.contrib.auth.decorators import login_required
-from inventario.models import MateriaPrima, ProductoTerminado, MovimientoInventario
-from produccion.models import OrdenProduccion, Produccion
+from django.db.models import Avg, Count
+from django.db.models.functions import TruncDate
+from django.shortcuts import render
+from django.utils import timezone
+from inventario.models import MateriaPrima, ProductoTerminado, Proveedor, OrdenCompra, SugerenciaCompra, MovimientoInventario
+from inventario.procurement import analizar
+from produccion.models import Produccion
 
 
 @login_required
 def dashboard_home(request):
-    """Vista principal del dashboard con indicadores clave."""
-
-    total_materias_primas = MateriaPrima.objects.filter(activo=True).count()
-    total_productos = ProductoTerminado.objects.filter(activo=True).count()
-
-    # Materias primas con stock crítico (stock_actual <= stock_minimo)
-    materias_criticas = MateriaPrima.objects.filter(
-        activo=True,
-        stock_actual__lte=models.F('stock_minimo'),
-    )
-    total_stock_critico = materias_criticas.count()
-
-    # Últimas 5 producciones
-    ultimas_producciones = Produccion.objects.filter(ejecutada=True).select_related('producto').order_by('-fecha')[:5]
-
-    # Últimos 5 movimientos de inventario
-    ultimos_movimientos = MovimientoInventario.objects.select_related(
-        'materia_prima', 'producto_terminado', 'usuario',
-    ).order_by('-fecha')[:5]
-
-    from inventario.procurement import analizar
-    from inventario.models import SugerenciaCompra, OrdenCompra, LoteMateriaPrima
-    from django.utils import timezone
-    from datetime import timedelta
-    analisis = [analizar(m) for m in MateriaPrima.objects.filter(activo=True)]
-    context = {
-        'predictivo_criticos': sum(a['riesgo'] == 'CRITICO' for a in analisis),
-        'predictivo_atencion': sum(a['riesgo'] == 'ATENCION' for a in analisis),
-        'compras_pendientes': SugerenciaCompra.objects.filter(estado='PENDIENTE').count(),
-        'ordenes_transito': OrdenCompra.objects.filter(estado='EN_TRANSITO').count(),
-        'lotes_vencer': LoteMateriaPrima.objects.filter(cantidad_disponible__gt=0, fecha_vencimiento__lte=timezone.localdate()+timedelta(days=15)).count(),
-        'total_materias_primas': total_materias_primas,
-        'total_productos':       total_productos,
-        'total_stock_critico':   total_stock_critico,
-        'ultimas_producciones':  ultimas_producciones,
-        'ultimos_movimientos':   ultimos_movimientos,
-    }
-    return render(request, 'dashboard/dashboard.html', context)
+    hoy = timezone.localdate()
+    desde = hoy-timedelta(days=29)
+    materias = list(MateriaPrima.objects.filter(activo=True))
+    rows = [{'materia':m,'a':analizar(m)} for m in materias]
+    rows.sort(key=lambda r: {'CRITICO':0,'ATENCION':1,'ESTABLE':2}.get(r['a']['riesgo'],3))
+    producciones = Produccion.objects.filter(ejecutada=True,anulada=False)
+    counts = {r['dia'].isoformat():r['total'] for r in producciones.filter(fecha__date__gte=desde).annotate(dia=TruncDate('fecha')).values('dia').annotate(total=Count('pk'))}
+    serie = [{'fecha':(desde+timedelta(days=i)).isoformat(),'producciones':counts.get((desde+timedelta(days=i)).isoformat(),0)} for i in range(30)]
+    proveedores = Proveedor.objects.filter(activo=True).annotate(promedio_entrega=Avg('ofertas__detalleordencompra__entrega__dias'),entregas=Count('ofertas__detalleordencompra__entrega',distinct=True))
+    risk = {state:sum(r['a']['riesgo']==state for r in rows) for state in ['ESTABLE','ATENCION','CRITICO','SIN_DATOS']}
+    return render(request,'dashboard/dashboard.html',{
+        'total_materias_primas':len(materias),'total_productos':ProductoTerminado.objects.filter(activo=True).count(),
+        'total_proveedores':proveedores.count(),'producciones_mes':producciones.filter(fecha__date__gte=desde).count(),
+        'proveedores':proveedores[:5],'ultimas_producciones':producciones.select_related('producto','usuario')[:6],
+        'pedidos':OrdenCompra.objects.exclude(estado__in=['RECIBIDA','CERRADA']).select_related('proveedor').order_by('fecha_estimada')[:5],
+        'compras_pendientes':OrdenCompra.objects.exclude(estado__in=['RECIBIDA','CERRADA']).count(),
+        'ultimos_movimientos':MovimientoInventario.objects.select_related('materia_prima','producto_terminado','usuario')[:5],
+        'serie':serie,'risk':risk,'prioridades':rows[:6],'hoy':hoy})

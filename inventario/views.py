@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Avg, Count
 from django.db import IntegrityError
 from .models import MateriaPrima, ProductoTerminado, MovimientoInventario, Proveedor
 from .forms import MateriaPrimaForm, AjusteStockForm, ProductoTerminadoForm, ProveedorForm
@@ -208,7 +208,7 @@ def producto_terminado_delete(request, pk):
 def proveedor_list(request):
     """Lista todos los proveedores activos con búsqueda."""
     query = request.GET.get('q', '').strip()
-    proveedores = Proveedor.objects.filter(activo=True)
+    proveedores = Proveedor.objects.filter(activo=True).annotate(promedio_real=Avg('ofertas__detalleordencompra__entrega__dias'),entregas_reales=Count('ofertas__detalleordencompra__entrega',distinct=True))
     if query:
         proveedores = proveedores.filter(
             Q(nombre__icontains=query) | Q(ruc__icontains=query) | Q(correo__icontains=query)

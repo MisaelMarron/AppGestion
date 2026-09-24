@@ -1,3 +1,4 @@
+from django.conf import settings
 """Datos derivados: días completos anteriores al corte; originales inmutables."""
 import numpy as np
 import pandas as pd
@@ -8,7 +9,7 @@ from produccion.models import ConsumoMateriaPrima
 def preparar(materia, corte=None, frecuencia='D'):
     corte = corte or timezone.localdate()
     rows = list(ConsumoMateriaPrima.objects.filter(materia_prima=materia,
-        produccion__fecha__date__lt=corte, produccion__anulada=False, produccion__sintetica=False)
+        produccion__fecha__date__lt=corte, produccion__anulada=False, produccion__sintetica=settings.DEMO_MODE)
         .values('id','cantidad_usada','produccion__fecha','excluido_entrenamiento'))
     return preparar_filas(rows, corte, frecuencia)
 

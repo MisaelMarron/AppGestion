@@ -1,3 +1,4 @@
+from django.conf import settings
 from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -44,7 +45,7 @@ def retroalimentar():
             if value['fecha'] >= hoy.isoformat():
                 continue
             real = float(ConsumoMateriaPrima.objects.filter(materia_prima=forecast.materia_prima,
-                produccion__anulada=False, produccion__sintetica=False,produccion__fecha__date=value['fecha']).aggregate(n=Sum('cantidad_usada'))['n'] or 0)
+                produccion__anulada=False, produccion__sintetica=settings.DEMO_MODE,produccion__fecha__date=value['fecha']).aggregate(n=Sum('cantidad_usada'))['n'] or 0)
             error = abs(real-value['consumo'])
             EvaluacionPronostico.objects.update_or_create(pronostico=forecast,fecha=value['fecha'],
                 defaults={'real':real,'predicho':value['consumo'],'error_absoluto':error,

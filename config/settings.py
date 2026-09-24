@@ -147,3 +147,13 @@ if os.environ.get('DJANGO_SECRET_KEY'):
     SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')
+
+DEMO_MODE = os.environ.get('OPERASTOCK_DEMO') == '1'
+TEMPLATES[0]['OPTIONS']['context_processors'].append('config.context_processors.entorno')
+if DEMO_MODE:
+    DEMO_DIR = BASE_DIR / 'var' / 'demo'
+    DEMO_DIR.mkdir(parents=True,exist_ok=True)
+    DATABASES['default'] = {'ENGINE':'django.db.backends.sqlite3','NAME':DEMO_DIR / 'db.sqlite3'}
+    MODEL_STORAGE = DEMO_DIR / 'modelos'
+    SESSION_COOKIE_NAME = 'operastock_demo_session'
+    CSRF_COOKIE_NAME = 'operastock_demo_csrf'

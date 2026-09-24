@@ -1,3 +1,4 @@
+from django.conf import settings
 """
 prediccion.py — Servicio de pronóstico de reposición de materias primas.
 
@@ -48,7 +49,7 @@ def _sum_consumo(materia_prima, desde, hasta=None):
 
     qs = ConsumoMateriaPrima.objects.filter(
         materia_prima=materia_prima,
-        produccion__anulada=False, produccion__sintetica=False,
+        produccion__anulada=False, produccion__sintetica=settings.DEMO_MODE,
         produccion__fecha__lte=timezone.now(),
         produccion__fecha__gte=desde,
     )

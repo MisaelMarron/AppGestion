@@ -67,7 +67,7 @@ class OrdenCompra(models.Model):
     observacion = models.TextField(blank=True)
     fecha_estimada = models.DateField()
     fecha_recepcion = models.DateField(null=True, blank=True)
-    estado = models.CharField(max_length=15, default='APROBADA', choices=[(x,x) for x in ['APROBADA','ENVIADA','CONFIRMADA','EN_TRANSITO','RECIBIDA','CERRADA']])
+    estado = models.CharField(max_length=15, default='APROBADA', choices=[('APROBADA','Pendiente de llegada'),('ENVIADA','Enviada'),('CONFIRMADA','Confirmada'),('EN_TRANSITO','En tránsito'),('RECIBIDA','Recibida'),('CERRADA','Cerrada')])
 
     def __str__(self):
         return f'OC-{str(self.codigo)[:8]}'

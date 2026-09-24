@@ -156,7 +156,7 @@
                         </td>
                         <td class="text-center">
                             <span class="badge-lead">
-                                <i class="bi bi-clock me-1"></i>{{ prov.tiempo_entrega_dias }} día{{ prov.tiempo_entrega_dias|pluralize }}
+                                <i class="bi bi-clock me-1"></i>{% if prov.entregas_reales %}{{ prov.promedio_real|floatformat:1 }} días <small>({{ prov.entregas_reales }} recepciones)</small>{% else %}{{ prov.tiempo_entrega_dias }} días estimados{% endif %}
                             </span>
                         </td>
                         <td class="text-center">
