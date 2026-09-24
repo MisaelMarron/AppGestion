@@ -130,3 +130,20 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Almacenamiento privado: nunca se sirve como MEDIA ni acepta modelos subidos.
+import os
+MODEL_STORAGE = BASE_DIR / 'var' / 'modelos'
+if os.environ.get('POSTGRES_DB'):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ['POSTGRES_DB'],
+        'USER': os.environ.get('POSTGRES_USER', ''),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', ''),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+    }
+if os.environ.get('DJANGO_SECRET_KEY'):
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver').split(',')

@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'produccion/predictive_nav.html' %}
+<h1 class="h3">{{ titulo }}</h1><div class="card card-os p-4"><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn btn-primary">Guardar</button></form></div>
+{% endblock %}

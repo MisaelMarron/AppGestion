@@ -8,7 +8,7 @@ class FormulaProducto(models.Model):
 
     producto_terminado = models.ForeignKey(
         'inventario.ProductoTerminado',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='formulas',
         verbose_name='producto terminado',
     )
@@ -35,13 +35,13 @@ class DetalleFormula(models.Model):
 
     formula = models.ForeignKey(
         FormulaProducto,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='detalles',
         verbose_name='fórmula',
     )
     materia_prima = models.ForeignKey(
         'inventario.MateriaPrima',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='detalles_formula',
         verbose_name='materia prima',
     )
@@ -64,13 +64,13 @@ class DetalleProducto(models.Model):
 
     codigoMateriaPrima = models.ForeignKey(
         'inventario.MateriaPrima',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='detalle_productos',
         verbose_name='materia prima',
     )
     codigoProductoTerminado = models.ForeignKey(
         'inventario.ProductoTerminado',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='detalles_producto',
         verbose_name='producto terminado',
     )
@@ -99,10 +99,18 @@ class Produccion(models.Model):
 
     producto = models.ForeignKey(
         'inventario.ProductoTerminado',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='producciones',
         verbose_name='producto',
     )
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name='producciones_ejecutadas')
+    clave_operacion = models.UUIDField(null=True, blank=True, unique=True, editable=False)
+    anulada = models.BooleanField(default=False, db_index=True)
+    fecha_anulacion = models.DateTimeField(null=True, blank=True)
+    ejecutada = models.BooleanField(default=False)
+    sintetica = models.BooleanField(default=False)
+    receta_snapshot = models.JSONField(default=list, blank=True)
+    orden = models.OneToOneField('OrdenProduccion', on_delete=models.PROTECT, null=True, blank=True, related_name='ejecucion')
     cantidad_producida = models.DecimalField('cantidad producida', max_digits=20, decimal_places=5, default=0)
     fecha = models.DateTimeField('fecha', auto_now_add=True)
 
@@ -123,22 +131,9 @@ class Produccion(models.Model):
     def __str__(self):
         return f'Producción de {self.cantidad_producida} de {self.producto.nombre}'
 
-    def consumir_materiales(self):
-        for detalle in DetalleProducto.objects.filter(codigoProductoTerminado=self.producto):
-            cantidad_usada = detalle.cantidad * self.cantidad_producida
-            materia = detalle.codigoMateriaPrima
-            if materia.stock_actual < cantidad_usada:
-                raise ValidationError(f'Stock insuficiente de {materia.nombre}')
-            materia.stock_actual = materia.stock_actual - cantidad_usada
-            materia.save(update_fields=['stock_actual', 'ultima_vez_actualizado'])
-            ConsumoMateriaPrima.objects.create(
-                produccion=self,
-                materia_prima=materia,
-                cantidad_usada=cantidad_usada,
-            )
-        self.producto.stock_actual = self.producto.stock_actual + self.cantidad_producida
-        self.producto.save(update_fields=['stock_actual'])
-        return True
+    def consumir_materiales(self, usuario=None):
+        from .services.operaciones import ejecutar_produccion
+        return ejecutar_produccion(self.pk, usuario)
 
 
 class ConsumoMateriaPrima(models.Model):
@@ -146,16 +141,18 @@ class ConsumoMateriaPrima(models.Model):
 
     produccion = models.ForeignKey(
         Produccion,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='consumos',
         verbose_name='producción',
     )
     materia_prima = models.ForeignKey(
         'inventario.MateriaPrima',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='consumos',
         verbose_name='materia prima',
     )
+    excluido_entrenamiento = models.BooleanField(default=False)
+    motivo_exclusion = models.TextField(blank=True)
     cantidad_usada = models.DecimalField('cantidad usada', max_digits=20, decimal_places=5)
 
     class Meta:
@@ -171,14 +168,15 @@ class OrdenProduccion(models.Model):
 
     producto_terminado = models.ForeignKey(
         'inventario.ProductoTerminado',
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='ordenes_produccion',
         verbose_name='producto terminado',
     )
     formula = models.ForeignKey(
         FormulaProducto,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='ordenes',
+        null=True, blank=True,
         verbose_name='fórmula',
     )
     cantidad_producida = models.DecimalField(
@@ -188,10 +186,13 @@ class OrdenProduccion(models.Model):
     )
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name='ordenes_produccion',
         verbose_name='usuario',
     )
+    estado = models.CharField(max_length=15, default='PLANIFICADA', choices=[(x,x) for x in ['PLANIFICADA','RESERVADA','COMPLETADA','CANCELADA']])
+    fecha_planificada = models.DateField(null=True, blank=True)
+    receta_snapshot = models.JSONField(default=list, blank=True)
     observacion = models.TextField('observación', blank=True)
     fecha = models.DateTimeField('fecha', auto_now_add=True)
 
@@ -204,21 +205,7 @@ class OrdenProduccion(models.Model):
         return f'OP-{self.pk} · {self.producto_terminado.nombre} × {self.cantidad_producida}'
 
     def producir(self):
-        """
-        Ejecuta la producción según la fórmula asociada.
+        from .services.operaciones import ejecutar_orden
+        return ejecutar_orden(self.pk, self.usuario)
 
-        TODO — Siguiente avance:
-        1. Recorrer cada DetalleFormula de self.formula.
-        2. Calcular la cantidad proporcional de cada materia prima:
-           cantidad_necesaria = detalle.cantidad_requerida
-                                * (self.cantidad_producida / self.formula.cantidad_resultante)
-        3. Verificar que el stock_actual de cada materia prima sea suficiente.
-        4. Descontar stock_actual de cada materia prima utilizada.
-        5. Registrar un MovimientoInventario de tipo PRODUCCION (SALIDA) por cada
-           materia prima consumida.
-        6. Aumentar el stock_actual del producto terminado en self.cantidad_producida.
-        7. Registrar un MovimientoInventario de tipo PRODUCCION (ENTRADA) para el
-           producto terminado.
-        8. Manejar errores si el stock es insuficiente (lanzar excepción descriptiva).
-        """
-        pass
+from .forecast_models import Entrenamiento, Pronostico, EvaluacionPronostico

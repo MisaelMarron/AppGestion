@@ -1,0 +1,9 @@
+<nav class="d-flex flex-wrap gap-2 mb-4" aria-label="Aprovisionamiento">
+<a class="btn btn-outline-primary btn-sm" href="{% url 'produccion:panel' %}">Panel predictivo</a>
+<a class="btn btn-outline-primary btn-sm" href="{% url 'produccion:historial' %}">Historial de consumo</a>
+<a class="btn btn-outline-primary btn-sm" href="{% url 'produccion:compras' %}">Sugerencias y compras</a>
+<a class="btn btn-outline-primary btn-sm" href="{% url 'produccion:planes' %}">Producción planificada</a>
+<a class="btn btn-outline-primary btn-sm" href="{% url 'produccion:clasificacion' %}">ABC / XYZ</a>
+<a class="btn btn-outline-primary btn-sm" href="{% url 'produccion:lotes' %}">Lotes y vencimientos</a>
+{% if user.es_admin %}<a class="btn btn-outline-secondary btn-sm" href="{% url 'produccion:auditoria' %}">Auditoría</a>{% endif %}
+</nav>

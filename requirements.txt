@@ -2,3 +2,9 @@ asgiref==3.9.1
 Django==5.2.5
 sqlparse==0.5.3
 tzdata==2025.2
+numpy==2.5.3
+pandas==3.0.6
+scikit-learn==1.9.1
+statsmodels==0.15.0
+joblib==1.6.0
+psycopg[binary]==3.3.6

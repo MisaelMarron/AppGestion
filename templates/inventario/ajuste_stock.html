@@ -65,6 +65,8 @@
             <div class="form-body">
                 <form method="post" novalidate>
                     {% csrf_token %}
+{{ form.non_field_errors }}
+{% if mp.gestionar_lotes %}<div class='mb-3'>{{ form.numero_lote.label_tag }} {{ form.numero_lote }} {{ form.numero_lote.errors }} {{ form.vencimiento.label_tag }} {{ form.vencimiento }} {{ form.vencimiento.errors }}</div>{% endif %}
 
                     <!-- Tipo de movimiento -->
                     <div class="mb-4">

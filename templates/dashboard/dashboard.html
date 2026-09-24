@@ -3,6 +3,8 @@
 {% block title %}Dashboard — OperaStock{% endblock %}
 
 {% block content %}
+<div class="card card-os p-4 mb-4"><h2 class="h5">Aprovisionamiento predictivo</h2><p>Críticos: <strong>{{ predictivo_criticos }}</strong> · Atención: <strong>{{ predictivo_atencion }}</strong> · Sugerencias pendientes: <strong>{{ compras_pendientes }}</strong> · Órdenes en tránsito: <strong>{{ ordenes_transito }}</strong> · Lotes por vencer: <strong>{{ lotes_vencer }}</strong></p><a href="{% url 'produccion:panel' %}">Abrir análisis y compras</a></div>
+
 <!-- ═══════ ENCABEZADO ═══════ -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
@@ -100,9 +102,9 @@
                         <tbody>
                             {% for op in ultimas_producciones %}
                             <tr>
-                                <td class="fw-semibold">{{ op.producto_terminado.nombre }}</td>
+                                <td class="fw-semibold">{{ op.producto.nombre }}</td>
                                 <td class="text-end">{{ op.cantidad_producida }}</td>
-                                <td>{{ op.usuario.username }}</td>
+                                <td>{{ op.usuario.username|default:'Histórico' }}</td>
                                 <td><small class="text-muted">{{ op.fecha|date:"d/m/Y H:i" }}</small></td>
                             </tr>
                             {% endfor %}

@@ -16,4 +16,10 @@ urlpatterns = [
     path('productos-terminados/nuevo/', views.producto_terminado_create, name='producto_terminado_create'),
     path('productos-terminados/<int:pk>/editar/', views.producto_terminado_edit, name='producto_terminado_edit'),
     path('productos-terminados/<int:pk>/eliminar/', views.producto_terminado_delete, name='producto_terminado_delete'),
+
+    # ── Proveedores ──
+    path('proveedores/', views.proveedor_list, name='proveedor_list'),
+    path('proveedores/nuevo/', views.proveedor_create, name='proveedor_create'),
+    path('proveedores/<int:pk>/editar/', views.proveedor_edit, name='proveedor_edit'),
+    path('proveedores/<int:pk>/eliminar/', views.proveedor_delete, name='proveedor_delete'),
 ]

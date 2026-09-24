@@ -6,7 +6,7 @@ from .models import Proveedor, MateriaPrima, ProductoTerminado, MovimientoInvent
 class ProveedorAdmin(admin.ModelAdmin):
     """Administración del modelo Proveedor."""
 
-    list_display = ('nombre', 'ruc', 'telefono', 'correo', 'activo')
+    list_display = ('nombre', 'ruc', 'telefono', 'whatsapp', 'correo', 'tiempo_entrega_dias', 'activo')
     list_filter = ('activo',)
     search_fields = ('nombre', 'ruc', 'correo')
     ordering = ('nombre',)
@@ -23,6 +23,7 @@ class MateriaPrimaAdmin(admin.ModelAdmin):
     list_filter = ('activo', 'unidad_medida', 'proveedor')
     search_fields = ('nombre', 'descripcion')
     ordering = ('nombre',)
+    readonly_fields = ('stock_actual', 'gestionar_lotes')
 
 
 @admin.register(ProductoTerminado)
@@ -33,6 +34,7 @@ class ProductoTerminadoAdmin(admin.ModelAdmin):
     list_filter = ('activo', 'unidad_medida')
     search_fields = ('nombre', 'descripcion')
     ordering = ('nombre',)
+    readonly_fields = ('stock_actual',)
 
 
 @admin.register(MovimientoInventario)
@@ -43,3 +45,31 @@ class MovimientoInventarioAdmin(admin.ModelAdmin):
     list_filter = ('tipo', 'fecha')
     search_fields = ('descripcion',)
     ordering = ('-fecha',)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class RegistroOperativoAdmin(admin.ModelAdmin):
+    """Las mutaciones pasan por las pantallas transaccionales, no por CRUD genérico."""
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+from .models import (Auditoria, OrdenCompra, DetalleOrdenCompra, SugerenciaCompra,
+                    ReservaInventario, LoteMateriaPrima, LeadTimeReal, MateriaPrimaProveedor)
+for model in [Auditoria, OrdenCompra, DetalleOrdenCompra, SugerenciaCompra,
+              ReservaInventario, LoteMateriaPrima, LeadTimeReal, MateriaPrimaProveedor]:
+    admin.site.register(model, RegistroOperativoAdmin)

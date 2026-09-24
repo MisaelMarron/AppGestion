@@ -35,3 +35,6 @@ build/
 # ── Variables de entorno ──
 .env
 .env.local
+
+var/
+backups/

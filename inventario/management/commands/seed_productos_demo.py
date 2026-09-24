@@ -101,6 +101,8 @@ class Command(BaseCommand):
                     'activo': True,
                 },
             )
+            if Produccion.objects.filter(producto=producto).exists():
+                continue  # No borrar consumos ni restablecer existencias de productos ya usados.
             producto.nombre = payload['nombre']
             producto.descripcion = payload['descripcion']
             producto.unidad_medida = payload['unidad_medida']
@@ -135,10 +137,10 @@ class Command(BaseCommand):
                     cantidad=cantidad,
                 )
 
-            Produccion.objects.filter(producto=producto).delete()
             produccion = Produccion.objects.create(
                 producto=producto,
                 cantidad_producida=Decimal('10'),
+                sintetica=True,
             )
             produccion.consumir_materiales()
 

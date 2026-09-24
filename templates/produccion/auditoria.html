@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'produccion/predictive_nav.html' %}
+<h1 class="h3">Auditoría</h1><p>Últimos 300 eventos. Las acciones de comandos administrativos se identifican sin usuario.</p><div class="card card-os p-3 table-responsive"><table class="table"><thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Valores</th></tr></thead><tbody>{% for e in eventos %}<tr><td>{{ e.fecha }}</td><td>{{ e.usuario|default:'Comando / sistema' }}</td><td>{{ e.accion }}</td><td>{{ e.entidad }}</td><td><details><summary>Antes / después</summary><pre class="text-wrap">{{ e.anterior }}
+{{ e.nuevo }}</pre></details></td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

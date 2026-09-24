@@ -79,9 +79,13 @@ def profile_edit(request):
         return redirect('accounts:login')
 
     usuario = request.user
+    # El perfil propio no permite elevar rol ni alterar estado de acceso.
 
     if request.method == 'POST':
         form = UserEditForm(request.POST, instance=usuario)
+        if usuario.pk == request.user.pk and request.resolver_match.url_name == 'profile_edit':
+            form.fields.pop('rol', None)
+            form.fields.pop('is_active', None)
         if form.is_valid():
             form.save()
             messages.success(request, 'Tu información ha sido actualizada correctamente.')
@@ -90,6 +94,8 @@ def profile_edit(request):
             messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
         form = UserEditForm(instance=usuario)
+        form.fields.pop('rol', None)
+        form.fields.pop('is_active', None)
 
     return render(request, 'accounts/profile_edit.html', {
         'form': form,

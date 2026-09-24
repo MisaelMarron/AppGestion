@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Aprovisionamiento predictivo · OperaStock{% endblock %}
+{% block content %}
+<h1 class="h3">Aprovisionamiento predictivo</h1><p class="text-muted">Cuándo comprar, cuánto comprar y por qué. Cada análisis conserva su modelo y sus cálculos.</p>
+{% include 'produccion/predictive_nav.html' %}
+<p>MAPE medio de validación: <strong>{{ mape_medio|floatformat:2|default:'—' }} %</strong> · {{ modelos_evaluados }} modelos con MAPE definido. Es error histórico, no una garantía de precisión futura.</p>
+<div class="row g-3 mb-4">
+<div class="col"><div class="card card-os p-3">Insumos<strong class="fs-3">{{ rows|length }}</strong></div></div>
+<div class="col"><div class="card card-os p-3">Críticos<strong class="fs-3 text-danger">{{ criticos }}</strong></div></div>
+<div class="col"><div class="card card-os p-3">En atención<strong class="fs-3">{{ atencion }}</strong></div></div>
+<div class="col"><div class="card card-os p-3">Compras pendientes<strong class="fs-3">{{ pendientes }}</strong></div></div>
+<div class="col"><div class="card card-os p-3">En tránsito<strong class="fs-3">{{ transito }}</strong></div></div>
+<div class="col"><div class="card card-os p-3">Lotes por vencer / vencidos<strong class="fs-3">{{ vencen }}</strong></div></div>
+</div>
+<div class="card card-os p-3 table-responsive"><table class="table align-middle"><thead><tr><th>Materia prima</th><th>Disponible</th><th>ROP</th><th>Pedido recomendado</th><th>Cantidad</th><th>Riesgo</th><th></th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.materia.nombre }}<small class="d-block text-muted">{{ row.materia.unidad_medida }}</small></td><td>{{ row.analisis.disponible|floatformat:3 }}</td><td>{{ row.analisis.rop|floatformat:3|default:'—' }}</td><td>{{ row.analisis.fecha_pedido|default:'—' }}</td><td>{{ row.analisis.cantidad|floatformat:3 }}</td><td>{% include 'produccion/riesgo.html' with riesgo=row.analisis.riesgo %}</td><td><a class="btn btn-sm btn-primary" href="{% url 'produccion:analisis' row.materia.pk %}">Ver análisis</a></td></tr>{% empty %}<tr><td colspan="7">Registre una materia prima para comenzar.</td></tr>{% endfor %}
+</tbody></table></div>
+{% endblock %}

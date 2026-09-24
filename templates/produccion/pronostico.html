@@ -39,10 +39,6 @@
     .chip-ok       { background: rgba(0,184,148,.12);  color: #00695c;  border: 1.5px solid rgba(0,184,148,.35); }
     .chip-sindat   { background: rgba(150,150,150,.1); color: #777;     border: 1.5px solid rgba(150,150,150,.3); }
 
-    /* ── Filtro de ventana ── */
-    .ventana-btns .btn { border-radius: 50px; font-size: .82rem; padding: .3rem .9rem; font-weight: 600; }
-    .ventana-btns .btn.active { background: var(--os-primary); color: #fff; border-color: var(--os-primary); }
-
     /* ── Tabla ── */
     .pron-table thead th {
         background: #f4f6fb;
@@ -86,6 +82,82 @@
     .tend-down { color: #00695c; font-weight: 700; }
     .tend-flat { color: #888; }
 
+    /* ── Cantidad sugerida ── */
+    .qty-sugerida {
+        font-weight: 800;
+        font-size: .95rem;
+    }
+    .qty-sugerida.hay-pedido { color: #e74c3c; }
+    .qty-sugerida.sin-pedido { color: #00695c; }
+    .fecha-pedir {
+        font-size: .75rem;
+        color: #888;
+    }
+    .fecha-pedir.urgente { color: #c0392b; font-weight: 700; }
+
+    /* ── Sección contactos proveedor ── */
+    .contactos-section {
+        margin-top: 2rem;
+    }
+    .contacto-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 2px 16px rgba(0,0,0,.06);
+        transition: transform .2s, box-shadow .2s;
+        overflow: hidden;
+    }
+    .contacto-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 24px rgba(0,0,0,.1);
+    }
+    .contacto-card .card-header {
+        background: linear-gradient(135deg, #f8f9fd, #eef1f8);
+        border-bottom: 1px solid #e8ecf4;
+        padding: 1rem 1.25rem;
+    }
+    .contacto-card .card-body { padding: 1.25rem; }
+
+    .btn-whatsapp {
+        background: #25D366;
+        color: #fff;
+        border: none;
+        border-radius: 50px;
+        padding: .6rem 1.5rem;
+        font-weight: 700;
+        font-size: .9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        transition: all .25s;
+        text-decoration: none;
+    }
+    .btn-whatsapp:hover { background: #1da851; color: #fff; transform: scale(1.04); box-shadow: 0 4px 16px rgba(37,211,102,.35); }
+
+    .btn-email-send {
+        background: #f0f4ff;
+        color: #0f3460;
+        border: 1.5px solid #c8d6f0;
+        border-radius: 50px;
+        padding: .6rem 1.5rem;
+        font-weight: 700;
+        font-size: .9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        transition: all .25s;
+        text-decoration: none;
+    }
+    .btn-email-send:hover { background: #dce5f7; color: #0f3460; transform: scale(1.04); }
+
+    .pedido-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .5rem 0;
+        border-bottom: 1px solid #f0f2f5;
+    }
+    .pedido-item:last-child { border-bottom: none; }
+
     /* ── Empty ── */
     .empty-state { padding: 4rem; text-align: center; color: #aaa; }
     .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
@@ -101,7 +173,7 @@
 <!-- ─── HEADER ─── -->
 <div class="pron-header">
     <h1><i class="bi bi-graph-up-arrow me-2"></i>Pronóstico de Reposición</h1>
-    <p>Predicción basada en el historial real de consumos — últimos <strong>15 días</strong></p>
+
 </div>
 
 <!-- ─── CHIPS DE RESUMEN ─── -->
@@ -143,7 +215,7 @@
                         <th class="text-end">
                             Cons./día
                             <i class="bi bi-info-circle info-icon ms-1"
-                               title="Consumo diario promedio en los últimos {{ ventana }} días, ajustado por tendencia si está subiendo."></i>
+                               title="Consumo diario promedio en los últimos 15 días, ajustado por tendencia si está subiendo."></i>
                         </th>
                         <th style="min-width:160px">
                             Días restantes
@@ -151,11 +223,15 @@
                                title="Stock actual ÷ consumo diario ajustado. Cuántos días dura el stock al ritmo actual."></i>
                         </th>
                         <th>Se agota</th>
-                        <th>Alerta stock mín.</th>
                         <th class="text-center">
                             Tendencia
                             <i class="bi bi-info-circle info-icon ms-1"
                                title="Compara el consumo de la primera mitad vs la segunda mitad de la ventana. ⬆ si la producción está acelerando."></i>
+                        </th>
+                        <th class="text-end">
+                            Pedido sugerido
+                            <i class="bi bi-info-circle info-icon ms-1"
+                               title="Cantidad recomendada a comprar para garantizar stock por 30 días + margen de seguridad."></i>
                         </th>
                         <th class="text-center">Estado</th>
                     </tr>
@@ -167,6 +243,9 @@
                         <td>
                             <div class="fw-semibold">{{ p.materia.nombre }}</div>
                             <small class="text-muted">{{ p.materia.codigo }}</small>
+                            {% if p.materia.proveedor %}
+                            <small class="d-block text-muted"><i class="bi bi-truck me-1"></i>{{ p.materia.proveedor.nombre }}</small>
+                            {% endif %}
                         </td>
 
                         <!-- Stock actual -->
@@ -226,15 +305,6 @@
                             {% endif %}
                         </td>
 
-                        <!-- Fecha alerta stock mín. -->
-                        <td>
-                            {% if p.fecha_alerta %}
-                            <small class="text-muted">{{ p.fecha_alerta|date:"d M Y" }}</small>
-                            {% else %}
-                            <small class="text-muted">—</small>
-                            {% endif %}
-                        </td>
-
                         <!-- Tendencia -->
                         <td class="text-center">
                             {% if p.estado == 'SIN_DATOS' %}
@@ -251,6 +321,29 @@
                             <span class="tend-flat">
                                 <i class="bi bi-arrow-right-circle"></i> →
                             </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Cantidad sugerida a comprar -->
+                        <td class="text-end">
+                            {% if p.cantidad_sugerida is not None %}
+                                {% if p.cantidad_sugerida > 0 %}
+                                <span class="qty-sugerida hay-pedido">
+                                    {{ p.cantidad_sugerida|floatformat:2 }}
+                                    <small class="text-muted fw-normal">{{ p.materia.get_unidad_medida_display }}</small>
+                                </span>
+                                {% if p.fecha_pedir %}
+                                <div class="fecha-pedir {% if p.estado == 'CRITICO' or p.estado == 'PRONTO' %}urgente{% endif %}">
+                                    <i class="bi bi-calendar-event me-1"></i>Pedir antes del {{ p.fecha_pedir|date:"d M" }}
+                                </div>
+                                {% endif %}
+                                {% else %}
+                                <span class="qty-sugerida sin-pedido">
+                                    <i class="bi bi-check-circle me-1"></i>Stock OK
+                                </span>
+                                {% endif %}
+                            {% else %}
+                            <span class="text-muted">—</span>
                             {% endif %}
                         </td>
 
@@ -294,6 +387,89 @@
         {% endif %}
     </div>
 </div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  SECCIÓN: PEDIDOS RÁPIDOS POR PROVEEDOR (WhatsApp / Email) -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+{% if contactos_proveedor %}
+<div class="contactos-section">
+    <h4 class="fw-bold mb-3">
+        <i class="bi bi-send-fill me-2 text-primary"></i>Pedidos
+    </h4>
+    <p class="text-muted mb-4">
+        Envía un mensaje pre-redactado con las cantidades sugeridas directamente al proveedor por WhatsApp o correo electrónico.
+    </p>
+
+    <div class="row g-4">
+        {% for contacto in contactos_proveedor %}
+        <div class="col-md-6">
+            <div class="card contacto-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-truck me-2 text-primary"></i>
+                                {% if contacto.proveedor %}
+                                    {{ contacto.proveedor.nombre }}
+                                {% else %}
+                                    Sin proveedor asignado
+                                {% endif %}
+                            </h5>
+                            {% if contacto.proveedor and contacto.proveedor.tiempo_entrega_dias %}
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>Tiempo de entrega: {{ contacto.tiempo_entrega }} día{{ contacto.tiempo_entrega|pluralize }}
+                            </small>
+                            {% endif %}
+                        </div>
+                        <span class="badge bg-danger rounded-pill">{{ contacto.items|length }} insumo{{ contacto.items|length|pluralize }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Lista de items a pedir -->
+                    {% for item in contacto.items %}
+                    <div class="pedido-item">
+                        <div>
+                            <span class="fw-semibold">{{ item.materia.nombre }}</span>
+                        </div>
+                        <div class="text-end">
+                            <span class="fw-bold text-danger">{{ item.cantidad_sugerida|floatformat:2 }}</span>
+                            <small class="text-muted">{{ item.materia.get_unidad_medida_display }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <details class="mt-3"><summary class="small">Vista previa del mensaje</summary><div class="mensaje-pedido mt-2">{{ contacto.mensaje_wsp }}</div></details>
+                    <!-- Botones de acción -->
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
+                        {% if contacto.whatsapp_url %}
+                        <a href="{{ contacto.whatsapp_url }}" target="_blank" class="btn-whatsapp">
+                            <i class="bi bi-whatsapp"></i> Pedir por WhatsApp
+                        </a>
+                        {% endif %}
+                        {% if contacto.email_url %}
+                        <a href="{{ contacto.email_url }}" class="btn-email-send">
+                            <i class="bi bi-envelope-fill"></i> Enviar por correo
+                        </a>
+                        {% endif %}
+                        {% if not contacto.whatsapp_url and not contacto.email_url %}
+                        <span class="text-muted small">
+                            <i class="bi bi-exclamation-circle me-1"></i>
+                            {% if contacto.proveedor %}
+                                <a href="{% url 'inventario:proveedor_edit' contacto.proveedor.pk %}">Configura el WhatsApp o correo del proveedor</a>
+                            {% else %}
+                                Asigna un proveedor a estas materias primas
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
 
 
 {% endblock %}

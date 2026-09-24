@@ -153,3 +153,14 @@ Proyecto de tesis — Sistema inteligente de gestión operativa.
 ## 📄 Licencia
 
 Este proyecto es de uso académico.
+
+
+## Aprovisionamiento predictivo
+
+La ampliación se integra en las apps existentes. Abrir **Aprovisionamiento** en la navegación o `/produccion/inteligencia/`.
+
+Incluye comparación temporal Holt-Winters/SARIMA/Random Forest y baseline, métricas y artefactos persistidos, ROP/seguridad dinámicos, sugerencias auditables, aprobación y recepción de compras, proveedores múltiples, reservas, lotes FEFO y retroalimentación.
+
+Instalar `requirements.txt`, ejecutar `python manage.py migrate` y `python manage.py test` usando el entorno virtual. Los administradores pueden entrenar desde la pantalla o con `python manage.py entrenar_modelos --horizonte 60`.
+
+La auditoría inicial, fórmulas, permisos, comandos, migraciones y límites están en [docs/APROVISIONAMIENTO.md](docs/APROVISIONAMIENTO.md). Los CSV sintéticos de `generar_demo_predictiva` permanecen separados de los datos operativos.

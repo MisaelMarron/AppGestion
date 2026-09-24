@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -9,8 +10,19 @@ class Proveedor(models.Model):
     nombre = models.CharField('nombre', max_length=200)
     ruc = models.CharField('RUC', max_length=20, blank=True)
     telefono = models.CharField('teléfono', max_length=20, blank=True)
+    whatsapp = models.CharField(
+        'WhatsApp',
+        max_length=20,
+        blank=True,
+        help_text='Número con código de país sin + ni espacios. Ej: 51987654321',
+    )
     correo = models.EmailField('correo electrónico', blank=True)
     direccion = models.CharField('dirección', max_length=300, blank=True)
+    tiempo_entrega_dias = models.PositiveIntegerField(
+        'tiempo de entrega (días)',
+        default=3,
+        help_text='Días que tarda el proveedor en entregar un pedido.',
+    )
     activo = models.BooleanField('activo', default=True)
 
     class Meta:
@@ -20,6 +32,14 @@ class Proveedor(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    @property
+    def whatsapp_link(self):
+        """Genera el link de WhatsApp (wa.me) si tiene número configurado."""
+        if self.whatsapp:
+            numero = self.whatsapp.replace('+', '').replace(' ', '').replace('-', '')
+            return f'https://wa.me/{numero}'
+        return None
 
 
 class MateriaPrima(models.Model):
@@ -42,6 +62,10 @@ class MateriaPrima(models.Model):
         default=UnidadMedida.UNIDAD,
     )
     stock_actual = models.DecimalField('stock actual', max_digits=12, decimal_places=5, default=0)
+    nivel_servicio = models.DecimalField(max_digits=4, decimal_places=3, default='0.950', choices=[(Decimal('0.900'), '90 %'), (Decimal('0.950'), '95 %'), (Decimal('0.975'), '97.5 %'), (Decimal('0.990'), '99 %')])
+    cobertura_dias = models.PositiveIntegerField(default=30)
+    gestionar_lotes = models.BooleanField(default=False)
+    proveedores = models.ManyToManyField(Proveedor, through='MateriaPrimaProveedor', related_name='insumos')
     stock_minimo = models.DecimalField('stock mínimo', max_digits=12, decimal_places=5, default=0)
     costo_unitario = models.DecimalField(
         'costo unitario',
@@ -66,6 +90,7 @@ class MateriaPrima(models.Model):
         verbose_name = 'materia prima'
         verbose_name_plural = 'materias primas'
         ordering = ['nombre']
+        constraints = [models.CheckConstraint(condition=models.Q(stock_actual__gte=0), name='%(class)s_stock_no_negativo')]
 
     def __str__(self):
         return f'{self.nombre} ({self.stock_actual} {self.unidad_medida})'
@@ -82,6 +107,20 @@ class MateriaPrima(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
+
+    @property
+    def stock_reservado(self):
+        from .services import reservado
+        return reservado(self)
+
+    @property
+    def stock_disponible(self):
+        return self.stock_actual - self.stock_reservado
+
+    @property
+    def posicion_inventario(self):
+        from .services import posicion
+        return posicion(self)
 
     @property
     def cantidad(self):
@@ -132,6 +171,7 @@ class ProductoTerminado(models.Model):
         verbose_name = 'producto terminado'
         verbose_name_plural = 'productos terminados'
         ordering = ['nombre']
+        constraints = [models.CheckConstraint(condition=models.Q(stock_actual__gte=0), name='%(class)s_stock_no_negativo')]
 
     def __str__(self):
         return f'{self.nombre} ({self.stock_actual} {self.unidad_medida})'
@@ -180,11 +220,12 @@ class MovimientoInventario(models.Model):
         related_name='movimientos',
         verbose_name='producto terminado',
     )
-    cantidad = models.DecimalField('cantidad', max_digits=12, decimal_places=2)
+    cantidad = models.DecimalField('cantidad', max_digits=20, decimal_places=5)
     descripcion = models.TextField('descripción', blank=True)
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
+        null=True,
         related_name='movimientos',
         verbose_name='usuario',
     )
@@ -198,3 +239,5 @@ class MovimientoInventario(models.Model):
     def __str__(self):
         item = self.materia_prima or self.producto_terminado or '—'
         return f'{self.get_tipo_display()} · {item} · {self.cantidad}'
+
+from .abastecimiento_models import (MateriaPrimaProveedor, ReservaInventario, SugerenciaCompra, OrdenCompra, DetalleOrdenCompra, LeadTimeReal, LoteMateriaPrima, ConsumoLote, Auditoria)

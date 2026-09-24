@@ -1,5 +1,57 @@
 from django import forms
-from .models import MateriaPrima, ProductoTerminado
+from .models import MateriaPrima, ProductoTerminado, Proveedor
+
+
+class ProveedorForm(forms.ModelForm):
+    """Formulario para crear/editar un proveedor."""
+
+    class Meta:
+        model = Proveedor
+        fields = [
+            'nombre', 'ruc', 'telefono', 'whatsapp',
+            'correo', 'direccion', 'tiempo_entrega_dias',
+        ]
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nombre del proveedor',
+                'required': True,
+            }),
+            'ruc': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'RUC o identificación fiscal',
+            }),
+            'telefono': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 01-234-5678',
+            }),
+            'whatsapp': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: 51987654321 (código país + número)',
+            }),
+            'correo': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'proveedor@email.com',
+            }),
+            'direccion': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Dirección del proveedor',
+            }),
+            'tiempo_entrega_dias': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '0',
+                'step': '1',
+            }),
+        }
+        labels = {
+            'nombre': 'Nombre *',
+            'ruc': 'RUC',
+            'telefono': 'Teléfono',
+            'whatsapp': 'WhatsApp',
+            'correo': 'Correo electrónico',
+            'direccion': 'Dirección',
+            'tiempo_entrega_dias': 'Tiempo de entrega (días)',
+        }
 
 
 class MateriaPrimaForm(forms.ModelForm):
@@ -50,6 +102,21 @@ class MateriaPrimaForm(forms.ModelForm):
 
 class AjusteStockForm(forms.Form):
     """Formulario para ajustar (sumar o restar) el stock de una materia prima."""
+
+    numero_lote = forms.CharField(required=False, label='Número de lote (si corresponde)')
+    vencimiento = forms.DateField(required=False, widget=forms.DateInput(attrs={'type':'date'}))
+    proveedor = forms.ModelChoiceField(queryset=Proveedor.objects.filter(activo=True),required=False,
+        empty_label='Sin proveedor: ajuste inmediato',widget=forms.Select(attrs={'class':'form-select'}))
+    precio = forms.DecimalField(required=False,min_value=0,max_digits=12,decimal_places=2,
+        label='Precio unitario del pedido',widget=forms.NumberInput(attrs={'class':'form-control','step':'.01'}))
+    fecha_pedido = forms.DateField(required=False,widget=forms.DateInput(attrs={'class':'form-control','type':'date'}))
+    fecha_estimada = forms.DateField(required=False,label='Fecha estimada de llegada',widget=forms.DateInput(attrs={'class':'form-control','type':'date'}))
+
+    def clean(self):
+        data = super().clean()
+        if data.get('proveedor') and data.get('tipo') != 'ENTRADA':
+            raise forms.ValidationError('Seleccione Entrada para registrar una compra a un proveedor.')
+        return data
 
     TIPO_CHOICES = [
         ('ENTRADA', 'Entrada (sumar)'),

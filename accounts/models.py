@@ -16,6 +16,7 @@ class CustomUser(AbstractUser):
         choices=Rol.choices,
         default=Rol.OPERADOR,
     )
+    empresa = models.CharField('empresa', max_length=150, blank=True)
     telefono = models.CharField('teléfono', max_length=20, blank=True)
     fecha_creacion = models.DateTimeField('fecha de creación', auto_now_add=True)
 

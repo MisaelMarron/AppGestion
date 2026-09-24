@@ -55,7 +55,7 @@ class UserEditForm(forms.ModelForm):
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'telefono', 'rol', 'is_active')
+        fields = ('username', 'first_name', 'last_name', 'empresa', 'email', 'telefono', 'rol', 'is_active')
         widgets = {
             'username': forms.TextInput(attrs={
                 'class': 'form-control',

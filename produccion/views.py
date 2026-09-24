@@ -2,10 +2,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.db import transaction, IntegrityError
+import uuid
+from inventario.services import auditar
 from inventario.models import ProductoTerminado, MateriaPrima
 from produccion.models import DetalleProducto, Produccion
 from produccion.forms import DetalleProductoFormSet, ProduccionForm
-from produccion.prediccion import calcular_todos_pronosticos, ESTADO_CRITICO, ESTADO_PRONTO
+from produccion.prediccion import (
+    calcular_todos_pronosticos, generar_enlaces_contacto,
+    ESTADO_CRITICO, ESTADO_PRONTO,
+)
 
 
 # ══════════════════════════════════════════════
@@ -20,6 +26,7 @@ def formula_list(request):
 
 
 @login_required
+@transaction.atomic
 def formula_edit(request, pk):
     """Edita la fórmula (receta) de un producto terminado."""
     producto = get_object_or_404(ProductoTerminado, pk=pk, activo=True)
@@ -46,12 +53,14 @@ def formula_edit(request, pk):
             if hay_duplicados:
                 messages.error(request, 'No puedes repetir la misma materia prima en la fórmula.')
             else:
+                anterior = list(producto.detalles_producto.values('codigoMateriaPrima_id','cantidad'))
                 instances = formset.save(commit=False)
                 for instance in instances:
                     instance.codigoProductoTerminado = producto
                     instance.save()
                 for obj in formset.deleted_objects:
                     obj.delete()
+                auditar(request.user, 'MODIFICAR_FORMULA', producto, {'receta': anterior}, {'receta': list(producto.detalles_producto.values('codigoMateriaPrima_id','cantidad'))})
                 messages.success(request, f'Fórmula de «{producto.nombre}» actualizada correctamente.')
                 return redirect('produccion:formula_list')
     else:
@@ -80,6 +89,7 @@ def produccion_form(request):
         # Guardar en session para el paso de preview
         request.session['produccion_producto_id'] = producto.pk
         request.session['produccion_cantidad'] = str(cantidad)
+        request.session['produccion_clave'] = str(uuid.uuid4())
         return redirect('produccion:produccion_preview')
     return render(request, 'produccion/produccion_form.html', {'form': form})
 
@@ -115,7 +125,8 @@ def produccion_preview(request):
     hay_faltante = False
     for d in detalles:
         requerido = d.cantidad * cantidad
-        disponible = d.codigoMateriaPrima.stock_actual
+        from inventario.services import disponible as stock_disponible
+        disponible = stock_disponible(d.codigoMateriaPrima)
         falta = requerido > disponible
         if falta:
             hay_faltante = True
@@ -153,23 +164,25 @@ def produccion_confirmar(request):
     cantidad = Decimal(cantidad_str)
 
     # Crear el registro de producción y consumir materiales
-    produccion = Produccion(producto=producto, cantidad_producida=cantidad)
-    produccion.save()
-
+    produccion = Produccion(producto=producto, cantidad_producida=cantidad,
+                            clave_operacion=request.session.get('produccion_clave'))
     try:
-        produccion.consumir_materiales()
+        with transaction.atomic():
+            produccion.save()
+            produccion.consumir_materiales(request.user)
         # Limpiar session
         del request.session['produccion_producto_id']
         del request.session['produccion_cantidad']
+        request.session.pop('produccion_clave', None)
         messages.success(
             request,
             f'✅ Producción confirmada: {cantidad} unidades de «{producto.nombre}». '
             'Stock de materias primas actualizado.'
         )
         return redirect('produccion:produccion_form')
-    except ValidationError as e:
-        produccion.delete()
-        messages.error(request, f'Error al producir: {e.message}')
+    except (ValidationError, IntegrityError) as e:
+        detalle_error = '; '.join(e.messages) if isinstance(e, ValidationError) else 'Operación repetida o conflicto de inventario.'
+        messages.error(request, f'Error al producir: {detalle_error}')
         return redirect('produccion:produccion_preview')
 
 
@@ -188,6 +201,8 @@ def pronostico_reposicion(request):
     - Fecha estimada de agotamiento
     - Factor de tendencia (subiendo / estable / bajando)
     - Clasificación de urgencia (CRÍTICO / PRONTO / PLANIFICAR / OK / SIN_DATOS)
+    - Cantidad sugerida a comprar
+    - Fecha límite para hacer el pedido (considerando lead time del proveedor)
     """
     VENTANA = 15  # Días fijos de análisis
 
@@ -199,10 +214,14 @@ def pronostico_reposicion(request):
     sin_datos = sum(1 for p in pronosticos if p['estado'] == 'SIN_DATOS')
     total     = len(pronosticos)
 
+    # Generar enlaces de contacto agrupados por proveedor
+    contactos_proveedor = generar_enlaces_contacto(pronosticos, request.user)
+
     return render(request, 'produccion/pronostico.html', {
-        'pronosticos': pronosticos,
-        'criticos':    criticos,
-        'prontos':     prontos,
-        'sin_datos':   sin_datos,
-        'total':       total,
+        'pronosticos':          pronosticos,
+        'criticos':             criticos,
+        'prontos':              prontos,
+        'sin_datos':            sin_datos,
+        'total':                total,
+        'contactos_proveedor':  contactos_proveedor,
     })

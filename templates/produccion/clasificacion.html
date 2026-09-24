@@ -1,0 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'produccion/predictive_nav.html' %}
+<h1 class="h3">Clasificación ABC / XYZ</h1><p>ABC usa valor consumido en 365 días y umbrales acumulados 80 / 95 %. XYZ usa coeficiente de variación diario: X ≤ 0.5, Y ≤ 1, Z > 1. Las categorías no alteran la compra recomendada.</p><div class="card card-os p-3 table-responsive"><table class="table"><thead><tr><th>Materia prima</th><th>Valor consumido</th><th>CV</th><th>ABC</th><th>XYZ</th></tr></thead><tbody>{% for r in rows %}<tr><td>{{ r.materia.nombre }}</td><td>{{ r.valor|floatformat:2 }}</td><td>{{ r.cv|floatformat:3|default:'—' }}</td><td>{{ r.abc }}</td><td>{{ r.xyz }}</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}

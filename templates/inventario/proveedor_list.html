@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Proveedores — OperaStock{% endblock %}
+
+{% block extra_css %}
+<style>
+    .prov-header {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        border-radius: 1rem;
+        padding: 2rem 2.5rem;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .prov-header::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 200px; height: 200px;
+        background: rgba(255,255,255,.04);
+        border-radius: 50%;
+    }
+    .prov-header h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: .2rem; }
+    .prov-header p  { opacity: .75; margin: 0; }
+
+    .prov-table thead th {
+        background: #f4f6fb;
+        font-size: .78rem;
+        text-transform: uppercase;
+        letter-spacing: .06em;
+        color: #666;
+        border-bottom: 2px solid #e0e5ee;
+        white-space: nowrap;
+    }
+    .prov-table tbody tr { transition: background .15s; vertical-align: middle; }
+    .prov-table tbody tr:hover { background: #fafbff; }
+
+    .badge-wsp {
+        background: #25D366;
+        color: #fff;
+        border-radius: 50px;
+        padding: .3rem .7rem;
+        font-size: .78rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        transition: all .2s;
+    }
+    .badge-wsp:hover { background: #1da851; color: #fff; transform: scale(1.05); }
+
+    .badge-email {
+        background: #f0f4ff;
+        color: #0f3460;
+        border: 1.5px solid #c8d6f0;
+        border-radius: 50px;
+        padding: .3rem .7rem;
+        font-size: .78rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        transition: all .2s;
+    }
+    .badge-email:hover { background: #dce5f7; transform: scale(1.05); }
+
+    .badge-lead {
+        background: #fff8ee;
+        color: #e67e22;
+        border: 1.5px solid #fad7a0;
+        border-radius: 50px;
+        padding: .25rem .65rem;
+        font-size: .78rem;
+        font-weight: 700;
+    }
+
+    .empty-state { padding: 4rem; text-align: center; color: #aaa; }
+    .empty-state i { font-size: 3.5rem; display: block; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ─── HEADER ─── -->
+<div class="prov-header">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h1><i class="bi bi-truck me-2"></i>Proveedores</h1>
+            <p>Gestión de proveedores de materias primas</p>
+        </div>
+        <a href="{% url 'inventario:proveedor_create' %}" class="btn btn-light fw-bold">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo proveedor
+        </a>
+    </div>
+</div>
+
+<!-- ─── BUSCADOR ─── -->
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" class="form-control" placeholder="Buscar por nombre, RUC o correo..." value="{{ query }}">
+        {% if query %}
+        <a href="{% url 'inventario:proveedor_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg"></i>
+        </a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- ─── TABLA ─── -->
+<div class="card card-os">
+    <div class="card-body p-0">
+        {% if proveedores %}
+        <div class="table-responsive">
+            <table class="table prov-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>RUC</th>
+                        <th>Teléfono</th>
+                        <th>Contacto rápido</th>
+                        <th class="text-center">Tiempo de entrega</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prov in proveedores %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ prov.nombre }}</div>
+                            {% if prov.direccion %}
+                            <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ prov.direccion }}</small>
+                            {% endif %}
+                        </td>
+                        <td>{{ prov.ruc|default:"—" }}</td>
+                        <td>{{ prov.telefono|default:"—" }}</td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+                                {% if prov.whatsapp %}
+                                <a href="{{ prov.whatsapp_link }}" target="_blank" class="badge-wsp" title="Abrir WhatsApp">
+                                    <i class="bi bi-whatsapp"></i> WhatsApp
+                                </a>
+                                {% endif %}
+                                {% if prov.correo %}
+                                <a href="mailto:{{ prov.correo }}" class="badge-email" title="Enviar correo">
+                                    <i class="bi bi-envelope-fill"></i> {{ prov.correo }}
+                                </a>
+                                {% endif %}
+                                {% if not prov.whatsapp and not prov.correo %}
+                                <span class="text-muted small">Sin contacto configurado</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge-lead">
+                                <i class="bi bi-clock me-1"></i>{{ prov.tiempo_entrega_dias }} día{{ prov.tiempo_entrega_dias|pluralize }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'inventario:proveedor_edit' prov.pk %}" class="btn btn-outline-primary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'inventario:proveedor_delete' prov.pk %}" class="btn btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash3"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-truck"></i>
+            {% if query %}
+            <p class="fw-semibold mb-2">No se encontraron proveedores para «{{ query }}»</p>
+            <a href="{% url 'inventario:proveedor_list' %}" class="btn btn-outline-primary btn-sm">Ver todos</a>
+            {% else %}
+            <p class="fw-semibold mb-2">No hay proveedores registrados</p>
+            <a href="{% url 'inventario:proveedor_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>Registrar proveedor
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
