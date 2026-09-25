@@ -199,6 +199,27 @@ def compras(request):
 
 @admin_required
 @require_POST
+def generar_sugerencias_todas(request):
+    """Genera sugerencias de compra para todas las materias primas con stock crítico o bajo ROP."""
+    materias = MateriaPrima.objects.filter(activo=True)
+    count = 0
+    for m in materias:
+        try:
+            calculo = analizar(m)
+            if calculo.get('cantidad', 0) > 0 and 'oferta_id' in calculo:
+                sugerir(m, request.user)
+                count += 1
+        except Exception:
+            pass
+    if count > 0:
+        messages.success(request, f'Se generaron {count} sugerencias de compra calculadas según el modelo y proveedores.')
+    else:
+        messages.info(request, 'No hay materias primas que requieran sugerencias de compra adicionales en este momento.')
+    return redirect('produccion:compras')
+
+
+@admin_required
+@require_POST
 def decision(request, pk, accion):
     sugerencia = get_object_or_404(SugerenciaCompra, pk=pk)
     try:

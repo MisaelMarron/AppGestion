@@ -199,9 +199,22 @@
 
 <!-- SECCIÓN 2: SUGERENCIAS PENDIENTES DE COMPRA -->
 <div class="mb-5">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold mb-0"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Sugerencias Pendientes de Compra</h4>
-    <span class="badge bg-primary rounded-pill px-3 py-2">{{ sugerencias|length }} pendientes</span>
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div>
+      <h4 class="fw-bold mb-0"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Sugerencias Pendientes de Compra</h4>
+      <small class="text-muted">Calculadas con el modelo óptimo, stock de seguridad, ROP y condiciones del proveedor.</small>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge bg-primary rounded-pill px-3 py-2">{{ sugerencias|length }} pendientes</span>
+      {% if user.es_admin %}
+      <form method="post" action="{% url 'produccion:generar_sugerencias_todas' %}" class="d-inline">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary btn-sm fw-bold">
+          <i class="bi bi-arrow-repeat me-1"></i>Calcular sugerencias ahora
+        </button>
+      </form>
+      {% endif %}
+    </div>
   </div>
 
   {% if sugerencias %}

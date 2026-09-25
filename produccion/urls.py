@@ -29,6 +29,7 @@ urlpatterns += [
     path('ofertas/<int:pk>/', predictive.oferta_form, name='oferta_editar'),
     path('politica/<int:pk>/', predictive.politica, name='politica'),
     path('compras/', predictive.compras, name='compras'),
+    path('compras/generar-sugerencias/', predictive.generar_sugerencias_todas, name='generar_sugerencias_todas'),
     path('compras/<int:pk>/', predictive.orden_compra, name='orden_compra'),
     path('sugerencias/<int:pk>/<str:accion>/', predictive.decision, name='decision'),
     path('sugerencias/<int:pk>/editar-cantidad/', predictive.editar_cantidad_sugerencia, name='editar_cantidad_sugerencia'),

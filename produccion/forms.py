@@ -53,10 +53,22 @@ class ProduccionForm(forms.Form):
             'class': 'form-control',
             'min': '0.001',
             'step': '0.001',
-            'placeholder': '0.000',
+            'placeholder': 'Ej. 10.000',
             'id': 'id_cantidad',
         }),
-        label='Cantidad a producir',
+        label='Cantidad en masa/bulk (kg)',
+        help_text='Peso total de la masa o preparación a elaborar.',
+    )
+    unidades_producidas = forms.IntegerField(
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'min': '1',
+            'placeholder': 'Ej. 150',
+            'id': 'id_unidades_producidas',
+        }),
+        label='Unidades producidas (paquetes / unidades)',
+        help_text='Cantidad final de unidades que salen de esta producción.',
     )
 
     def clean_cantidad(self):
@@ -64,3 +76,9 @@ class ProduccionForm(forms.Form):
         if cantidad is not None and cantidad <= 0:
             raise forms.ValidationError('La cantidad debe ser mayor que cero.')
         return cantidad
+
+    def clean_unidades_producidas(self):
+        unidades = self.cleaned_data.get('unidades_producidas')
+        if unidades is not None and unidades <= 0:
+            raise forms.ValidationError('Las unidades producidas deben ser mayor que cero.')
+        return unidades

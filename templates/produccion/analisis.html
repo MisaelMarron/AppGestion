@@ -231,15 +231,32 @@
   </div>
 </div>
 
-<!-- Stock Proyectado y Consumo -->
-<div class="card card-os p-4 mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0 fw-bold"><i class="bi bi-graph-up text-primary me-2"></i>Curva de Stock Proyectado y Consumo Histórico</h2>
+<!-- Gráficos: Stock Proyectado y Consumo Histórico + Pronóstico -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-6">
+    <div class="card card-os p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0 fw-bold"><i class="bi bi-graph-down text-primary me-2"></i>Curva de Stock Proyectado y ROP</h2>
+        <span class="badge bg-light text-dark border">Horizonte 60 días</span>
+      </div>
+      <div style="position:relative;height:280px;width:100%">
+        <canvas id="stock-chart" aria-label="Stock proyectado, ROP y seguridad"></canvas>
+      </div>
+      <div id="chart-error" class="text-muted small mt-2"></div>
+    </div>
   </div>
-  <div style="position:relative;height:300px;width:100%">
-    <canvas id="stock-chart" aria-label="Stock proyectado, ROP y seguridad"></canvas>
+
+  <div class="col-lg-6">
+    <div class="card card-os p-4 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0 fw-bold"><i class="bi bi-graph-up-arrow text-success me-2"></i>Historial de Consumo y Pronóstico</h2>
+        <span class="badge bg-light text-dark border">{{ run.modelo|default:"Modelo Óptimo" }}</span>
+      </div>
+      <div style="position:relative;height:280px;width:100%">
+        <canvas id="consumo-chart" aria-label="Histórico y Pronóstico"></canvas>
+      </div>
+    </div>
   </div>
-  <div id="chart-error" class="text-muted small"></div>
 </div>
 
 <!-- Proveedores -->

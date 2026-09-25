@@ -49,10 +49,13 @@ print('  • Auditoría')
 print('  • Usuarios (excepto estructura)')
 print()
 
-respuesta = input('  ¿Está seguro? Escriba "SI" para continuar: ').strip()
-if respuesta != 'SI':
-    print('\n  ❌ Operación cancelada.\n')
-    sys.exit(0)
+es_forzado = '--force' in sys.argv or '-y' in sys.argv
+
+if not es_forzado:
+    respuesta = input('  ¿Está seguro? Escriba "SI" para continuar: ').strip()
+    if respuesta != 'SI':
+        print('\n  ❌ Operación cancelada.\n')
+        sys.exit(0)
 
 print()
 
@@ -104,21 +107,24 @@ BORRADO = [
 ]
 
 print('  Eliminando datos…\n')
-for label, Model in BORRADO:
-    count = Model.objects.count()
-    if count > 0:
-        # Usar _raw_delete para evitar triggers de protección en cascada
+
+with connection.cursor() as cursor:
+    # Desactivar temporalmente foreign keys en SQLite para borrado sin bloqueos
+    cursor.execute("PRAGMA foreign_keys = OFF;")
+    
+    for label, Model in BORRADO:
         try:
-            Model.objects.all().delete()
-            print(f'  🗑️  {label}: {count} registros eliminados')
-        except Exception as e:
-            # Si delete() falla por PROTECT, usar SQL directo
-            table = Model._meta.db_table
-            with connection.cursor() as cursor:
+            count = Model.objects.count()
+            if count > 0:
+                table = Model._meta.db_table
                 cursor.execute(f'DELETE FROM "{table}"')
-            print(f'  🗑️  {label}: {count} registros eliminados (SQL directo)')
-    else:
-        print(f'  ○  {label}: vacío')
+                print(f'  🗑️  {label}: {count} registros eliminados')
+            else:
+                print(f'  ○  {label}: vacío')
+        except Exception as e:
+            print(f'  ⚠  {label}: error ({e})')
+
+    cursor.execute("PRAGMA foreign_keys = ON;")
 
 # ── Limpiar también archivos de modelos entrenados ──
 from django.conf import settings

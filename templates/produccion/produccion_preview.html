@@ -45,10 +45,11 @@
 {% block content %}
 <!-- ─── HEADER ─── -->
 <div class="preview-header">
-    <h1><i class="bi bi-eye me-2"></i>Previsualización</h1>
+    <h1><i class="bi bi-eye me-2"></i>Previsualización de Producción</h1>
     <div class="meta">
         Producto: <strong>{{ producto.nombre }}</strong> &nbsp;|&nbsp;
-        Cantidad a producir: <strong>{{ cantidad }}</strong> {{ producto.get_unidad_medida_display }}
+        Masa / Bulk: <strong>{{ cantidad }} kg</strong> &nbsp;|&nbsp;
+        Unidades estimadas: <strong>{{ unidades }} uds</strong>
     </div>
 </div>
 

@@ -81,14 +81,16 @@ def formula_edit(request, pk):
 
 @login_required
 def produccion_form(request):
-    """Formulario para elegir producto y cantidad a producir."""
+    """Formulario para elegir producto, cantidad en bulk y unidades resultantes."""
     form = ProduccionForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         producto = form.cleaned_data['producto']
         cantidad = form.cleaned_data['cantidad']
+        unidades = form.cleaned_data['unidades_producidas']
         # Guardar en session para el paso de preview
         request.session['produccion_producto_id'] = producto.pk
         request.session['produccion_cantidad'] = str(cantidad)
+        request.session['produccion_unidades'] = int(unidades)
         request.session['produccion_clave'] = str(uuid.uuid4())
         return redirect('produccion:produccion_preview')
     return render(request, 'produccion/produccion_form.html', {'form': form})
@@ -99,6 +101,7 @@ def produccion_preview(request):
     """Muestra la previsualización: cuánto se necesita vs cuánto hay."""
     producto_id = request.session.get('produccion_producto_id')
     cantidad_str = request.session.get('produccion_cantidad')
+    unidades = request.session.get('produccion_unidades', 0)
 
     if not producto_id or not cantidad_str:
         messages.warning(request, 'Selecciona un producto y cantidad primero.')
@@ -141,6 +144,7 @@ def produccion_preview(request):
     return render(request, 'produccion/produccion_preview.html', {
         'producto': producto,
         'cantidad': cantidad,
+        'unidades': unidades,
         'lineas': lineas,
         'hay_faltante': hay_faltante,
     })
@@ -154,6 +158,7 @@ def produccion_confirmar(request):
 
     producto_id = request.session.get('produccion_producto_id')
     cantidad_str = request.session.get('produccion_cantidad')
+    unidades = request.session.get('produccion_unidades', 0)
 
     if not producto_id or not cantidad_str:
         messages.warning(request, 'Sesión expirada. Vuelve a iniciar la producción.')
@@ -164,8 +169,12 @@ def produccion_confirmar(request):
     cantidad = Decimal(cantidad_str)
 
     # Crear el registro de producción y consumir materiales
-    produccion = Produccion(producto=producto, cantidad_producida=cantidad,
-                            clave_operacion=request.session.get('produccion_clave'))
+    produccion = Produccion(
+        producto=producto,
+        cantidad_producida=cantidad,
+        unidades_producidas=unidades,
+        clave_operacion=request.session.get('produccion_clave')
+    )
     try:
         with transaction.atomic():
             produccion.save()
@@ -173,10 +182,11 @@ def produccion_confirmar(request):
         # Limpiar session
         del request.session['produccion_producto_id']
         del request.session['produccion_cantidad']
+        request.session.pop('produccion_unidades', None)
         request.session.pop('produccion_clave', None)
         messages.success(
             request,
-            f'✅ Producción confirmada: {cantidad} unidades de «{producto.nombre}». '
+            f'✅ Producción confirmada: {cantidad} kg bulk ({unidades} unidades) de «{producto.nombre}». '
             'Stock de materias primas actualizado.'
         )
         return redirect('produccion:produccion_form')

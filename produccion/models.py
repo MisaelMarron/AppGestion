@@ -111,7 +111,8 @@ class Produccion(models.Model):
     sintetica = models.BooleanField(default=False)
     receta_snapshot = models.JSONField(default=list, blank=True)
     orden = models.OneToOneField('OrdenProduccion', on_delete=models.PROTECT, null=True, blank=True, related_name='ejecucion')
-    cantidad_producida = models.DecimalField('cantidad producida', max_digits=20, decimal_places=5, default=0)
+    cantidad_producida = models.DecimalField('cantidad producida (bulk kg)', max_digits=20, decimal_places=5, default=0)
+    unidades_producidas = models.PositiveIntegerField('unidades producidas', default=0)
     fecha = models.DateTimeField('fecha', auto_now_add=True)
 
     class Meta:
