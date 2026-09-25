@@ -1,6 +1,6 @@
 from decimal import Decimal
 from django import forms
-from inventario.models import MateriaPrimaProveedor, MateriaPrima
+from inventario.models import MateriaPrimaProveedor, MateriaPrima, ProductoTerminado
 from produccion.models import OrdenProduccion
 
 
@@ -71,16 +71,47 @@ class PlanForm(StyledForm, forms.ModelForm):
         return data
 
 
-class HistorialForm(StyledForm, forms.Form):
-    materia = forms.ModelChoiceField(queryset=MateriaPrima.objects.all(),required=False)
-    desde = forms.DateField(required=False,widget=forms.DateInput(attrs={'type':'date'}))
-    hasta = forms.DateField(required=False,widget=forms.DateInput(attrs={'type':'date'}))
-    frecuencia = forms.ChoiceField(choices=[('D','Diario'),('W','Semanal'),('MS','Mensual')],required=False)
+class HistorialForm(forms.Form):
+    materia = forms.ModelChoiceField(
+        queryset=MateriaPrima.objects.filter(activo=True),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_materia'}),
+        label='Materia Prima',
+        empty_label='— Todas las materias primas —',
+    )
+    producto = forms.ModelChoiceField(
+        queryset=ProductoTerminado.objects.filter(activo=True),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_producto'}),
+        label='Producto Fabricado',
+        empty_label='— Todos los productos —',
+    )
+    dia_exacto = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'id': 'id_dia_exacto'}),
+        label='Día Específico',
+    )
+    desde = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'id': 'id_desde'}),
+        label='Fecha Desde',
+    )
+    hasta = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'id': 'id_hasta'}),
+        label='Fecha Hasta',
+    )
+    frecuencia = forms.ChoiceField(
+        choices=[('D', 'Diario'), ('W', 'Semanal'), ('MS', 'Mensual')],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select', 'id': 'id_frecuencia'}),
+        label='Frecuencia de Agrupación',
+    )
 
     def clean(self):
         data = super().clean()
         if data.get('desde') and data.get('hasta') and data['desde'] > data['hasta']:
-            raise forms.ValidationError('El inicio no puede superar el fin.')
+            raise forms.ValidationError('La fecha de inicio no puede ser posterior a la fecha final.')
         return data
 
 

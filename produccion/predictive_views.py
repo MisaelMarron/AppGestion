@@ -105,35 +105,69 @@ def accion_analisis(request, pk, accion):
 @login_required
 def historial(request):
     form = HistorialForm(request.GET)
-    qs = ConsumoMateriaPrima.objects.filter(produccion__anulada=False, produccion__sintetica=settings.DEMO_MODE).select_related('materia_prima','produccion__producto','produccion__orden')
+    qs = ConsumoMateriaPrima.objects.filter(
+        produccion__anulada=False,
+        produccion__sintetica=settings.DEMO_MODE
+    ).select_related('materia_prima', 'produccion__producto', 'produccion__orden')
+
     frequency = 'D'
     if form.is_valid():
         data = form.cleaned_data
-        if data['materia']:
+        if data.get('materia'):
             qs = qs.filter(materia_prima=data['materia'])
-        if data['desde']:
-            qs = qs.filter(produccion__fecha__date__gte=data['desde'])
-        if data['hasta']:
-            qs = qs.filter(produccion__fecha__date__lte=data['hasta'])
-        frequency = data['frecuencia'] or 'D'
-    else:
-        qs = qs.none()
+        if data.get('producto'):
+            qs = qs.filter(produccion__producto=data['producto'])
+        if data.get('dia_exacto'):
+            qs = qs.filter(produccion__fecha__date=data['dia_exacto'])
+        else:
+            if data.get('desde'):
+                qs = qs.filter(produccion__fecha__date__gte=data['desde'])
+            if data.get('hasta'):
+                qs = qs.filter(produccion__fecha__date__lte=data['hasta'])
+        frequency = data.get('frecuencia') or 'D'
+
+    # Exportación a CSV
     if request.GET.get('exportar') == 'csv' and form.is_valid():
-        response = HttpResponse(content_type='text/csv; charset=utf-8')
-        response['Content-Disposition'] = 'attachment; filename="consumos.csv"'
-        response.write('\ufeff')
+        response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = 'attachment; filename="consumos_filtrados.csv"'
         writer = csv.writer(response)
-        writer.writerow(['ID','Fecha','Materia prima','Unidad','Cantidad','Producción','Producto','Cantidad producida','Receta'])
+        writer.writerow(['ID Consumo', 'Fecha', 'Materia Prima', 'Unidad', 'Cantidad Usada (kg)', 'ID Producción', 'Producto Fabricado', 'Cantidad Producida', 'Unidades Producidas'])
         for c in qs.iterator():
-            name = c.materia_prima.nombre
-            if name.startswith(('=','+','-','@')):
-                name = "'"+name
-            writer.writerow([c.pk,c.produccion.fecha.isoformat(),name,c.materia_prima.unidad_medida,c.cantidad_usada,
-                             c.produccion_id,c.produccion.producto_id,c.produccion.cantidad_producida,str(c.produccion.receta_snapshot)])
+            writer.writerow([
+                c.pk,
+                timezone.localtime(c.produccion.fecha).strftime('%Y-%m-%d %H:%M'),
+                c.materia_prima.nombre,
+                c.materia_prima.unidad_medida,
+                float(c.cantidad_usada),
+                c.produccion_id,
+                c.produccion.producto.nombre,
+                float(c.produccion.cantidad_producida),
+                c.produccion.unidades_producidas
+            ])
         return response
-    trunc = {'D':TruncDate,'W':TruncWeek,'MS':TruncMonth}[frequency]
-    totals = list(qs.annotate(periodo=trunc('produccion__fecha')).values('periodo','materia_prima__nombre','materia_prima__unidad_medida').annotate(total=Sum('cantidad_usada')).order_by('periodo'))
-    return render(request,'produccion/historial.html',{'form':form,'consumos':qs.order_by('-produccion__fecha')[:300],'totals':totals})
+
+    trunc = {'D': TruncDate, 'W': TruncWeek, 'MS': TruncMonth}.get(frequency, TruncDate)
+    totals = list(
+        qs.annotate(periodo=trunc('produccion__fecha'))
+        .values('periodo', 'materia_prima__nombre', 'materia_prima__unidad_medida')
+        .annotate(total=Sum('cantidad_usada'))
+        .order_by('-periodo', 'materia_prima__nombre')
+    )
+
+    # Métricas resumen
+    total_kg_filtrado = qs.aggregate(total=Sum('cantidad_usada'))['total'] or Decimal('0')
+    total_registros = qs.count()
+    insumos_unicos = qs.values('materia_prima').distinct().count()
+
+    return render(request, 'produccion/historial.html', {
+        'form': form,
+        'consumos': qs.order_by('-produccion__fecha')[:400],
+        'totals': totals[:200],
+        'total_kg_filtrado': total_kg_filtrado,
+        'total_registros': total_registros,
+        'insumos_unicos': insumos_unicos,
+        'frecuencia_label': {'D': 'Diario', 'W': 'Semanal', 'MS': 'Mensual'}.get(frequency, 'Diario'),
+    })
 
 
 @admin_required
@@ -322,26 +356,69 @@ def editar_cantidad_sugerencia(request, pk):
 
 @admin_required
 def orden_compra(request, pk):
-    order = get_object_or_404(OrdenCompra,pk=pk)
-    if request.method=='POST':
+    import urllib.parse
+    order = get_object_or_404(
+        OrdenCompra.objects.select_related('proveedor').prefetch_related('detalles__oferta__materia_prima'),
+        pk=pk
+    )
+    if request.method == 'POST':
         try:
             accion = request.POST.get('accion')
             if accion == 'RECIBIDA':
                 lotes = {}
                 for detail in order.detalles.all():
                     vence = request.POST.get(f'vence_{detail.pk}')
-                    lotes[str(detail.pk)] = {'numero':request.POST.get(f'lote_{detail.pk}',''),
-                                            'vencimiento':date.fromisoformat(vence) if vence else None}
+                    lotes[str(detail.pk)] = {
+                        'numero': request.POST.get(f'lote_{detail.pk}', ''),
+                        'vencimiento': date.fromisoformat(vence) if vence else None
+                    }
                 fecha = date.fromisoformat(request.POST.get('fecha_recepcion') or timezone.localdate().isoformat())
-                recibir(pk,request.user,fecha,lotes)
+                recibir(pk, request.user, fecha, lotes)
             else:
-                transicionar(pk,accion,request.user)
-            messages.success(request,'Orden actualizada.')
-            return redirect('produccion:orden_compra',pk=pk)
-        except (ValidationError,ValueError,IntegrityError) as exc:
-            error_message(request,exc)
-    siguiente = {'APROBADA':'ENVIADA','ENVIADA':'CONFIRMADA','CONFIRMADA':'EN_TRANSITO','EN_TRANSITO':'RECIBIDA','RECIBIDA':'CERRADA'}.get(order.estado)
-    return render(request,'produccion/orden_compra.html',{'orden':order,'siguiente':siguiente,'hoy':timezone.localdate()})
+                transicionar(pk, accion, request.user)
+            messages.success(request, 'Orden de compra actualizada correctamente.')
+            return redirect('produccion:orden_compra', pk=pk)
+        except (ValidationError, ValueError, IntegrityError) as exc:
+            error_message(request, exc)
+
+    # Construir mensaje y enlace de WhatsApp
+    items = []
+    total_estimado = Decimal('0')
+    for d in order.detalles.all():
+        subtotal = d.cantidad * d.precio
+        total_estimado += subtotal
+        items.append(f"  • {d.oferta.materia_prima.nombre}: {d.cantidad:.2f} {d.oferta.materia_prima.unidad_medida} (S/ {d.precio:.2f})")
+
+    items_txt = "\n".join(items)
+    msg_text = (
+        f"Hola *{order.proveedor.nombre}*, le saludamos de OperaStock.\n\n"
+        f"Le compartimos la *Orden de Compra #{order.pk}*:\n"
+        f"{items_txt}\n\n"
+        f"💰 *Monto Total:* S/ {total_estimado:.2f}\n"
+        f"📅 *Fecha de Emisión:* {order.fecha_pedido.strftime('%d/%m/%Y')}\n"
+        f"🚚 *Entrega Estimada:* {order.fecha_estimada.strftime('%d/%m/%Y') if order.fecha_estimada else 'Por coordinar'}\n\n"
+        f"Por favor confirmar recepción y despacho de los insumos. ¡Muchas gracias!"
+    )
+
+    raw_phone = (order.proveedor.telefono or '').replace(' ', '').replace('-', '').replace('+', '').strip()
+    if len(raw_phone) == 9 and raw_phone.startswith('9'):
+        phone_clean = '51' + raw_phone
+    elif raw_phone:
+        phone_clean = raw_phone
+    else:
+        phone_clean = ''
+
+    wsp_url = f"https://api.whatsapp.com/send?phone={phone_clean}&text={urllib.parse.quote(msg_text)}"
+
+    siguiente = {'APROBADA': 'ENVIADA', 'ENVIADA': 'CONFIRMADA', 'CONFIRMADA': 'EN_TRANSITO', 'EN_TRANSITO': 'RECIBIDA', 'RECIBIDA': 'CERRADA'}.get(order.estado)
+    return render(request, 'produccion/orden_compra.html', {
+        'orden': order,
+        'siguiente': siguiente,
+        'hoy': timezone.localdate(),
+        'wsp_url': wsp_url,
+        'wsp_phone': phone_clean,
+        'total_estimado': total_estimado,
+    })
 
 
 @login_required
