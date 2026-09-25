@@ -27,7 +27,7 @@
       </a>
       <h1 class="h3 mb-0 text-dark fw-bold">{{ materia.nombre }}</h1>
     </div>
-    <span class="text-muted small">Análisis detallado en {{ materia.unidad_medida }} · Precios en Soles (S/)</span>
+
   </div>
   <div class="d-flex align-items-center gap-2">
     <!-- Botón Exportar CSV -->
@@ -242,10 +242,10 @@
   <div id="chart-error" class="text-muted small"></div>
 </div>
 
-<!-- Proveedores Disponibles Perú (Soles S/) -->
+<!-- Proveedores -->
 <div class="card card-os p-4 mb-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="h5 mb-0 fw-bold"><i class="bi bi-building text-primary me-2"></i>Proveedores de Insumo (Perú - Soles S/)</h2>
+    <h2 class="h5 mb-0 fw-bold"><i class="bi bi-building text-primary me-2"></i>Proveedores de Insumo</h2>
     {% if user.es_admin %}
       <a href="{% url 'produccion:oferta_nueva' %}" class="btn btn-sm btn-outline-primary">+ Agregar oferta de proveedor</a>
     {% endif %}
@@ -254,7 +254,7 @@
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
         <tr>
-          <th>Proveedor (Perú)</th>
+          <th>Proveedor</th>
           <th>Precio Unitario</th>
           <th>Tiempo Entrega (Lead Time)</th>
           <th>MOQ / Múltiplo</th>
@@ -265,7 +265,7 @@
         {% for row in ofertas %}
         <tr>
           <td><strong>{{ row.oferta.proveedor.nombre }}</strong></td>
-          <td><span class="fw-bold text-success">S/ {{ row.oferta.precio }}</span> / {{ materia.unidad_medida }}</td>
+          <td><span class="fw-bold text-success">{{ row.oferta.precio }}</span> / {{ materia.unidad_medida }}</td>
           <td>{{ row.oferta.lead_time_dias }} días hábiles</td>
           <td>{{ row.oferta.moq|floatformat:1 }} / {{ row.oferta.multiplo|floatformat:1 }}</td>
           <td>{{ row.oferta.presentacion|default:"Saco / Envase" }}</td>
