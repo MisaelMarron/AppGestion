@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import predictive_views as predictive
 
 app_name = 'produccion'
 
@@ -13,14 +14,14 @@ urlpatterns = [
     path('producir/preview/', views.produccion_preview, name='produccion_preview'),
     path('producir/confirmar/', views.produccion_confirmar, name='produccion_confirmar'),
 
-    # ── Pronóstico de reposición ──
-    path('pronosticos/', views.pronostico_reposicion, name='pronostico'),
+    # ── Pronóstico y Aprovisionamiento Unificado ──
+    path('pronosticos/', predictive.compras, name='pronostico'),
 ]
 
-from . import predictive_views as predictive
 urlpatterns += [
     path('inteligencia/', predictive.panel, name='panel'),
     path('analisis/<int:pk>/', predictive.analisis, name='analisis'),
+    path('analisis/<int:pk>/exportar-csv/', predictive.exportar_csv_analisis, name='exportar_csv_analisis'),
     path('analisis/<int:pk>/<str:accion>/', predictive.accion_analisis, name='accion_analisis'),
     path('historial/', predictive.historial, name='historial'),
     path('consumo/<int:pk>/revision/', predictive.exclusion, name='exclusion'),
@@ -30,6 +31,7 @@ urlpatterns += [
     path('compras/', predictive.compras, name='compras'),
     path('compras/<int:pk>/', predictive.orden_compra, name='orden_compra'),
     path('sugerencias/<int:pk>/<str:accion>/', predictive.decision, name='decision'),
+    path('sugerencias/<int:pk>/editar-cantidad/', predictive.editar_cantidad_sugerencia, name='editar_cantidad_sugerencia'),
     path('planes/', predictive.planes, name='planes'),
     path('planes/<int:pk>/<str:accion>/', predictive.accion_plan, name='accion_plan'),
     path('clasificacion/', predictive.clasificacion, name='clasificacion'),

@@ -1,2 +1,72 @@
-{% extends 'base.html' %}{% block content %}<div class="page-heading"><div><span class="eyebrow">PEDIDO</span><h1>{{ orden }} · {{ orden.proveedor.nombre }}</h1></div><a class="btn btn-outline-secondary" href="{% url 'produccion:compras' %}">Ver pedidos</a></div><div class="row g-4"><div class="col-lg-7"><div class="card card-os p-4"><span class="badge bg-secondary align-self-start">{{ orden.get_estado_display }}</span><dl class="row mt-4"><dt class="col-6">Fecha del pedido</dt><dd class="col-6">{{ orden.fecha_pedido|date:'d/m/Y' }}</dd><dt class="col-6">Llegada estimada</dt><dd class="col-6">{{ orden.fecha_estimada|date:'d/m/Y' }}</dd><dt class="col-6">Llegada real</dt><dd class="col-6">{{ orden.fecha_recepcion|date:'d/m/Y'|default:'Pendiente' }}</dd></dl>{% for d in orden.detalles.all %}<div class="py-3 border-top"><strong>{{ d.oferta.materia_prima.nombre }}</strong><p class="mb-0 text-muted">{{ d.cantidad|floatformat:3 }} {{ d.oferta.materia_prima.unidad_medida }} × {{ d.precio }}{% if d.entrega %}<br>Tiempo de entrega real: <strong>{{ d.entrega.dias }} días</strong>{% endif %}</p></div>{% endfor %}{% if siguiente and siguiente != 'RECIBIDA' %}<form method="post" class="mt-3">{% csrf_token %}<button class="btn btn-outline-secondary" name="accion" value="{{ siguiente }}">Registrar {{ siguiente }}</button></form>{% endif %}</div></div>
-{% if orden.estado != 'RECIBIDA' and orden.estado != 'CERRADA' %}<div class="col-lg-5"><div class="card card-os p-4"><h2 class="h5">Registrar llegada del pedido</h2><p class="text-muted small">Esta recepción incrementa el inventario y calcula el tiempo de entrega automáticamente.</p><form method="post">{% csrf_token %}<label for="fecha_recepcion" class="form-label">Fecha real de llegada</label><input id="fecha_recepcion" class="form-control mb-3" name="fecha_recepcion" type="date" value="{{ hoy|date:'Y-m-d' }}" min="{{ orden.fecha_pedido|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}" required>{% for d in orden.detalles.all %}{% if d.oferta.materia_prima.gestionar_lotes %}<label class="form-label">Lote de {{ d.oferta.materia_prima.nombre }}</label><input class="form-control mb-3" name="lote_{{ d.pk }}" required><label class="form-label">Vencimiento</label><input class="form-control mb-3" type="date" name="vence_{{ d.pk }}">{% endif %}{% endfor %}<button class="btn btn-primary w-100" name="accion" value="RECIBIDA">El pedido ya llegó</button></form></div></div>{% endif %}</div>{% endblock %}
+{% extends 'base.html' %}
+{% block title %}Orden de Compra #{{ orden.pk }} — OperaStock{% endblock %}
+{% block content %}
+<div class="page-heading d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <span class="badge bg-primary mb-1">ORDEN DE COMPRA DE INSUMOS</span>
+    <h1 class="h3 mb-0">Orden #{{ orden.pk }} · {{ orden.proveedor.nombre }}</h1>
+  </div>
+  <a class="btn btn-outline-secondary" href="{% url 'produccion:compras' %}"><i class="bi bi-arrow-left me-1"></i>Volver a Compras</a>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card card-os p-4">
+      <span class="badge bg-secondary align-self-start fs-6">{{ orden.get_estado_display }}</span>
+      <dl class="row mt-4">
+        <dt class="col-6">Fecha de emisión</dt><dd class="col-6">{{ orden.fecha_pedido|date:'d/m/Y' }}</dd>
+        <dt class="col-6">Llegada estimada</dt><dd class="col-6">{{ orden.fecha_estimada|date:'d/m/Y' }}</dd>
+        <dt class="col-6">Llegada real en almacén</dt><dd class="col-6">{{ orden.fecha_recepcion|date:'d/m/Y'|default:'En tránsito' }}</dd>
+      </dl>
+
+      <h5 class="fw-bold mt-3 border-bottom pb-2">Insumos Solicitados</h5>
+      {% for d in orden.detalles.all %}
+      <div class="py-3 border-bottom">
+        <strong class="fs-6 text-dark">{{ d.oferta.materia_prima.nombre }}</strong>
+        <p class="mb-0 text-muted">
+          Cantidad: <strong>{{ d.cantidad|floatformat:2 }} {{ d.oferta.materia_prima.unidad_medida }}</strong> × <span class="text-success fw-bold">S/ {{ d.precio }}</span>
+          {% if d.entrega %}
+            <br>Tiempo de entrega real registrado: <strong>{{ d.entrega.dias }} días</strong>
+          {% endif %}
+        </p>
+      </div>
+      {% endfor %}
+
+      {% if siguiente and siguiente != 'RECIBIDA' %}
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button class="btn btn-outline-primary" name="accion" value="{{ siguiente }}">Registrar {{ siguiente }}</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if orden.estado != 'RECIBIDA' and orden.estado != 'CERRADA' %}
+  <div class="col-lg-5">
+    <div class="card card-os p-4">
+      <h2 class="h5 fw-bold"><i class="bi bi-box-arrow-in-down text-success me-2"></i>Registrar Recepción de Insumos</h2>
+      <p class="text-muted small">Al registrar la recepción, el stock utilizable se incrementará en almacén y se actualizarán las métricas del proveedor.</p>
+      <form method="post">
+        {% csrf_token %}
+        <label for="fecha_recepcion" class="form-label fw-bold">Fecha real de recepción</label>
+        <input id="fecha_recepcion" class="form-control mb-3" name="fecha_recepcion" type="date" value="{{ hoy|date:'Y-m-d' }}" min="{{ orden.fecha_pedido|date:'Y-m-d' }}" max="{{ hoy|date:'Y-m-d' }}" required>
+        
+        {% for d in orden.detalles.all %}
+          {% if d.oferta.materia_prima.gestionar_lotes %}
+          <div class="p-3 bg-light rounded border mb-3">
+            <label class="form-label fw-bold">Lote para {{ d.oferta.materia_prima.nombre }}</label>
+            <input class="form-control mb-2" name="lote_{{ d.pk }}" placeholder="Código de lote proveedor" required>
+            <label class="form-label small">Fecha de Vencimiento</label>
+            <input class="form-control" type="date" name="vence_{{ d.pk }}">
+          </div>
+          {% endif %}
+        {% endfor %}
+        <button class="btn btn-success w-100 fw-bold py-2" name="accion" value="RECIBIDA">
+          <i class="bi bi-check-circle me-1"></i>Confirmar Recepción e Ingreso a Almacén
+        </button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

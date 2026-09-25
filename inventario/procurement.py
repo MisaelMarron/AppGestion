@@ -165,14 +165,19 @@ def decidir(pk, usuario, aprobar):
         raise ValidationError('La sugerencia ya fue resuelta.')
     if aprobar:
         fresh = analizar(materia)
-        keys = ['cantidad','oferta_id','pronostico_id','disponible','utilizable','transito','rop','fecha_pedido','precio','moq','multiplo']
+        # Si el usuario editó la cantidad manualmente, no comparamos ese campo con el cálculo fresco
+        has_edit = bool(suggestion.cantidad_editada)
+        keys = ['oferta_id','pronostico_id','disponible','utilizable','transito','rop','fecha_pedido','precio','moq','multiplo']
+        if not has_edit:
+            keys = ['cantidad'] + keys
         if any(str(fresh.get(k)) != str(suggestion.calculo.get(k)) for k in keys):
             raise ValidationError('El análisis cambió. Genere y revise una nueva sugerencia.')
+        cantidad_orden = suggestion.cantidad_final
         order = OrdenCompra.objects.create(proveedor=suggestion.oferta.proveedor,sugerencia=suggestion,
             usuario=usuario,fecha_estimada=timezone.localdate()+timedelta(days=fresh['lead_time']))
-        DetalleOrdenCompra.objects.create(orden=order,oferta=suggestion.oferta,cantidad=suggestion.cantidad,precio=suggestion.oferta.precio)
+        DetalleOrdenCompra.objects.create(orden=order,oferta=suggestion.oferta,cantidad=cantidad_orden,precio=suggestion.oferta.precio)
         suggestion.estado = 'APROBADA'
-        auditar(usuario,'APROBAR_COMPRA',order,nuevo={'cantidad':suggestion.cantidad})
+        auditar(usuario,'APROBAR_COMPRA',order,nuevo={'cantidad':cantidad_orden,'cantidad_editada':has_edit})
     else:
         suggestion.estado = 'RECHAZADA'
         auditar(usuario,'RECHAZAR_COMPRA',suggestion)

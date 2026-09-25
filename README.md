@@ -164,3 +164,7 @@ Incluye comparación temporal Holt-Winters/SARIMA/Random Forest y baseline, mét
 Instalar `requirements.txt`, ejecutar `python manage.py migrate` y `python manage.py test` usando el entorno virtual. Los administradores pueden entrenar desde la pantalla o con `python manage.py entrenar_modelos --horizonte 60`.
 
 La auditoría inicial, fórmulas, permisos, comandos, migraciones y límites están en [docs/APROVISIONAMIENTO.md](docs/APROVISIONAMIENTO.md). Los CSV sintéticos de `generar_demo_predictiva` permanecen separados de los datos operativos.
+
+## Simulación de consumo y predicciones
+
+Ejecute `iniciar_demo.bat` y abra `http://127.0.0.1:8001/produccion/inteligencia/` con su cuenta habitual. La base demo, independiente de la operativa, contiene **127 producciones en 120 días**. Los días y productos se eligen con semilla fija y dejan intervalos sin producción. Abra **Producciones** para recorrer el historial y **Aprovisionamiento → Ver análisis** para comparar Holt-Winters, SARIMA, Random Forest y promedio móvil, con métricas y proyección de stock. El inicio es repetible y no duplica las producciones. La operación y los límites se describen en [docs/CONTINUACION.md](docs/CONTINUACION.md).

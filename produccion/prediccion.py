@@ -218,8 +218,8 @@ def calcular_pronostico(materia_prima, ventana_dias=30):
         dias_para_pedir = max(dias_hasta_minimo - lead_time, 0)
         fecha_pedir = (hoy + timedelta(days=dias_para_pedir)).date()
     elif dias_restantes is not None:
-        dias_para_pedir = max(dias_restantes - lead_time, 0)
-        fecha_pedir = (hoy + timedelta(days=dias_para_pedir)).date()
+        # Si ya se alcanzó el mínimo, el pedido corresponde hoy.
+        fecha_pedir = hoy.date()
     else:
         fecha_pedir = None
 

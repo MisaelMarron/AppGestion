@@ -48,10 +48,22 @@ class SugerenciaCompra(models.Model):
     oferta = models.ForeignKey(MateriaPrimaProveedor, on_delete=models.PROTECT)
     pronostico = models.ForeignKey('produccion.Pronostico', on_delete=models.PROTECT)
     cantidad = quantity()
+    cantidad_editada = models.DecimalField(
+        'cantidad editada por usuario',
+        max_digits=20, decimal_places=5,
+        null=True, blank=True,
+        validators=[MinValueValidator(Decimal('0.00001'))],
+        help_text='Si se especifica, esta cantidad reemplaza la calculada al generar la orden.'
+    )
     calculo = models.JSONField(default=dict, encoder=DjangoJSONEncoder)
     explicacion = models.TextField()
     estado = models.CharField(max_length=12, default='PENDIENTE', choices=[(x,x) for x in ['PENDIENTE','APROBADA','RECHAZADA','OBSOLETA']])
     fecha = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def cantidad_final(self):
+        """Retorna la cantidad editada si existe, sino la calculada."""
+        return self.cantidad_editada if self.cantidad_editada else self.cantidad
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['materia_prima'], condition=models.Q(estado='PENDIENTE'), name='una_sugerencia_pendiente')]

@@ -23,7 +23,8 @@ def dashboard_home(request):
     risk = {state:sum(r['a']['riesgo']==state for r in rows) for state in ['ESTABLE','ATENCION','CRITICO','SIN_DATOS']}
     return render(request,'dashboard/dashboard.html',{
         'total_materias_primas':len(materias),'total_productos':ProductoTerminado.objects.filter(activo=True).count(),
-        'total_proveedores':proveedores.count(),'producciones_mes':producciones.filter(fecha__date__gte=desde).count(),
+        'total_proveedores':proveedores.count(),'producciones_total':producciones.count(),
+        'producciones_mes':producciones.filter(fecha__date__gte=desde).count(),
         'proveedores':proveedores[:5],'ultimas_producciones':producciones.select_related('producto','usuario')[:6],
         'pedidos':OrdenCompra.objects.exclude(estado__in=['RECIBIDA','CERRADA']).select_related('proveedor').order_by('fecha_estimada')[:5],
         'compras_pendientes':OrdenCompra.objects.exclude(estado__in=['RECIBIDA','CERRADA']).count(),

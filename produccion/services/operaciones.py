@@ -1,4 +1,5 @@
 from decimal import Decimal, ROUND_HALF_UP
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from inventario.models import MateriaPrima, ProductoTerminado, MovimientoInventario, ReservaInventario
@@ -50,8 +51,9 @@ def ejecutar_produccion(pk, usuario=None):
         cantidad=produccion.cantidad_producida, usuario=usuario, descripcion=f'Producción {produccion.pk}')
     produccion.usuario = usuario
     produccion.ejecutada = True
+    produccion.sintetica = produccion.sintetica or settings.DEMO_MODE
     produccion.receta_snapshot = lineas
-    produccion.save(update_fields=['ejecutada','receta_snapshot','usuario'])
+    produccion.save(update_fields=['ejecutada','receta_snapshot','usuario','sintetica'])
     auditar(usuario,'PRODUCCION',produccion,nuevo={'receta':lineas})
     return produccion
 

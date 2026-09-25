@@ -1,5 +1,390 @@
 {% extends 'base.html' %}
+{% block title %}Compras y Reabastecimiento — OperaStock{% endblock %}
+
 {% block content %}
 {% include 'produccion/predictive_nav.html' %}
-<h1 class="h3">Sugerencias de reabastecimiento</h1>{% for s in sugerencias %}<div class="card card-os p-4 mb-3"><div class="d-flex justify-content-between"><h2 class="h5">{{ s.materia_prima.nombre }} · {{ s.cantidad|floatformat:3 }} {{ s.materia_prima.unidad_medida }}</h2><span>{{ s.estado }}</span></div><p>{{ s.explicacion }}</p><p>Proveedor: {{ s.oferta.proveedor.nombre }} · {{ s.fecha }}</p><div class="d-flex gap-2"><a class="btn btn-outline-primary" href="{% url 'produccion:analisis' s.materia_prima_id %}">Ver análisis</a>{% if user.es_admin and s.estado == 'PENDIENTE' %}<form method="post" action="{% url 'produccion:decision' s.pk 'aprobar' %}">{% csrf_token %}<button class="btn btn-success">Aprobar compra</button></form><form method="post" action="{% url 'produccion:decision' s.pk 'rechazar' %}">{% csrf_token %}<button class="btn btn-outline-danger">Rechazar</button></form>{% endif %}</div></div>{% empty %}<p>Sin sugerencias. Genere una desde el análisis de una materia prima.</p>{% endfor %}<h2 class="h4 mt-4">Órdenes de compra</h2><div class="table-responsive card card-os p-3"><table class="table"><thead><tr><th>Código</th><th>Proveedor</th><th>Estado</th><th>Fecha estimada</th><th>Recepción real</th><th>Detalle</th><th></th></tr></thead><tbody>{% for o in ordenes %}<tr><td>{{ o }}</td><td>{{ o.proveedor.nombre }}</td><td>{{ o.get_estado_display }}</td><td>{{ o.fecha_estimada }}</td><td>{{ o.fecha_recepcion|default:'—' }}</td><td>{% for d in o.detalles.all %}{{ d.oferta.materia_prima.nombre }}: {{ d.cantidad|floatformat:3 }} × {{ d.precio }}<br>{% endfor %}</td><td>{% if user.es_admin %}<a href="{% url 'produccion:orden_compra' o.pk %}">Ver / recibir</a>{% endif %}</td></tr>{% empty %}<tr><td colspan="7">Sin órdenes.</td></tr>{% endfor %}</tbody></table></div>
+
+<style>
+  .compras-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 16px;
+    padding: 1.8rem 2.2rem;
+    color: #fff;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+  }
+  .compras-header h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: .25rem; }
+  .compras-header p { color: #94a3b8; margin: 0; font-size: .95rem; }
+
+  /* Chips */
+  .chip-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .chip {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .5rem 1.1rem; border-radius: 50px; font-weight: 700; font-size: .85rem;
+  }
+  .chip-critico { background: #fef2f2; color: #dc2626; border: 1.5px solid #fca5a5; }
+  .chip-pronto { background: #fffbebf; color: #d97706; border: 1.5px solid #fcd34d; }
+  .chip-ok { background: #f0fdf4; color: #16a34a; border: 1.5px solid #86efac; }
+  .chip-pend { background: #eff6ff; color: #2563eb; border: 1.5px solid #93c5fd; }
+
+  /* Tabla de Reabastecimiento */
+  .reab-table thead th {
+    background: #f8fafc; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: #64748b;
+    border-bottom: 2px solid #e2e8f0; padding: .85rem 1rem;
+  }
+  .reab-table tbody tr { vertical-align: middle; transition: background .15s; }
+  .reab-table tbody tr:hover { background: #f8fafc; }
+  
+  .link-analisis {
+    text-decoration: none;
+    color: #0284c7;
+    font-weight: 700;
+    transition: color .2s;
+  }
+  .link-analisis:hover { color: #0369a1; text-decoration: underline; }
+
+  .dias-bar-wrap { display: flex; align-items: center; gap: .6rem; }
+  .dias-bar { flex: 1; height: 7px; background: #e2e8f0; border-radius: 10px; overflow: hidden; min-width: 60px; }
+  .dias-bar-fill { height: 100%; border-radius: 10px; }
+  .fill-critico { background: #ef4444; }
+  .fill-pronto { background: #f59e0b; }
+  .fill-ok { background: #22c55e; }
+
+  /* Tarjetas de Sugerencias */
+  .card-sug {
+    border: 1px solid #e2e8f0; border-radius: 14px; background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,.04); transition: transform .2s, box-shadow .2s;
+    overflow: hidden; margin-bottom: 1.25rem;
+  }
+  .card-sug:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+  .card-sug-header {
+    background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: .9rem 1.25rem;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card-sug-body { padding: 1.25rem; }
+
+  .badge-edited {
+    background: #fef3c7; color: #d97706; border: 1px solid #fde68a;
+    font-size: .72rem; padding: 2px 8px; border-radius: 6px; font-weight: 700;
+  }
+</style>
+
+<!-- Header -->
+<div class="compras-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h1><i class="bi bi-cart-check-fill me-2" style="color: #38bdf8;"></i>Gestión de Compras y Reabastecimiento</h1>
+      <p>Control unificado de stock restante, sugerencias inteligentes de compra y órdenes a proveedores (Soles S/).</p>
+    </div>
+  </div>
+</div>
+
+<!-- Chips KPI -->
+<div class="chip-row">
+  <div class="chip chip-critico"><i class="bi bi-exclamation-octagon-fill"></i> {{ criticos }} en nivel crítico</div>
+  <div class="chip chip-pronto"><i class="bi bi-clock-fill"></i> {{ prontos }} por reabastecer pronto</div>
+  <div class="chip chip-ok"><i class="bi bi-check-circle-fill"></i> {{ total }} materias primas en monitoreo</div>
+  <div class="chip chip-pend"><i class="bi bi-hourglass-split"></i> {{ sugerencias|length }} sugerencias pendientes</div>
+</div>
+
+<!-- SECCIÓN 1: TABLA UNIFICADA DE REABASTECIMIENTO E INSUMOS -->
+<div class="card card-os mb-5">
+  <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+    <h5 class="mb-0 fw-bold"><i class="bi bi-table me-2 text-primary"></i>Estado de Insumos y Pedidos Sugeridos</h5>
+    <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>Haz clic en la cantidad sugerida para ver el análisis con gráficos</span>
+  </div>
+  <div class="card-body p-0">
+    {% if pronosticos %}
+    <div class="table-responsive">
+      <table class="table reab-table mb-0">
+        <thead>
+          <tr>
+            <th>Materia prima</th>
+            <th class="text-end">Stock actual</th>
+            <th class="text-end">Consumo / día</th>
+            <th style="min-width:160px">Días restantes</th>
+            <th>Se agota</th>
+            <th class="text-end">Pedido sugerido (Hacer clic)</th>
+            <th class="text-center">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in pronosticos %}
+          <tr>
+            <td>
+              <div class="fw-semibold">{{ p.materia.nombre }}</div>
+              <small class="text-muted">{{ p.materia.codigo|default:'—' }}</small>
+              {% if p.materia.proveedor %}
+              <small class="d-block text-muted"><i class="bi bi-truck me-1"></i>{{ p.materia.proveedor.nombre }}</small>
+              {% endif %}
+            </td>
+
+            <td class="text-end">
+              <span class="fw-bold {% if p.materia.necesita_reposicion %}text-danger{% endif %}">
+                {{ p.materia.stock_actual|floatformat:2 }}
+              </span>
+              <small class="text-muted d-block">{{ p.materia.get_unidad_medida_display }}</small>
+            </td>
+
+            <td class="text-end">
+              {% if p.estado == 'SIN_DATOS' %}
+              <span class="text-muted">—</span>
+              {% else %}
+              <span class="fw-semibold">{{ p.consumo_ajustado|floatformat:2 }}</span>
+              <small class="text-muted d-block">{{ p.materia.get_unidad_medida_display }}/día</small>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if p.dias_restantes is not None %}
+              <div class="dias-bar-wrap">
+                <div class="dias-bar">
+                  <div class="dias-bar-fill {% if p.estado == 'CRITICO' %}fill-critico{% elif p.estado == 'PRONTO' %}fill-pronto{% else %}fill-ok{% endif %}"
+                       style="width: {% if p.dias_restantes >= 45 %}100{% elif p.dias_restantes >= 20 %}60{% else %}25{% endif %}%"></div>
+                </div>
+                <span class="fw-bold ms-1 {% if p.estado == 'CRITICO' %}text-danger{% elif p.estado == 'PRONTO' %}text-warning{% else %}text-success{% endif %}">
+                  {{ p.dias_restantes|floatformat:0 }}d
+                </span>
+              </div>
+              {% else %}
+              <span class="text-muted small">Sin datos</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if p.fecha_agotamiento %}
+              <span class="fw-semibold {% if p.estado == 'CRITICO' %}text-danger{% elif p.estado == 'PRONTO' %}text-warning{% endif %}">
+                {{ p.fecha_agotamiento|date:"d M Y" }}
+              </span>
+              {% else %}
+              <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+
+            <td class="text-end">
+              {% if p.cantidad_sugerida is not None and p.cantidad_sugerida > 0 %}
+              <a href="{% url 'produccion:analisis' p.materia.pk %}" class="link-analisis" title="Ver gráficos y comparativa de modelos para {{ p.materia.nombre }}">
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle p-2 fs-6">
+                  <i class="bi bi-graph-up me-1"></i>{{ p.cantidad_sugerida|floatformat:2 }} {{ p.materia.get_unidad_medida_display }}
+                </span>
+              </a>
+              {% else %}
+              <a href="{% url 'produccion:analisis' p.materia.pk %}" class="text-muted small text-decoration-none" title="Ver análisis">
+                <i class="bi bi-check-circle text-success me-1"></i>Stock OK <i class="bi bi-chevron-right ms-1"></i>
+              </a>
+              {% endif %}
+            </td>
+
+            <td class="text-center">
+              {% if p.estado == 'CRITICO' %}
+              <span class="badge bg-danger">CRÍTICO</span>
+              {% elif p.estado == 'PRONTO' %}
+              <span class="badge bg-warning text-dark">REABASTECER</span>
+              {% elif p.estado == 'PLANIFICAR' %}
+              <span class="badge bg-info text-dark">PLANIFICAR</span>
+              {% else %}
+              <span class="badge bg-success">OK</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="p-4 text-center text-muted">No se encontraron registros de insumos.</div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- SECCIÓN 2: SUGERENCIAS PENDIENTES DE COMPRA -->
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Sugerencias Pendientes de Compra</h4>
+    <span class="badge bg-primary rounded-pill px-3 py-2">{{ sugerencias|length }} pendientes</span>
+  </div>
+
+  {% if sugerencias %}
+  <div class="row">
+    {% for s in sugerencias %}
+    <div class="col-lg-6">
+      <div class="card-sug">
+        <div class="card-sug-header">
+          <div>
+            <span class="fw-bold text-dark fs-5">{{ s.materia_prima.nombre }}</span>
+            {% if s.cantidad_editada %}
+            <span class="badge-edited ms-2"><i class="bi bi-pencil-fill me-1"></i>Cantidad editada por usuario</span>
+            {% endif %}
+          </div>
+          <span class="badge bg-warning text-dark">PENDIENTE</span>
+        </div>
+        <div class="card-sug-body">
+          <div class="row g-3 align-items-center mb-3">
+            <div class="col-6">
+              <small class="text-muted d-block">Proveedor asignado (Perú)</small>
+              <strong class="text-dark"><i class="bi bi-building me-1"></i>{{ s.oferta.proveedor.nombre }}</strong>
+              <small class="d-block text-muted">Precio: S/ {{ s.oferta.precio }} por {{ s.materia_prima.unidad_medida }}</small>
+            </div>
+            <div class="col-6 text-end">
+              <small class="text-muted d-block">Cantidad a solicitar</small>
+              <div class="fs-4 fw-extrabold text-primary">
+                {{ s.cantidad_final|floatformat:2 }} <span class="fs-6 text-muted">{{ s.materia_prima.unidad_medida }}</span>
+              </div>
+              {% if s.cantidad_editada %}
+              <small class="text-muted text-decoration-line-through">Calculada: {{ s.cantidad|floatformat:2 }}</small>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="p-2 bg-light rounded text-muted small mb-3">
+            <i class="bi bi-info-circle me-1"></i>{{ s.explicacion|truncatewords:20 }}
+          </div>
+
+          <!-- Acciones -->
+          <div class="d-flex gap-2 justify-content-end">
+            <!-- Modal para Editar Cantidad -->
+            <button type="button" class="btn btn-outline-warning btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#editModal-{{ s.pk }}">
+              <i class="bi bi-pencil me-1"></i>Editar cantidad
+            </button>
+
+            <!-- Modal para Eliminar Sugerencia -->
+            <button type="button" class="btn btn-outline-danger btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ s.pk }}">
+              <i class="bi bi-trash me-1"></i>Eliminar
+            </button>
+
+            <!-- Aprobar -->
+            <form method="post" action="{% url 'produccion:decision' s.pk 'aprobar' %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success btn-sm fw-bold">
+                <i class="bi bi-check-circle me-1"></i>Aprobar compra
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL EDITAR CANTIDAD -->
+    <div class="modal fade" id="editModal-{{ s.pk }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="post" action="{% url 'produccion:editar_cantidad_sugerencia' s.pk %}">
+            {% csrf_token %}
+            <div class="modal-header">
+              <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square text-warning me-2"></i>Editar cantidad a comprar</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <p>Materia Prima: <strong>{{ s.materia_prima.nombre }}</strong></p>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Cantidad personalizada (en {{ s.materia_prima.unidad_medida }}):</label>
+                <input type="number" step="0.01" min="0.01" class="form-control form-control-lg" name="cantidad_editada" 
+                       value="{{ s.cantidad_final|floatformat:2 }}" required>
+                <small class="form-text text-muted">Cantidad calculada originalmente por el algoritmo: {{ s.cantidad|floatformat:2 }} {{ s.materia_prima.unidad_medida }}.</small>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-warning fw-bold">Guardar cambio</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL ELIMINAR SUGERENCIA -->
+    <div class="modal fade" id="deleteModal-{{ s.pk }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <form method="post" action="{% url 'produccion:decision' s.pk 'eliminar' %}">
+            {% csrf_token %}
+            <div class="modal-header bg-danger text-white">
+              <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar eliminación</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <p class="fs-6">¿Estás seguro de que deseas eliminar la sugerencia de compra para <strong>{{ s.materia_prima.nombre }}</strong>?</p>
+              <div class="alert alert-warning mb-0">
+                <i class="bi bi-info-circle me-1"></i>Cantidad: <strong>{{ s.cantidad_final|floatformat:2 }} {{ s.materia_prima.unidad_medida }}</strong><br>
+                Esta acción eliminará la sugerencia de la lista. Podrás regenerarla más tarde si el stock vuelve a requerirlo.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+              <button type="submit" class="btn btn-danger fw-bold"><i class="bi bi-trash me-1"></i>Sí, eliminar sugerencia</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card p-4 text-center text-muted">
+    <i class="bi bi-check2-circle fs-1 text-success mb-2"></i>
+    No hay sugerencias pendientes por revisar en este momento.
+  </div>
+  {% endif %}
+</div>
+
+<!-- SECCIÓN 3: ÓRDENES DE COMPRA REALIZADAS -->
+<div>
+  <h4 class="fw-bold mb-3"><i class="bi bi-bag-check-fill text-success me-2"></i>Órdenes de Compra Generadas</h4>
+  <div class="card card-os">
+    <div class="card-body p-0">
+      {% if ordenes %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Orden #</th>
+              <th>Proveedor</th>
+              <th>Fecha del pedido</th>
+              <th>Detalle de Insumos</th>
+              <th>Estado</th>
+              <th class="text-end">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for o in ordenes %}
+            <tr>
+              <td><strong class="text-dark">#{{ o.pk }}</strong></td>
+              <td>
+                <div class="fw-semibold">{{ o.proveedor.nombre }}</div>
+                <small class="text-muted">{{ o.proveedor.telefono|default:'' }}</small>
+              </td>
+              <td>{{ o.fecha_pedido|date:"d/m/Y" }}</td>
+              <td>
+                {% for d in o.detalles.all %}
+                <span class="badge bg-light text-dark border me-1 mb-1">
+                  {{ d.oferta.materia_prima.nombre }}: {{ d.cantidad|floatformat:2 }} {{ d.oferta.materia_prima.unidad_medida }} (S/ {{ d.precio }})
+                </span>
+                {% endfor %}
+              </td>
+              <td>
+                {% if o.estado == 'COMPLETADA' or o.estado == 'RECIBIDA' %}
+                <span class="badge bg-success">RECIBIDA</span>
+                {% elif o.estado == 'CANCELADA' %}
+                <span class="badge bg-danger">CANCELADA</span>
+                {% else %}
+                <span class="badge bg-primary">EN TRÁNSITO</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'produccion:orden_compra' o.pk %}" class="btn btn-outline-secondary btn-sm">
+                  Ver detalle <i class="bi bi-chevron-right ms-1"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-4 text-center text-muted">No se han registrado órdenes de compra.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
 {% endblock %}
