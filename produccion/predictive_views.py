@@ -107,7 +107,6 @@ def historial(request):
     form = HistorialForm(request.GET)
     qs = ConsumoMateriaPrima.objects.filter(
         produccion__anulada=False,
-        produccion__sintetica=settings.DEMO_MODE
     ).select_related('materia_prima', 'produccion__producto', 'produccion__orden')
 
     frequency = 'D'

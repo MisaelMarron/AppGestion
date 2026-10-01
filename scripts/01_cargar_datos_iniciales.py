@@ -43,21 +43,33 @@ MATERIAS = [
     ('INS0008', 'Maní triturado',   Decimal('18'), 'kg'),
     ('INS0009', 'Miel',             Decimal('20'), 'kg'),
     ('INS0010', 'Sal',              Decimal('3'),  'kg'),
+    ('INS0011', 'Coco rallado',     Decimal('16'), 'kg'),
+    ('INS0012', 'Pasas',            Decimal('14'), 'kg'),
+    ('INS0013', 'Canela molida',    Decimal('5'),  'kg'),
 ]
+COSTOS = dict(zip((fila[0] for fila in MATERIAS), map(Decimal,
+    ('3.20', '3.00', '2.80', '12.00', '15.00', '18.00', '4.50',
+     '9.00', '17.00', '1.20', '13.00', '11.00', '32.00'))))
 
 print('\n═══ 1. Creando materias primas ═══')
 mp_dict = {}  # codigo → instancia
 for codigo, nombre, stock, unidad in MATERIAS:
-    obj, created = MateriaPrima.objects.update_or_create(
+    obj, created = MateriaPrima.objects.get_or_create(
         codigo=codigo,
         defaults={
             'nombre': nombre,
             'stock_actual': stock,
             'unidad_medida': unidad,
             'stock_minimo': Decimal('2'),
+            'costo_unitario': COSTOS[codigo],
             'activo': True,
         },
     )
+    if not created:
+        obj.nombre, obj.unidad_medida, obj.activo = nombre, unidad, True
+        if obj.costo_unitario is None:
+            obj.costo_unitario = COSTOS[codigo]
+        obj.save(update_fields=['nombre', 'unidad_medida', 'activo', 'costo_unitario'])
     mp_dict[codigo] = obj
     print(f'  {"✔ Creada" if created else "↻ Actualizada"}: {obj}')
 
@@ -70,12 +82,15 @@ PRODUCTOS = [
     ('PROD0003', 'Galleta de maíz',           'kg', Decimal('12.00')),
     ('PROD0004', 'Galleta de maní',           'kg', Decimal('16.00')),
     ('PROD0005', 'Galleta de avena y cacao',  'kg', Decimal('15.50')),
+    ('PROD0006', 'Galleta de coco',           'kg', Decimal('16.50')),
+    ('PROD0007', 'Barra de avena y pasas',    'kg', Decimal('17.00')),
+    ('PROD0008', 'Galleta de canela',         'kg', Decimal('14.00')),
 ]
 
 print('\n═══ 2. Creando productos terminados ═══')
 pt_dict = {}  # codigo → instancia
 for codigo, nombre, unidad, precio in PRODUCTOS:
-    obj, created = ProductoTerminado.objects.update_or_create(
+    obj, created = ProductoTerminado.objects.get_or_create(
         codigo=codigo,
         defaults={
             'nombre': nombre,
@@ -85,6 +100,9 @@ for codigo, nombre, unidad, precio in PRODUCTOS:
             'activo': True,
         },
     )
+    if not created:
+        obj.nombre, obj.unidad_medida, obj.precio, obj.activo = nombre, unidad, precio, True
+        obj.save(update_fields=['nombre', 'unidad_medida', 'precio', 'activo'])
     pt_dict[codigo] = obj
     print(f'  {"✔ Creada" if created else "↻ Actualizada"}: {obj}')
 
@@ -136,6 +154,21 @@ FORMULAS = {
         ('INS0009', Decimal('0.06')),
         ('INS0010', Decimal('0.02')),
     ],
+    'PROD0006': [
+        ('INS0001', Decimal('0.36')), ('INS0003', Decimal('0.18')),
+        ('INS0004', Decimal('0.16')), ('INS0006', Decimal('0.06')),
+        ('INS0011', Decimal('0.22')), ('INS0010', Decimal('0.02')),
+    ],
+    'PROD0007': [
+        ('INS0007', Decimal('0.43')), ('INS0012', Decimal('0.20')),
+        ('INS0009', Decimal('0.17')), ('INS0008', Decimal('0.12')),
+        ('INS0004', Decimal('0.06')), ('INS0010', Decimal('0.02')),
+    ],
+    'PROD0008': [
+        ('INS0001', Decimal('0.43')), ('INS0003', Decimal('0.23')),
+        ('INS0004', Decimal('0.18')), ('INS0006', Decimal('0.10')),
+        ('INS0013', Decimal('0.04')), ('INS0010', Decimal('0.02')),
+    ],
 }
 
 print('\n═══ 3. Creando fórmulas ═══')
@@ -181,13 +214,13 @@ PROVEEDORES = [
         'nombre': 'Comercial Dulce Sur',
         'telefono': '51965034725',
         'whatsapp': '51965034725',
-        'insumos': ['INS0004', 'INS0006', 'INS0009', 'INS0005'],
+        'insumos': ['INS0004', 'INS0006', 'INS0009', 'INS0005', 'INS0011'],
     },
     {
         'nombre': 'Abastecimientos Qiwa',
         'telefono': '51965034725',
         'whatsapp': '51965034725',
-        'insumos': ['INS0008', 'INS0010', 'INS0003', 'INS0001'],
+        'insumos': ['INS0008', 'INS0010', 'INS0003', 'INS0001', 'INS0012', 'INS0013'],
     },
 ]
 
@@ -208,7 +241,7 @@ for p in PROVEEDORES:
             materia_prima=mp,
             proveedor=prov,
             defaults={
-                'precio': Decimal('0'),
+                'precio': mp.costo_unitario or Decimal('0'),
                 'lead_time_dias': 3,
                 'activo': True,
             },

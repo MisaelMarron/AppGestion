@@ -17,7 +17,7 @@ def clasificar():
     hasta = timezone.localdate()
     desde = hasta-timedelta(days=365)
     for materia in materias:
-        consumido = ConsumoMateriaPrima.objects.filter(materia_prima=materia,produccion__anulada=False, produccion__sintetica=settings.DEMO_MODE,
+        consumido = ConsumoMateriaPrima.objects.filter(materia_prima=materia,produccion__anulada=False,
             produccion__fecha__date__gte=desde,produccion__fecha__date__lt=hasta).aggregate(n=Sum('cantidad_usada'))['n'] or Decimal(0)
         serie,_ = preparar(materia)
         serie = serie.tail(365)

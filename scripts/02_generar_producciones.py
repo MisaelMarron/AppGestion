@@ -1,7 +1,7 @@
 """
 02_generar_producciones.py
 ===========================
-Genera producciones simuladas a lo largo de los últimos 75 días, como si fuera
+Genera producciones simuladas a lo largo de los últimos 365 días, como si fuera
 una empresa real de galletas que produce diariamente.
 
 Lógica de simulación:
@@ -20,7 +20,7 @@ Ejecutar desde la raíz del proyecto:
 """
 import os, sys, random, uuid
 from pathlib import Path
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 # ── Forzar salida UTF-8 en Windows ──
@@ -37,7 +37,7 @@ import django
 django.setup()
 
 from django.utils import timezone
-from django.db import connection, transaction
+from django.db import transaction
 from django.contrib.auth import get_user_model
 from inventario.models import (
     MateriaPrima, ProductoTerminado, MovimientoInventario,
@@ -58,11 +58,10 @@ usuario = User.objects.filter(is_superuser=True).first()
 if not usuario:
     usuario = User.objects.first()
 if not usuario:
-    print('⚠  No hay usuarios en el sistema. Creando superusuario "admin"…')
-    usuario = User.objects.create_superuser('admin', 'admin@operastock.local', 'admin123')
+    sys.exit('No hay usuarios. Cree un administrador antes de generar producciones.')
 
 # ── Verificar que existan productos y materias primas ──
-productos = list(ProductoTerminado.objects.filter(activo=True))
+productos = list(ProductoTerminado.objects.filter(activo=True, codigo__startswith='PROD000'))
 materias = {mp.pk: mp for mp in MateriaPrima.objects.filter(activo=True)}
 
 if not productos:
@@ -83,30 +82,20 @@ if not recetas:
     print('❌  No hay recetas configuradas. Ejecuta primero 01_cargar_datos_iniciales.py')
     sys.exit(1)
 
-# ── Pesos de popularidad por producto ──
-# Equilibrado para asegurar que todos los insumos alcancen >= 30 consumos
-PESOS_PRODUCTO = {}
-for pt in productos:
-    cod = (pt.codigo or '').upper()
-    if 'PROD0001' in cod:    # Galleta de chocolate
-        PESOS_PRODUCTO[pt.pk] = 25
-    elif 'PROD0002' in cod:  # Galleta de avena y miel
-        PESOS_PRODUCTO[pt.pk] = 22
-    elif 'PROD0003' in cod:  # Galleta de maíz
-        PESOS_PRODUCTO[pt.pk] = 20
-    elif 'PROD0004' in cod:  # Galleta de maní
-        PESOS_PRODUCTO[pt.pk] = 18
-    elif 'PROD0005' in cod:  # Galleta de avena y cacao
-        PESOS_PRODUCTO[pt.pk] = 15
-    else:
-        PESOS_PRODUCTO[pt.pk] = 15
+PESOS_PRODUCTO = {pt.pk: {1: 25, 2: 22, 3: 20, 4: 18, 5: 15,
+                          6: 12, 7: 12, 8: 10}.get(int(pt.codigo[-4:]), 10)
+                  for pt in productos if pt.pk in recetas}
 
-# ── Rango de fechas: 85 días históricos para asegurar split >= 45 y registros >= 30 en todos los insumos ──
+# ── Año completo: se conservan los días ya registrados ──
 hoy = timezone.localdate()
-fecha_inicio = hoy - timedelta(days=85)
+fecha_inicio = hoy - timedelta(days=365)
 fecha_fin = hoy - timedelta(days=1)  # hasta ayer
+fechas_existentes = set(Produccion.objects.filter(fecha__date__range=(fecha_inicio, fecha_fin))
+                        .values_list('fecha__date', flat=True))
+if fecha_inicio in fechas_existentes and fecha_fin in fechas_existentes:
+    sys.exit('El historial anual ya está completo hasta ayer; no se añadieron datos.')
 
-print(f'\n═══ Generando producciones del {fecha_inicio} al {fecha_fin} (85 días) ═══')
+print(f'\n═══ Completando historial del {fecha_inicio} al {fecha_fin} (365 días) ═══')
 print(f'    Usuario: {usuario.username}')
 print(f'    Productos: {len(productos)}')
 print(f'    Recetas: {len(recetas)}\n')
@@ -147,8 +136,8 @@ dia_actual = fecha_inicio
 while dia_actual <= fecha_fin:
     dia_semana = dia_actual.weekday()  # 0=Lunes ... 6=Domingo
 
-    # Domingos: descanso
-    if dia_semana == 6:
+    # Se conservan las jornadas existentes; domingos y cierres puntuales sin producción.
+    if dia_actual in fechas_existentes or dia_semana == 6 or random.random() < 0.035:
         dia_actual += timedelta(days=1)
         continue
 
@@ -160,113 +149,122 @@ while dia_actual <= fecha_fin:
     else:  # Martes a Jueves: 2 a 3 lotes
         num_producciones = random.choices([2, 3], weights=[60, 40])[0]
 
+    # Campañas de fin de año y crecimiento moderado durante el año.
+    temporada = 1.35 if dia_actual.month in (11, 12) else (1.12 if dia_actual.month in (6, 7) else 1.0)
+    crecimiento = 0.85 + 0.25 * (dia_actual - fecha_inicio).days / 365
+    if temporada > 1.2 and random.random() < 0.45:
+        num_producciones += 1
+
     for _ in range(num_producciones):
-        # Seleccionar producto balanceando para evitar rezagados
-        recientes = [r for r in ultimos_producidos[-2:]]
-        candidatos = [pk for pk in PESOS_PRODUCTO.keys() if pk not in recientes] or list(PESOS_PRODUCTO.keys())
-        pesos = [PESOS_PRODUCTO[pk] for pk in candidatos]
-        producto_id = random.choices(candidatos, weights=pesos)[0]
-        ultimos_producidos.append(producto_id)
+        with transaction.atomic():
+            # Seleccionar producto balanceando para evitar rezagados
+            recientes = [r for r in ultimos_producidos[-2:]]
+            disponibles = [pt.pk for pt in productos if pt.pk in PESOS_PRODUCTO
+                           and (int(pt.codigo[-4:]) <= 5 or dia_actual >= fecha_inicio + timedelta(days=150))]
+            candidatos = [pk for pk in disponibles if pk not in recientes] or disponibles
+            pesos = [PESOS_PRODUCTO[pk] for pk in candidatos]
+            producto_id = random.choices(candidatos, weights=pesos)[0]
+            ultimos_producidos.append(producto_id)
 
-        if producto_id not in recetas:
-            continue
+            if producto_id not in recetas:
+                continue
 
-        producto = ProductoTerminado.objects.get(pk=producto_id)
+            producto = ProductoTerminado.objects.get(pk=producto_id)
 
-        # Cantidad en bulk (kg): varía entre 3 y 10 kg
-        base = random.gauss(5.5, 1.8)
-        cantidad_bulk = Decimal(str(max(2.0, min(12.0, base)))).quantize(
-            Decimal('0.01'), rounding=ROUND_HALF_UP
-        )
-
-        # Viernes y sábados lotes ligeramente mayores
-        if dia_semana in (4, 5):
-            cantidad_bulk = (cantidad_bulk * Decimal('1.2')).quantize(
+            # Cantidad en bulk (kg): varía entre 3 y 10 kg
+            base = random.gauss(5.5 * temporada * crecimiento, 1.5)
+            cantidad_bulk = Decimal(str(max(2.0, min(12.0, base)))).quantize(
                 Decimal('0.01'), rounding=ROUND_HALF_UP
             )
 
-        # Unidades producidas: aprox. 15 paquetes/unidades por cada kg de bulk
-        # ej. 10 kg -> ~150 unidades
-        unidades = int(cantidad_bulk * Decimal('15')) + random.randint(-2, 3)
-        unidades = max(10, unidades)
+            # Viernes y sábados lotes ligeramente mayores
+            if dia_semana in (4, 5):
+                cantidad_bulk = (cantidad_bulk * Decimal('1.2')).quantize(
+                    Decimal('0.01'), rounding=ROUND_HALF_UP
+                )
 
-        # Verificar y reabastecer materias primas si hiciera falta
-        receta_lineas = recetas[producto_id]
-        snapshot = []
-        for linea in receta_lineas:
-            mp = MateriaPrima.objects.get(pk=linea['materia_id'])
-            cant_requerida = (linea['cantidad'] * cantidad_bulk).quantize(
-                Decimal('0.00001'), rounding=ROUND_HALF_UP
-            )
-            reabastecer_si_necesario(mp, cant_requerida, dia_actual)
-            snapshot.append({
-                'materia_id': mp.pk,
-                'cantidad': str(cant_requerida),
-            })
+            # Unidades producidas: aprox. 15 paquetes/unidades por cada kg de bulk
+            # ej. 10 kg -> ~150 unidades
+            unidades = int(cantidad_bulk * Decimal('15')) + random.randint(-2, 3)
+            unidades = max(10, unidades)
 
-        # Hora aleatoria de producción
-        hora = random.randint(7, 17)
-        minuto = random.randint(0, 59)
-        fecha_produccion = timezone.make_aware(
-            datetime(dia_actual.year, dia_actual.month, dia_actual.day, hora, minuto)
-        )
+            # Verificar y reabastecer materias primas si hiciera falta
+            receta_lineas = recetas[producto_id]
+            snapshot = []
+            for linea in receta_lineas:
+                mp = MateriaPrima.objects.get(pk=linea['materia_id'])
+                cant_requerida = (linea['cantidad'] * cantidad_bulk).quantize(
+                    Decimal('0.00001'), rounding=ROUND_HALF_UP
+                )
+                reabastecer_si_necesario(mp, cant_requerida, dia_actual)
+                snapshot.append({
+                    'materia_id': mp.pk,
+                    'cantidad': str(cant_requerida),
+                })
 
-        produccion = Produccion(
-            producto=producto,
-            usuario=usuario,
-            clave_operacion=uuid.uuid4(),
-            cantidad_producida=cantidad_bulk,
-            unidades_producidas=unidades,
-            ejecutada=True,
-            sintetica=False,
-            receta_snapshot=snapshot,
-        )
-        produccion.full_clean()
-        produccion.save()
-
-        # Forzar la fecha histórica
-        Produccion.objects.filter(pk=produccion.pk).update(fecha=fecha_produccion)
-
-        # Consumir materias primas y registrar movimientos
-        for linea in snapshot:
-            mp = MateriaPrima.objects.get(pk=linea['materia_id'])
-            cant = Decimal(linea['cantidad'])
-
-            ConsumoMateriaPrima.objects.create(
-                produccion=produccion,
-                materia_prima=mp,
-                cantidad_usada=cant,
+            # Hora aleatoria de producción
+            hora = random.randint(7, 17)
+            minuto = random.randint(0, 59)
+            fecha_produccion = timezone.make_aware(
+                datetime(dia_actual.year, dia_actual.month, dia_actual.day, hora, minuto)
             )
 
-            mp.stock_actual -= cant
-            mp.save(update_fields=['stock_actual', 'ultima_vez_actualizado'])
-
-            mov = MovimientoInventario.objects.create(
-                tipo='PRODUCCION',
-                materia_prima=mp,
-                cantidad=-cant,
+            produccion = Produccion(
+                producto=producto,
                 usuario=usuario,
-                descripcion=f'Consumo producción #{produccion.pk} ({producto.nombre})',
+                clave_operacion=uuid.uuid4(),
+                cantidad_producida=cantidad_bulk,
+                unidades_producidas=unidades,
+                ejecutada=True,
+                sintetica=True,
+                receta_snapshot=snapshot,
             )
-            MovimientoInventario.objects.filter(pk=mov.pk).update(fecha=fecha_produccion)
+            produccion.full_clean()
+            produccion.save()
 
-        # Incrementar stock de producto terminado
-        producto.stock_actual += cantidad_bulk
-        producto.save(update_fields=['stock_actual'])
+            # Forzar la fecha histórica
+            Produccion.objects.filter(pk=produccion.pk).update(fecha=fecha_produccion)
 
-        mov_pt = MovimientoInventario.objects.create(
-            tipo='PRODUCCION',
-            producto_terminado=producto,
-            cantidad=cantidad_bulk,
-            usuario=usuario,
-            descripcion=f'Producción #{produccion.pk} ({unidades} uds)',
-        )
-        MovimientoInventario.objects.filter(pk=mov_pt.pk).update(fecha=fecha_produccion)
+            # Consumir materias primas y registrar movimientos
+            for linea in snapshot:
+                mp = MateriaPrima.objects.get(pk=linea['materia_id'])
+                cant = Decimal(linea['cantidad'])
 
-        total_producciones += 1
-        total_kg += cantidad_bulk
-        total_unidades += unidades
-        resumen_por_producto[producto.nombre] = resumen_por_producto.get(producto.nombre, 0) + 1
+                ConsumoMateriaPrima.objects.create(
+                    produccion=produccion,
+                    materia_prima=mp,
+                    cantidad_usada=cant,
+                )
+
+                mp.stock_actual -= cant
+                mp.save(update_fields=['stock_actual', 'ultima_vez_actualizado'])
+
+                mov = MovimientoInventario.objects.create(
+                    tipo='PRODUCCION',
+                    materia_prima=mp,
+                    cantidad=-cant,
+                    usuario=usuario,
+                    descripcion=f'Consumo producción #{produccion.pk} ({producto.nombre})',
+                )
+                MovimientoInventario.objects.filter(pk=mov.pk).update(fecha=fecha_produccion)
+
+            # Incrementar stock de producto terminado
+            producto.stock_actual += cantidad_bulk
+            producto.save(update_fields=['stock_actual'])
+
+            mov_pt = MovimientoInventario.objects.create(
+                tipo='PRODUCCION',
+                producto_terminado=producto,
+                cantidad=cantidad_bulk,
+                usuario=usuario,
+                descripcion=f'Producción #{produccion.pk} ({unidades} uds)',
+            )
+            MovimientoInventario.objects.filter(pk=mov_pt.pk).update(fecha=fecha_produccion)
+
+            total_producciones += 1
+            total_kg += cantidad_bulk
+            total_unidades += unidades
+            resumen_por_producto[producto.nombre] = resumen_por_producto.get(producto.nombre, 0) + 1
 
     dia_actual += timedelta(days=1)
 
@@ -282,6 +280,9 @@ for nombre, conteo in sorted(resumen_por_producto.items(), key=lambda x: -x[1]):
 print('\n═══ Stock actual de materias primas ═══')
 for mp in MateriaPrima.objects.filter(activo=True).order_by('codigo'):
     print(f'  {mp.codigo}  {mp.nombre:.<25s} {mp.stock_actual:>8.2f} {mp.unidad_medida}')
+
+if total_producciones == 0:
+    sys.exit('El año ya está cubierto; no se duplicaron entrenamientos ni órdenes de compra.')
 
 # ═══════════════════════════════════════════════════════════════════
 # ENTRENAR MODELOS PREDICTIVOS Y GENERAR PRONÓSTICOS

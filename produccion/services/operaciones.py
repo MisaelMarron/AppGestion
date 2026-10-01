@@ -51,9 +51,8 @@ def ejecutar_produccion(pk, usuario=None):
         cantidad=produccion.cantidad_producida, usuario=usuario, descripcion=f'Producción {produccion.pk}')
     produccion.usuario = usuario
     produccion.ejecutada = True
-    produccion.sintetica = produccion.sintetica or settings.DEMO_MODE
     produccion.receta_snapshot = lineas
-    produccion.save(update_fields=['ejecutada','receta_snapshot','usuario','sintetica'])
+    produccion.save(update_fields=['ejecutada','receta_snapshot','usuario'])
     auditar(usuario,'PRODUCCION',produccion,nuevo={'receta':lineas})
     return produccion
 

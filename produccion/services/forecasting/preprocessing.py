@@ -9,7 +9,7 @@ from produccion.models import ConsumoMateriaPrima
 def preparar(materia, corte=None, frecuencia='D'):
     corte = corte or timezone.localdate()
     rows = list(ConsumoMateriaPrima.objects.filter(materia_prima=materia,
-        produccion__fecha__date__lt=corte, produccion__anulada=False, produccion__sintetica=settings.DEMO_MODE)
+        produccion__fecha__date__lt=corte, produccion__anulada=False)
         .values('id','cantidad_usada','produccion__fecha','excluido_entrenamiento'))
     return preparar_filas(rows, corte, frecuencia)
 
