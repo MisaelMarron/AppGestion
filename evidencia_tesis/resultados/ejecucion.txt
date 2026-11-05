@@ -1,0 +1,75 @@
+Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+Found 15 test(s).
+Operations to perform:
+  Synchronize unmigrated apps: evidencia_tesis, messages, staticfiles
+  Apply all migrations: accounts, admin, auth, contenttypes, inventario, produccion, sessions
+Synchronizing apps without migrations:
+  Creating tables...
+    Running deferred SQL...
+Running migrations:
+  Applying contenttypes.0001_initial... OK
+  Applying contenttypes.0002_remove_content_type_name... OK
+  Applying auth.0001_initial... OK
+  Applying auth.0002_alter_permission_name_max_length... OK
+  Applying auth.0003_alter_user_email_max_length... OK
+  Applying auth.0004_alter_user_username_opts... OK
+  Applying auth.0005_alter_user_last_login_null... OK
+  Applying auth.0006_require_contenttypes_0002... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying auth.0009_alter_user_last_name_max_length... OK
+  Applying auth.0010_alter_group_name_max_length... OK
+  Applying auth.0011_update_proxy_permissions... OK
+  Applying auth.0012_alter_user_first_name_max_length... OK
+  Applying accounts.0001_initial... OK
+  Applying accounts.0002_alter_customuser_rol_usersession... OK
+  Applying accounts.0003_customuser_empresa... OK
+  Applying accounts.0004_alter_customuser_managers... OK
+  Applying admin.0001_initial... OK
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying admin.0003_logentry_add_action_flag_choices... OK
+  Applying inventario.0001_initial... OK
+  Applying produccion.0001_initial... OK
+  Applying inventario.0002_productoterminado_precio... OK
+  Applying inventario.0003_materiaprima_codigo_and_more... OK
+  Applying produccion.0002_produccion_consumomateriaprima_detalleproducto... OK
+  Applying produccion.0003_alter_detalleformula_cantidad_requerida_and_more... OK
+  Applying inventario.0004_proveedor_tiempo_entrega_dias_proveedor_whatsapp_and_more... OK
+  Applying inventario.0005_auditoria_consumolote_detalleordencompra_and_more... OK
+  Applying produccion.0004_consumomateriaprima_excluido_entrenamiento_and_more... OK
+  Applying inventario.0006_sugerenciacompra_pronostico_ordencompra_sugerencia_and_more... OK
+  Applying inventario.0007_proveedores_existentes... OK
+  Applying inventario.0008_alter_materiaprima_nivel_servicio... OK
+  Applying inventario.0009_ordencompra_fecha_pedido_ordencompra_observacion_and_more... OK
+  Applying inventario.0010_fechas_pedidos_existentes... OK
+  Applying inventario.0011_add_cantidad_editada_sugerencia... OK
+  Applying produccion.0005_produccion_usuario_and_more... OK
+  Applying produccion.0006_produccion_clave_operacion... OK
+  Applying produccion.0007_entrenamiento_obsoleto_produccion_anulada_and_more... OK
+  Applying produccion.0008_produccion_unidades_producidas_and_more... OK
+  Applying sessions.0001_initial...test_cp02_consumo_receta_y_prevencion_duplicado (evidencia_tesis.tests.FlujosTesisTest.test_cp02_consumo_receta_y_prevencion_duplicado) ... ok
+test_cp02_stock_insuficiente_no_deja_consumo_parcial (evidencia_tesis.tests.FlujosTesisTest.test_cp02_stock_insuficiente_no_deja_consumo_parcial) ... ok
+test_cp03_entrada_y_salida_trazables (evidencia_tesis.tests.FlujosTesisTest.test_cp03_entrada_y_salida_trazables) ... ok
+test_cp03_salida_excesiva_no_cambia_stock (evidencia_tesis.tests.FlujosTesisTest.test_cp03_salida_excesiva_no_cambia_stock) ... ok
+test_cp06_csv_sin_entrenamiento_no_inventa_precision (evidencia_tesis.tests.FlujosTesisTest.test_cp06_csv_sin_entrenamiento_no_inventa_precision) ... ok
+test_cp06_interfaz_no_publica_metricas_inventadas (evidencia_tesis.tests.FlujosTesisTest.test_cp06_interfaz_no_publica_metricas_inventadas) ... ok
+test_cp07_cantidad_editada_pasa_a_orden (evidencia_tesis.tests.FlujosTesisTest.test_cp07_cantidad_editada_pasa_a_orden) ... ok
+test_cp07_recepcion_unica (evidencia_tesis.tests.FlujosTesisTest.test_cp07_recepcion_unica) ... ok
+test_cp07_rechazo_conserva_trazabilidad (evidencia_tesis.tests.FlujosTesisTest.test_cp07_rechazo_conserva_trazabilidad) ... ok
+test_cp08_operador_no_puede_rechazar_sugerencia (evidencia_tesis.tests.FlujosTesisTest.test_cp08_operador_no_puede_rechazar_sugerencia) ... ok
+test_seed_crea_productos_y_formulas (inventario.tests.SeedProductosDemoTest.test_seed_crea_productos_y_formulas) ... ok
+test_cp04_corte_temporal_y_dias_vacios (evidencia_tesis.tests.CalculosTesisTest.test_cp04_corte_temporal_y_dias_vacios) ... ok
+test_cp04_metricas_con_cero (evidencia_tesis.tests.CalculosTesisTest.test_cp04_metricas_con_cero) ... ok
+test_cp04_seleccion_por_rmse_y_mae (evidencia_tesis.tests.CalculosTesisTest.test_cp04_seleccion_por_rmse_y_mae) ... ok
+test_cp05_historial_sintetico_120_dias (evidencia_tesis.tests.CalculosTesisTest.test_cp05_historial_sintetico_120_dias) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.900s
+
+OK
+Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
+ OK
+System check identified no issues (0 silenced).
+Productos de prueba creados correctamente.

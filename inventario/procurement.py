@@ -130,17 +130,12 @@ def analizar(materia, pronostico=None, oferta=None):
         'dias_restantes':(agotamiento-hoy).days if agotamiento else None,'proyeccion':projection,
         'modelo':pronostico.entrenamiento.modelo,
         'metricas':pronostico.entrenamiento.metricas,'pronostico_id':pronostico.pk})
-    error = pronostico.entrenamiento.metricas.get('rmse')
-    error_texto = f'{error:.4f}' if error is not None else 'no disponible'
     result['explicacion'] = (
-        f'Se calcula una compra de {cantidad:.3f} {materia.unidad_medida} de {materia.nombre}. '
-        f'Stock disponible: {libre:.3f}; utilizable después de vencidos: {util:.3f}; entradas dentro de cobertura: {oportuno:.3f}; '
-        f'demanda durante {lt} días de entrega: {demanda_lt:.3f}; seguridad: {ss:.3f}; ROP: {rop:.3f}. '
-        f'Objetivo S: {objetivo:.3f}. Q = max(0, S − posición dentro de cobertura), ajustada a MOQ '
-        f'{oferta.moq} y múltiplo {oferta.multiplo}. Proveedor: {oferta.proveedor.nombre}, elegido por '
-        f'menor tiempo de entrega y luego precio. Modelo: {pronostico.entrenamiento.modelo}; '
-        f'RMSE de validación: {error_texto}. '
-        f'Fecha de pedido: {pedido or "no alcanzada en el horizonte"}.')
+        f'Compra recomendada: {cantidad:.2f} {materia.unidad_medida}. '
+        f'Stock utilizable: {util:.2f}; pedidos que llegarían a tiempo: {oportuno:.2f}. '
+        f'El cálculo considera el consumo previsto durante {lt} días de entrega, '
+        f'un margen de seguridad y la presentación de compra del proveedor {oferta.proveedor.nombre}. '
+        f'Fecha sugerida para pedir: {pedido or "aún no determinada"}.')
     return result
 
 

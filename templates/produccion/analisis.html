@@ -10,12 +10,6 @@
   .kpi-sub { font-size:.78rem; color:#94a3b8; }
 
   .model-winner { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; }
-  .model-row td { vertical-align:middle; }
-  .metric-bar-wrap { height:8px; background:#e2e8f0; border-radius:4px; overflow:hidden; width:100px; display:inline-block; vertical-align:middle; }
-  .metric-bar { height:100%; border-radius:4px; }
-  .bar-rmse { background:#3b82f6; }
-  .bar-mae { background:#10b981; }
-  .bar-mape { background:#f59e0b; }
 </style>
 
 <!-- Header -->
@@ -31,9 +25,11 @@
   </div>
   <div class="d-flex align-items-center gap-2">
     <!-- Botón Exportar CSV -->
-    <a href="{% url 'produccion:exportar_csv_analisis' materia.pk %}" class="btn btn-success btn-sm fw-bold">
-      <i class="bi bi-file-earmark-excel me-1"></i>Exportar análisis (CSV)
+    {% if user.es_admin %}
+    <a href="{% url 'produccion:exportar_csv_analisis' materia.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-file-earmark-excel me-1"></i>Exportar datos técnicos (CSV)
     </a>
+    {% endif %}
     {% include 'produccion/riesgo.html' with riesgo=a.riesgo %}
     {% if user.es_admin %}
       <a href="{% url 'produccion:politica' materia.pk %}" class="btn btn-sm btn-outline-secondary">⚙ Política</a>
@@ -100,7 +96,7 @@
 
   <div class="col-lg-7">
     <div class="card card-os p-4 h-100">
-      <h2 class="h5 mb-2 fw-bold"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Razonamiento de la Decisión</h2>
+      <h2 class="h5 mb-2 fw-bold"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Cómo se calculó la recomendación</h2>
       <p class="text-secondary mb-3">{{ a.explicacion }}</p>
 
       <div class="p-3 bg-light border rounded mb-3">
@@ -124,111 +120,13 @@
   </div>
 </div>
 
-<!-- COMPARATIVA DE LOS 4 ALGORITMOS/MODELOS PREDICTIVOS -->
 <div class="card card-os p-4 mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <h2 class="h5 mb-0 fw-bold"><i class="bi bi-bar-chart-steps text-primary me-2"></i>Comparativa de los 4 Modelos Predictivos</h2>
-      <p class="text-muted small mb-0">Evaluación automática en paralelo sobre el 20% del historial de consumos (Holdout Chronological).</p>
-    </div>
-    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 fw-bold">Modelo Óptimo Seleccionado</span>
-  </div>
-
-  <div class="table-responsive mb-3">
-    <table class="table table-bordered align-middle mb-0" style="font-size:.9rem;">
-      <thead class="table-light">
-        <tr>
-          <th>Modelo / Algoritmo</th>
-          <th>MAE <span class="text-muted small">(Error Medio)</span></th>
-          <th>RMSE <span class="text-muted small">(Raíz Error Cuadrático)</span></th>
-          <th>Precisión / Ajuste %</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% if run and run.comparacion %}
-          {% for r in run.comparacion %}
-          <tr class="{% if r.modelo == run.modelo %}table-primary fw-bold{% endif %}">
-            <td>
-              {{ r.modelo }}
-              {% if r.modelo == run.modelo %}
-                <span class="badge bg-primary ms-2"><i class="bi bi-check-circle-fill me-1"></i>Seleccionado</span>
-              {% endif %}
-            </td>
-            <td>{% if r.metricas.mae %}{{ r.metricas.mae|floatformat:3 }}{% else %}—{% endif %}</td>
-            <td>{% if r.metricas.rmse %}{{ r.metricas.rmse|floatformat:3 }}{% else %}—{% endif %}</td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="metric-bar-wrap"><div class="metric-bar bar-mae" style="width: {% if r.modelo == run.modelo %}92{% else %}80{% endif %}%"></div></div>
-                <span>{% if r.modelo == run.modelo %}92.5%{% else %}81.0%{% endif %}</span>
-              </div>
-            </td>
-            <td>
-              {% if r.modelo == run.modelo %}
-                <span class="badge bg-success">Activo</span>
-              {% else %}
-                <span class="badge bg-secondary">Descartado / Alternativo</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        {% else %}
-          <!-- 4 Modelos Estándar Comparados -->
-          <tr class="table-primary fw-bold">
-            <td>
-              1. Random Forest (Machine Learning)
-              <span class="badge bg-primary ms-2"><i class="bi bi-check-circle-fill me-1"></i>Seleccionado</span>
-            </td>
-            <td>0.065</td>
-            <td>0.098</td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="metric-bar-wrap"><div class="metric-bar bar-mae" style="width: 94%"></div></div>
-                <span>94.2%</span>
-              </div>
-            </td>
-            <td><span class="badge bg-success">Activo</span></td>
-          </tr>
-          <tr>
-            <td>2. SARIMA (Seasonal ARIMA)</td>
-            <td>0.088</td>
-            <td>0.125</td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="metric-bar-wrap"><div class="metric-bar bar-mae" style="width: 91%"></div></div>
-                <span>91.0%</span>
-              </div>
-            </td>
-            <td><span class="badge bg-secondary">Alternativo</span></td>
-          </tr>
-          <tr>
-            <td>3. Holt-Winters (Suavizado Exponencial)</td>
-            <td>0.120</td>
-            <td>0.175</td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="metric-bar-wrap"><div class="metric-bar bar-rmse" style="width: 86%"></div></div>
-                <span>86.5%</span>
-              </div>
-            </td>
-            <td><span class="badge bg-secondary">Alternativo</span></td>
-          </tr>
-          <tr>
-            <td>4. Promedio Móvil (Baseline / Referencia)</td>
-            <td>0.195</td>
-            <td>0.280</td>
-            <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="metric-bar-wrap"><div class="metric-bar bar-mape" style="width: 78%"></div></div>
-                <span>78.0%</span>
-              </div>
-            </td>
-            <td><span class="badge bg-secondary">Baseline</span></td>
-          </tr>
-        {% endif %}
-      </tbody>
-    </table>
-  </div>
+  <h2 class="h5 fw-bold mb-2">Pronóstico de consumo</h2>
+  {% if forecast and a.riesgo != 'SIN_DATOS' %}
+    <p class="mb-0 text-muted">Se muestran las estimaciones disponibles para apoyar la planificación. Revise la cantidad y la fecha sugeridas antes de confirmar una compra.</p>
+  {% else %}
+    <p class="mb-0 text-muted">Todavía no hay un pronóstico vigente para este insumo. El análisis de compra se completará cuando se generen datos suficientes.</p>
+  {% endif %}
 </div>
 
 <!-- Gráficos: Stock Proyectado y Consumo Histórico + Pronóstico -->
@@ -237,7 +135,7 @@
     <div class="card card-os p-4 h-100">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 mb-0 fw-bold"><i class="bi bi-graph-down text-primary me-2"></i>Curva de Stock Proyectado y ROP</h2>
-        <span class="badge bg-light text-dark border">Horizonte 60 días</span>
+        <span class="badge bg-light text-dark border">{{ forecast.horizonte|default:'—' }} días</span>
       </div>
       <div style="position:relative;height:280px;width:100%">
         <canvas id="stock-chart" aria-label="Stock proyectado, ROP y seguridad"></canvas>
@@ -250,7 +148,7 @@
     <div class="card card-os p-4 h-100">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 mb-0 fw-bold"><i class="bi bi-graph-up-arrow text-success me-2"></i>Historial de Consumo y Pronóstico</h2>
-        <span class="badge bg-light text-dark border">{{ run.modelo|default:"Modelo Óptimo" }}</span>
+        <span class="badge bg-light text-dark border">Consumo estimado</span>
       </div>
       <div style="position:relative;height:280px;width:100%">
         <canvas id="consumo-chart" aria-label="Histórico y Pronóstico"></canvas>
@@ -295,10 +193,8 @@
   </div>
 </div>
 
-{{ a|json_script:'analysis-data' }}
+{{ chart_data|json_script:'analysis-data' }}
 {{ history|json_script:'history-data' }}
-{{ run.validacion|json_script:'validation-data' }}
-{{ run.comparacion|json_script:'metrics-data' }}
 {{ forecast.valores|json_script:'forecast-data' }}
 {% endblock %}
 

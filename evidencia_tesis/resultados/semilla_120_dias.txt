@@ -1,0 +1,83 @@
+
+═══ Completando historial del 2026-07-07 al 2026-11-03 (120 días) ═══
+    Usuario: tesis_admin
+    Productos: 8
+    Recetas: 8
+
+═══ Resumen de producción simulada ═══
+  📦 Total producciones: 257
+  ⚖️  Total bulk (kg):   1525.77 kg
+  🍪 Total unidades:    22,943 unidades
+
+  • Galleta de chocolate: 50 lotes
+  • Galleta de avena y miel: 48 lotes
+  • Galleta de maíz: 47 lotes
+  • Galleta de maní: 42 lotes
+  • Galleta de avena y cacao: 32 lotes
+  • Galleta de canela: 15 lotes
+  • Barra de avena y pasas: 13 lotes
+  • Galleta de coco: 10 lotes
+
+═══ Stock actual de materias primas ═══
+  INS0001  Harina de trigo..........     1.12 kg
+  INS0002  Harina de maíz...........     7.78 kg
+  INS0003  Azúcar...................     6.21 kg
+  INS0004  Mantequilla..............     0.18 kg
+  INS0005  Cacao en polvo...........     0.01 kg
+  INS0006  Leche en polvo...........    12.60 kg
+  INS0007  Avena....................     2.95 kg
+  INS0008  Maní triturado...........    13.49 kg
+  INS0009  Miel.....................     3.68 kg
+  INS0010  Sal......................     3.05 kg
+  INS0011  Coco rallado.............     2.23 kg
+  INS0012  Pasas....................    13.33 kg
+  INS0013  Canela molida............     1.05 kg
+
+═══ Entrenando los 4 Modelos Predictivos (Machine Learning & Series Temporales) ═══
+  ✔ Harina de trigo: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 244 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 213.94 kg
+    💡 Sugerencia de compra generada: 125.00 kg (Proveedor: Distribuidora Andina de Insumos)
+  ✔ Harina de maíz: MODELO_DISPONIBLE | Modelo óptimo: Holt-Winters (4 modelos evaluados, 47 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 21.00 kg
+    💡 Sugerencia de compra generada: 10.00 kg (Proveedor: Distribuidora Andina de Insumos)
+  ✔ Azúcar: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 244 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 113.32 kg
+    💡 Sugerencia de compra generada: 58.00 kg (Proveedor: Distribuidora Andina de Insumos)
+  ✔ Mantequilla: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 257 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 104.97 kg
+    💡 Sugerencia de compra generada: 61.00 kg (Proveedor: Comercial Dulce Sur)
+  ✔ Cacao en polvo: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 82 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 24.76 kg
+    💡 Sugerencia de compra generada: 15.00 kg (Proveedor: Comercial Dulce Sur)
+  ✔ Leche en polvo: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 244 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 34.75 kg
+    💡 Sugerencia de compra generada: 8.00 kg (Proveedor: Comercial Dulce Sur)
+  ✔ Avena: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 93 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 154.06 kg
+    💡 Sugerencia de compra generada: 91.00 kg (Proveedor: Distribuidora Andina de Insumos)
+  ✔ Maní triturado: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 55 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 52.99 kg
+    💡 Sugerencia de compra generada: 17.00 kg (Proveedor: Abastecimientos Qiwa)
+  ✔ Miel: MODELO_DISPONIBLE | Modelo óptimo: SARIMA (4 modelos evaluados, 93 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 56.02 kg
+    💡 Sugerencia de compra generada: 30.00 kg (Proveedor: Comercial Dulce Sur)
+  ✔ Sal: MODELO_DISPONIBLE | Modelo óptimo: Random Forest (4 modelos evaluados, 257 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 19.15 kg
+    💡 Sugerencia de compra generada: 8.00 kg (Proveedor: Abastecimientos Qiwa)
+  ✔ Coco rallado: DATOS_INSUFICIENTES | Modelo óptimo: Promedio móvil (1 modelos evaluados, 10 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 0.00 kg
+  ✔ Pasas: DATOS_INSUFICIENTES | Modelo óptimo: Promedio móvil (1 modelos evaluados, 13 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 30.12 kg
+    💡 Sugerencia de compra generada: 5.00 kg (Proveedor: Abastecimientos Qiwa)
+  ✔ Canela molida: DATOS_INSUFICIENTES | Modelo óptimo: Promedio móvil (1 modelos evaluados, 15 registros)
+    → Pronóstico generado: 60 días, demanda proyectada: 2.31 kg
+    💡 Sugerencia de compra generada: 1.00 kg (Proveedor: Abastecimientos Qiwa)
+
+═══ Registrando órdenes de compra de ejemplo ═══
+  ✔ Orden #1 EN TRÁNSITO registrada: 50 kg Harina de Trigo (Distribuidora Andina de Insumos)
+  ✔ Orden #2 RECIBIDA registrada: 20 kg Cacao en Polvo (Comercial Dulce Sur)
+
+✅  Simulación completa exitosa.
+    • 257 producciones con registro de kilos bulk y unidades.
+    • Comparativa de 4 modelos predictivos activa.
+    • 12 sugerencias pendientes de compra listas en /produccion/compras/.

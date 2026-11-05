@@ -1,0 +1,11 @@
+{
+  "inicio": "2026-07-07",
+  "fin": "2026-11-03",
+  "dias_calendario": 120,
+  "dias_con_produccion": 101,
+  "producciones_sinteticas": 257,
+  "consumos": 1654,
+  "insumos": 13,
+  "entrenamientos": 13,
+  "pronosticos": 13
+}

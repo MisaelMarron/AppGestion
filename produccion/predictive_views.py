@@ -34,14 +34,7 @@ def error_message(request, exc):
 def panel(request):
     rows = [{'materia':m,'analisis':analizar(m)} for m in MateriaPrima.objects.filter(activo=True)]
     rows.sort(key=lambda r: {'CRITICO':0,'ATENCION':1,'ESTABLE':2}.get(r['analisis']['riesgo'],3))
-    from .models import Entrenamiento
-    errors = []
-    for materia in MateriaPrima.objects.filter(activo=True):
-        run = materia.entrenamientos.first()
-        if run and run.metricas.get('mape') is not None:
-            errors.append(run.metricas['mape'])
     return render(request,'produccion/predictive_panel.html',{'rows':rows,
-        'mape_medio':sum(errors)/len(errors) if errors else None,'modelos_evaluados':len(errors),
         'criticos':sum(r['analisis']['riesgo']=='CRITICO' for r in rows),
         'atencion':sum(r['analisis']['riesgo']=='ATENCION' for r in rows),
         'pendientes':SugerenciaCompra.objects.filter(estado='PENDIENTE').count(),
@@ -65,7 +58,8 @@ def analisis(request, pk):
         stocks.append({'fecha':timezone.localtime(mov.fecha).isoformat(),'stock':float(stock)})
         delta = -mov.cantidad if mov.tipo=='SALIDA' else mov.cantidad
         stock -= delta
-    return render(request,'produccion/analisis.html',{'materia':materia,'a':data,'run':run,
+    chart_data = {key: data.get(key) for key in ('proyeccion', 'fecha_pedido', 'fecha_recepcion', 'fecha_agotamiento')}
+    return render(request,'produccion/analisis.html',{'materia':materia,'a':data,'chart_data':chart_data,'run':run,
         'forecast':forecast,'runs':materia.entrenamientos.all()[:20],
         'forecasts':materia.pronosticos.all()[:20], 'history':history,'stocks':stocks[::-1],
         'feedback':list(forecast.evaluaciones.values('fecha','real','predicho','error_absoluto','error_porcentual')) if forecast else [],
@@ -245,7 +239,7 @@ def generar_sugerencias_todas(request):
         except Exception:
             pass
     if count > 0:
-        messages.success(request, f'Se generaron {count} sugerencias de compra calculadas según el modelo y proveedores.')
+        messages.success(request, f'Se generaron {count} sugerencias de compra según el consumo previsto y los proveedores disponibles.')
     else:
         messages.info(request, 'No hay materias primas que requieran sugerencias de compra adicionales en este momento.')
     return redirect('produccion:compras')
@@ -259,9 +253,9 @@ def decision(request, pk, accion):
         if accion == 'aprobar':
             decidir(pk, request.user, True)
             messages.success(request, 'Sugerencia aprobada y orden de compra generada.')
-        elif accion in ['rechazar', 'eliminar']:
-            sugerencia.delete()
-            messages.success(request, 'Sugerencia de compra eliminada correctamente.')
+        elif accion == 'rechazar':
+            decidir(pk, request.user, False)
+            messages.success(request, 'Sugerencia rechazada; se conservó el historial de la decisión.')
         else:
             raise ValidationError('Acción desconocida.')
     except ValidationError as exc:
@@ -269,7 +263,7 @@ def decision(request, pk, accion):
     return redirect('produccion:compras')
 
 
-@login_required
+@admin_required
 def exportar_csv_analisis(request, pk):
     """Exporta los datos de pronósticos, métricas de modelos y consumo a CSV."""
     import csv
@@ -280,7 +274,7 @@ def exportar_csv_analisis(request, pk):
     forecast = materia.pronosticos.select_related('entrenamiento').first()
     data = analizar(materia, forecast)
 
-    response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = f'attachment; filename="analisis_{materia.codigo or materia.pk}_{materia.nombre}.csv"'
 
     writer = csv.writer(response)
@@ -295,25 +289,20 @@ def exportar_csv_analisis(request, pk):
     writer.writerow([])
 
     writer.writerow(['COMPARATIVA DE MODELOS PREDICTIVOS'])
-    writer.writerow(['Modelo / Algoritmo', 'MAE (Error Medio)', 'Score / Precisión %', 'Estado'])
+    writer.writerow(['Modelo', 'MAE', 'RMSE', 'MAPE %', 'Estado'])
 
-    runs = materia.entrenamientos.all()
-    if runs:
-        for r in runs:
-            es_optimo = (forecast and forecast.entrenamiento_id == r.pk)
-            score = r.metricas.get('score', 0.85) if isinstance(r.metricas, dict) else 0.85
-            mae = r.metricas.get('mae', 0.0) if isinstance(r.metricas, dict) else 0.0
+    run = materia.entrenamientos.first()
+    if run and run.comparacion:
+        for candidate in run.comparacion:
+            metrics = candidate.get('metricas') or {}
             writer.writerow([
-                r.get_modelo_display() if hasattr(r, 'get_modelo_display') else r.modelo,
-                f"{mae:.4f}",
-                f"{score * 100:.1f}%",
-                'OPTIMO SELECCIONADO' if es_optimo else 'ALTERNATIVO'
+                candidate.get('modelo', ''),
+                metrics.get('mae', ''), metrics.get('rmse', ''),
+                metrics.get('mape') if metrics.get('mape') is not None else '',
+                'SELECCIONADO' if candidate.get('modelo') == run.modelo else 'EVALUADO'
             ])
     else:
-        consumo_d = data.get('consumo_diario', 0)
-        writer.writerow(['Proyección por Plan de Producción (BOM)', f"{data.get('demanda_planificada', consumo_d):.2f}", '93.2%', 'OPTIMO SELECCIONADO'])
-        writer.writerow(['Consumo Promedio Diario (Baseline)', f"{consumo_d:.2f}", '78.5%', 'ALTERNATIVO'])
-        writer.writerow(['Holt-Winters / Suavizado Exponencial', f"{consumo_d * 1.05:.2f}", '86.4%', 'ALTERNATIVO'])
+        writer.writerow(['Sin evaluación disponible', '', '', '', 'SIN DATOS'])
 
     writer.writerow([])
     writer.writerow(['HISTORIAL DE CONSUMO EN PRODUCCIÓN'])

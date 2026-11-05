@@ -5,6 +5,7 @@ Sistema inteligente de gestión operativa para el control de inventarios,
 producción y abastecimiento en pequeñas empresas alimentarias.
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'inventario',
     'produccion',
     'dashboard',
+    'evidencia_tesis',
 ]
 
 MIDDLEWARE = [
@@ -76,7 +78,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': Path(os.environ['OPERA_DB_PATH']).resolve() if os.environ.get('OPERA_DB_PATH') else BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -132,7 +134,6 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Almacenamiento privado: nunca se sirve como MEDIA ni acepta modelos subidos.
-import os
 MODEL_STORAGE = BASE_DIR / 'var' / 'modelos'
 if os.environ.get('POSTGRES_DB'):
     DATABASES['default'] = {

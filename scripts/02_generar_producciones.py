@@ -1,7 +1,7 @@
 """
 02_generar_producciones.py
 ===========================
-Genera producciones simuladas a lo largo de los últimos 365 días, como si fuera
+Genera producciones simuladas a lo largo de un periodo configurable, como si fuera
 una empresa real de galletas que produce diariamente.
 
 Lógica de simulación:
@@ -16,9 +16,9 @@ Lógica de simulación:
    sugerencias de reabastecimiento automáticas para insumos con bajo stock.
 
 Ejecutar desde la raíz del proyecto:
-    python scripts/02_generar_producciones.py
+    python scripts/02_generar_producciones.py --dias 120
 """
-import os, sys, random, uuid
+import argparse, os, sys, random, uuid
 from pathlib import Path
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
@@ -30,6 +30,11 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 # ── Configurar Django ──────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent
+parser = argparse.ArgumentParser(description='Generar historial sintético reproducible.')
+parser.add_argument('--dias', type=int, default=365, help='Días calendario de historial (mínimo 60).')
+args = parser.parse_args()
+if args.dias < 60:
+    parser.error('El historial debe abarcar al menos 60 días.')
 sys.path.insert(0, str(BASE_DIR))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
@@ -86,16 +91,13 @@ PESOS_PRODUCTO = {pt.pk: {1: 25, 2: 22, 3: 20, 4: 18, 5: 15,
                           6: 12, 7: 12, 8: 10}.get(int(pt.codigo[-4:]), 10)
                   for pt in productos if pt.pk in recetas}
 
-# ── Año completo: se conservan los días ya registrados ──
+# ── Historial solicitado: se conservan los días ya registrados ──
 hoy = timezone.localdate()
-fecha_inicio = hoy - timedelta(days=365)
+fecha_inicio = hoy - timedelta(days=args.dias)
 fecha_fin = hoy - timedelta(days=1)  # hasta ayer
 fechas_existentes = set(Produccion.objects.filter(fecha__date__range=(fecha_inicio, fecha_fin))
                         .values_list('fecha__date', flat=True))
-if fecha_inicio in fechas_existentes and fecha_fin in fechas_existentes:
-    sys.exit('El historial anual ya está completo hasta ayer; no se añadieron datos.')
-
-print(f'\n═══ Completando historial del {fecha_inicio} al {fecha_fin} (365 días) ═══')
+print(f'\n═══ Completando historial del {fecha_inicio} al {fecha_fin} ({args.dias} días) ═══')
 print(f'    Usuario: {usuario.username}')
 print(f'    Productos: {len(productos)}')
 print(f'    Recetas: {len(recetas)}\n')
@@ -151,7 +153,7 @@ while dia_actual <= fecha_fin:
 
     # Campañas de fin de año y crecimiento moderado durante el año.
     temporada = 1.35 if dia_actual.month in (11, 12) else (1.12 if dia_actual.month in (6, 7) else 1.0)
-    crecimiento = 0.85 + 0.25 * (dia_actual - fecha_inicio).days / 365
+    crecimiento = 0.85 + 0.25 * (dia_actual - fecha_inicio).days / args.dias
     if temporada > 1.2 and random.random() < 0.45:
         num_producciones += 1
 
@@ -160,7 +162,7 @@ while dia_actual <= fecha_fin:
             # Seleccionar producto balanceando para evitar rezagados
             recientes = [r for r in ultimos_producidos[-2:]]
             disponibles = [pt.pk for pt in productos if pt.pk in PESOS_PRODUCTO
-                           and (int(pt.codigo[-4:]) <= 5 or dia_actual >= fecha_inicio + timedelta(days=150))]
+                           and (int(pt.codigo[-4:]) <= 5 or dia_actual >= fecha_inicio + timedelta(days=min(150, args.dias // 2)))]
             candidatos = [pk for pk in disponibles if pk not in recientes] or disponibles
             pesos = [PESOS_PRODUCTO[pk] for pk in candidatos]
             producto_id = random.choices(candidatos, weights=pesos)[0]
@@ -282,7 +284,7 @@ for mp in MateriaPrima.objects.filter(activo=True).order_by('codigo'):
     print(f'  {mp.codigo}  {mp.nombre:.<25s} {mp.stock_actual:>8.2f} {mp.unidad_medida}')
 
 if total_producciones == 0:
-    sys.exit('El año ya está cubierto; no se duplicaron entrenamientos ni órdenes de compra.')
+    sys.exit('El periodo ya está cubierto; no se duplicaron entrenamientos ni órdenes de compra.')
 
 # ═══════════════════════════════════════════════════════════════════
 # ENTRENAR MODELOS PREDICTIVOS Y GENERAR PRONÓSTICOS
@@ -364,7 +366,23 @@ try:
 except Exception as oe:
     print(f'  ⚠ Error al crear órdenes de ejemplo: {oe}')
 
+# Las órdenes de ejemplo cambian la posición de inventario. Actualizar las
+# sugerencias afectadas para que la cantidad visible coincida con el análisis.
+for mp in MateriaPrima.objects.filter(activo=True):
+    try:
+        actual = analizar(mp)
+        pendiente = mp.sugerencias.filter(estado='PENDIENTE').first()
+        claves = ('cantidad', 'transito', 'disponible', 'utilizable', 'oferta_id', 'pronostico_id')
+        if pendiente and any(str(actual.get(k)) != str(pendiente.calculo.get(k)) for k in claves):
+            if actual.get('cantidad', 0) > 0 and 'oferta_id' in actual:
+                sugerir(mp, usuario)
+            else:
+                pendiente.estado = 'OBSOLETA'
+                pendiente.save(update_fields=['estado'])
+    except Exception as exc:
+        print(f'  ⚠ No se pudo actualizar la sugerencia de {mp.nombre}: {exc}')
+
 print(f'\n✅  Simulación completa exitosa.')
 print(f'    • {total_producciones} producciones con registro de kilos bulk y unidades.')
 print(f'    • Comparativa de 4 modelos predictivos activa.')
-print(f'    • {sugerencias_creadas} sugerencias pendientes de compra listas en /produccion/compras/.\n')
+print(f'    • {SugerenciaCompra.objects.filter(estado="PENDIENTE").count()} sugerencias pendientes de compra listas en /produccion/compras/.\n')

@@ -69,12 +69,4 @@
   const f = read('forecast-data').map(r => ({fecha: r.fecha, predicho: r.consumo}));
   chart('consumo-chart', [...h, ...f], [['real','Histórico'], ['predicho','Pronóstico']]);
 
-  // ── Validación real vs predicho ──
-  chart('validation-chart', read('validation-data'), [['real','Real'], ['predicho','Predicho']]);
-
-  // ── Comparativa métricas por modelo (barra) ──
-  const metricsData = read('metrics-data')
-    .filter(r => r.metricas)
-    .map(r => ({modelo: r.modelo, ...r.metricas}));
-  chart('metric-chart', metricsData, [['mae','MAE'], ['rmse','RMSE']], 'bar');
 })();

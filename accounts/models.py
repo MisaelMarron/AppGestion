@@ -1,5 +1,12 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager
 from django.db import models
+
+
+class CustomUserManager(UserManager):
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields['rol'] = 'ADMINISTRADOR'
+        return super().create_superuser(username, email, password, **extra_fields)
 
 
 class CustomUser(AbstractUser):
@@ -19,6 +26,7 @@ class CustomUser(AbstractUser):
     empresa = models.CharField('empresa', max_length=150, blank=True)
     telefono = models.CharField('teléfono', max_length=20, blank=True)
     fecha_creacion = models.DateTimeField('fecha de creación', auto_now_add=True)
+    objects = CustomUserManager()
 
     class Meta:
         verbose_name = 'usuario'

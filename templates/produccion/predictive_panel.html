@@ -1,9 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Aprovisionamiento predictivo · OperaStock{% endblock %}
 {% block content %}
-<h1 class="h3">Aprovisionamiento predictivo</h1><p class="text-muted">Cuándo comprar, cuánto comprar y por qué. Cada análisis conserva su modelo y sus cálculos.</p>
+<h1 class="h3">Aprovisionamiento predictivo</h1><p class="text-muted">Revise qué insumos necesitan atención, cuándo pedirlos y en qué cantidad.</p>
 {% include 'produccion/predictive_nav.html' %}
-<p>MAPE medio de validación: <strong>{{ mape_medio|floatformat:2|default:'—' }} %</strong> · {{ modelos_evaluados }} modelos con MAPE definido. Es error histórico, no una garantía de precisión futura.</p>
 <div class="row g-3 mb-4">
 <div class="col"><div class="card card-os p-3">Insumos<strong class="fs-3">{{ rows|length }}</strong></div></div>
 <div class="col"><div class="card card-os p-3">Críticos<strong class="fs-3 text-danger">{{ criticos }}</strong></div></div>

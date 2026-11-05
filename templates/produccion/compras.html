@@ -163,7 +163,7 @@
 
             <td class="text-end">
               {% if p.cantidad_sugerida is not None and p.cantidad_sugerida > 0 %}
-              <a href="{% url 'produccion:analisis' p.materia.pk %}" class="link-analisis" title="Ver gráficos y comparativa de modelos para {{ p.materia.nombre }}">
+              <a href="{% url 'produccion:analisis' p.materia.pk %}" class="link-analisis" title="Ver análisis de {{ p.materia.nombre }}">
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle p-2 fs-6">
                   <i class="bi bi-graph-up me-1"></i>{{ p.cantidad_sugerida|floatformat:2 }} {{ p.materia.get_unidad_medida_display }}
                 </span>
@@ -202,7 +202,7 @@
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
     <div>
       <h4 class="fw-bold mb-0"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Sugerencias Pendientes de Compra</h4>
-      <small class="text-muted">Calculadas con el modelo óptimo, stock de seguridad, ROP y condiciones del proveedor.</small>
+      <small class="text-muted">Calculadas a partir del consumo previsto, las existencias y las condiciones del proveedor.</small>
     </div>
     <div class="d-flex align-items-center gap-2">
       <span class="badge bg-primary rounded-pill px-3 py-2">{{ sugerencias|length }} pendientes</span>
@@ -260,9 +260,9 @@
               <i class="bi bi-pencil me-1"></i>Editar cantidad
             </button>
 
-            <!-- Modal para Eliminar Sugerencia -->
+            <!-- Modal para rechazar la sugerencia -->
             <button type="button" class="btn btn-outline-danger btn-sm fw-semibold" data-bs-toggle="modal" data-bs-target="#deleteModal-{{ s.pk }}">
-              <i class="bi bi-trash me-1"></i>Eliminar
+              <i class="bi bi-x-circle me-1"></i>Rechazar
             </button>
 
             <!-- Aprobar -->
@@ -293,7 +293,7 @@
                 <label class="form-label fw-bold">Cantidad personalizada (en {{ s.materia_prima.unidad_medida }}):</label>
                 <input type="number" step="0.01" min="0.01" class="form-control form-control-lg" name="cantidad_editada" 
                        value="{{ s.cantidad_final|floatformat:2 }}" required>
-                <small class="form-text text-muted">Cantidad calculada originalmente por el algoritmo: {{ s.cantidad|floatformat:2 }} {{ s.materia_prima.unidad_medida }}.</small>
+                <small class="form-text text-muted">Cantidad sugerida originalmente: {{ s.cantidad|floatformat:2 }} {{ s.materia_prima.unidad_medida }}.</small>
               </div>
             </div>
             <div class="modal-footer">
@@ -305,26 +305,26 @@
       </div>
     </div>
 
-    <!-- MODAL ELIMINAR SUGERENCIA -->
+    <!-- MODAL RECHAZAR SUGERENCIA -->
     <div class="modal fade" id="deleteModal-{{ s.pk }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-          <form method="post" action="{% url 'produccion:decision' s.pk 'eliminar' %}">
+          <form method="post" action="{% url 'produccion:decision' s.pk 'rechazar' %}">
             {% csrf_token %}
             <div class="modal-header bg-danger text-white">
-              <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar eliminación</h5>
+              <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar rechazo</h5>
               <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-              <p class="fs-6">¿Estás seguro de que deseas eliminar la sugerencia de compra para <strong>{{ s.materia_prima.nombre }}</strong>?</p>
+              <p class="fs-6">¿Desea rechazar la sugerencia de compra para <strong>{{ s.materia_prima.nombre }}</strong>?</p>
               <div class="alert alert-warning mb-0">
                 <i class="bi bi-info-circle me-1"></i>Cantidad: <strong>{{ s.cantidad_final|floatformat:2 }} {{ s.materia_prima.unidad_medida }}</strong><br>
-                Esta acción eliminará la sugerencia de la lista. Podrás regenerarla más tarde si el stock vuelve a requerirlo.
+                La decisión quedará registrada. Se podrá generar una nueva sugerencia si vuelve a ser necesaria.
               </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-danger fw-bold"><i class="bi bi-trash me-1"></i>Sí, eliminar sugerencia</button>
+              <button type="submit" class="btn btn-danger fw-bold"><i class="bi bi-x-circle me-1"></i>Rechazar sugerencia</button>
             </div>
           </form>
         </div>

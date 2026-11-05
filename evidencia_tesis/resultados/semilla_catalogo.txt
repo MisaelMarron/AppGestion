@@ -1,0 +1,42 @@
+
+═══ 1. Creando materias primas ═══
+  ✔ Creada: Harina de trigo (50 kg)
+  ✔ Creada: Harina de maíz (40 kg)
+  ✔ Creada: Azúcar (35 kg)
+  ✔ Creada: Mantequilla (25 kg)
+  ✔ Creada: Cacao en polvo (15 kg)
+  ✔ Creada: Leche en polvo (12 kg)
+  ✔ Creada: Avena (30 kg)
+  ✔ Creada: Maní triturado (18 kg)
+  ✔ Creada: Miel (20 kg)
+  ✔ Creada: Sal (3 kg)
+  ✔ Creada: Coco rallado (16 kg)
+  ✔ Creada: Pasas (14 kg)
+  ✔ Creada: Canela molida (5 kg)
+
+═══ 2. Creando productos terminados ═══
+  ✔ Creada: Galleta de chocolate (0 kg)
+  ✔ Creada: Galleta de avena y miel (0 kg)
+  ✔ Creada: Galleta de maíz (0 kg)
+  ✔ Creada: Galleta de maní (0 kg)
+  ✔ Creada: Galleta de avena y cacao (0 kg)
+  ✔ Creada: Galleta de coco (0 kg)
+  ✔ Creada: Barra de avena y pasas (0 kg)
+  ✔ Creada: Galleta de canela (0 kg)
+
+═══ 3. Creando fórmulas ═══
+  ✔ Galleta de chocolate: 6 insumos, total 1.00 kg
+  ✔ Galleta de avena y miel: 7 insumos, total 1.00 kg
+  ✔ Galleta de maíz: 6 insumos, total 1.00 kg
+  ✔ Galleta de maní: 6 insumos, total 1.00 kg
+  ✔ Galleta de avena y cacao: 8 insumos, total 1.00 kg
+  ✔ Galleta de coco: 6 insumos, total 1.00 kg
+  ✔ Barra de avena y pasas: 6 insumos, total 1.00 kg
+  ✔ Galleta de canela: 6 insumos, total 1.00 kg
+
+═══ 4. Creando proveedores ═══
+  ✔ Creado: Distribuidora Andina de Insumos  →  INS0001, INS0002, INS0007, INS0003
+  ✔ Creado: Comercial Dulce Sur  →  INS0004, INS0006, INS0009, INS0005, INS0011
+  ✔ Creado: Abastecimientos Qiwa  →  INS0008, INS0010, INS0003, INS0001, INS0012, INS0013
+
+✅  Datos iniciales cargados exitosamente.
