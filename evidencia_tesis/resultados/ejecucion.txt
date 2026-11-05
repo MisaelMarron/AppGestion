@@ -1,6 +1,5 @@
 Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-
-Found 15 test(s).
+Found 18 test(s).
 Operations to perform:
   Synchronize unmigrated apps: evidencia_tesis, messages, staticfiles
   Apply all migrations: accounts, admin, auth, contenttypes, inventario, produccion, sessions
@@ -48,7 +47,9 @@ Running migrations:
   Applying produccion.0006_produccion_clave_operacion... OK
   Applying produccion.0007_entrenamiento_obsoleto_produccion_anulada_and_more... OK
   Applying produccion.0008_produccion_unidades_producidas_and_more... OK
-  Applying sessions.0001_initial...test_cp02_consumo_receta_y_prevencion_duplicado (evidencia_tesis.tests.FlujosTesisTest.test_cp02_consumo_receta_y_prevencion_duplicado) ... ok
+  Applying sessions.0001_initial...test_cp10_reposicion_con_referencia_independiente (evidencia_tesis.test_ampliacion.FlujosAmpliadosTest.test_cp10_reposicion_con_referencia_independiente) ... ok
+test_cp11_cierre_administrativo_invalida_sesion (evidencia_tesis.test_ampliacion.FlujosAmpliadosTest.test_cp11_cierre_administrativo_invalida_sesion) ... ok
+test_cp02_consumo_receta_y_prevencion_duplicado (evidencia_tesis.tests.FlujosTesisTest.test_cp02_consumo_receta_y_prevencion_duplicado) ... ok
 test_cp02_stock_insuficiente_no_deja_consumo_parcial (evidencia_tesis.tests.FlujosTesisTest.test_cp02_stock_insuficiente_no_deja_consumo_parcial) ... ok
 test_cp03_entrada_y_salida_trazables (evidencia_tesis.tests.FlujosTesisTest.test_cp03_entrada_y_salida_trazables) ... ok
 test_cp03_salida_excesiva_no_cambia_stock (evidencia_tesis.tests.FlujosTesisTest.test_cp03_salida_excesiva_no_cambia_stock) ... ok
@@ -59,17 +60,17 @@ test_cp07_recepcion_unica (evidencia_tesis.tests.FlujosTesisTest.test_cp07_recep
 test_cp07_rechazo_conserva_trazabilidad (evidencia_tesis.tests.FlujosTesisTest.test_cp07_rechazo_conserva_trazabilidad) ... ok
 test_cp08_operador_no_puede_rechazar_sugerencia (evidencia_tesis.tests.FlujosTesisTest.test_cp08_operador_no_puede_rechazar_sugerencia) ... ok
 test_seed_crea_productos_y_formulas (inventario.tests.SeedProductosDemoTest.test_seed_crea_productos_y_formulas) ... ok
+test_cp09_cambiar_futuro_no_altera_pasado (evidencia_tesis.test_ampliacion.CorteTemporalAmpliadoTest.test_cp09_cambiar_futuro_no_altera_pasado) ... ok
 test_cp04_corte_temporal_y_dias_vacios (evidencia_tesis.tests.CalculosTesisTest.test_cp04_corte_temporal_y_dias_vacios) ... ok
 test_cp04_metricas_con_cero (evidencia_tesis.tests.CalculosTesisTest.test_cp04_metricas_con_cero) ... ok
 test_cp04_seleccion_por_rmse_y_mae (evidencia_tesis.tests.CalculosTesisTest.test_cp04_seleccion_por_rmse_y_mae) ... ok
 test_cp05_historial_sintetico_120_dias (evidencia_tesis.tests.CalculosTesisTest.test_cp05_historial_sintetico_120_dias) ... ok
 
 ----------------------------------------------------------------------
-Ran 15 tests in 0.900s
+Ran 18 tests in 0.912s
 
 OK
 Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-
  OK
 System check identified no issues (0 silenced).
 Productos de prueba creados correctamente.

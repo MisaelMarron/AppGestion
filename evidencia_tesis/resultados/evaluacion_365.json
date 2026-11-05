@@ -1,0 +1,740 @@
+{
+  "evaluados": 13,
+  "insumos_totales": 13,
+  "mejor_que_base": 11,
+  "igual_base": 0,
+  "peor_que_base": 2,
+  "rmse_medio": 0.8856,
+  "rmse_base_medio": 1.051,
+  "dataset": "escenario de prueba generado con semilla 42; no corresponde a registros de empresa",
+  "filas": [
+    {
+      "codigo": "INS0001",
+      "insumo": "Harina de trigo",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "Random Forest",
+      "rmse_test": 2.2042,
+      "mae_test": 1.6392,
+      "mape_test": 52.45,
+      "rmse_base": 3.0777,
+      "mae_base": 2.4494,
+      "mejora_rmse_pct": 28.38,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 1.1062978078070165,
+            "rmse": 1.4846587401122848,
+            "mape": 31.866950681863628,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 1.3143371670925925,
+            "rmse": 1.6513897972030873,
+            "mape": 36.83556095126427,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 1.102519312396498,
+            "rmse": 1.460789438548971,
+            "mape": 29.781640367747052,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 1.842482566585956,
+            "rmse": 2.355687249165372,
+            "mape": 35.34274410501027,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0002",
+      "insumo": "Harina de maíz",
+      "dias": 364,
+      "train_dias": 291,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 1.248,
+      "mae_test": 0.972,
+      "mape_test": 59.04,
+      "rmse_base": 1.2396,
+      "mae_base": 1.0849,
+      "mejora_rmse_pct": -0.68,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.917467554479494,
+            "rmse": 1.2325233097574508,
+            "mape": 66.04637136758976,
+            "mape_n": 21,
+            "ceros_excluidos_mape": 38
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.9574122458666092,
+            "rmse": 1.2196142476489984,
+            "mape": 61.056113601837914,
+            "mape_n": 21,
+            "ceros_excluidos_mape": 38
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 1.0711711958147885,
+            "rmse": 1.24888400947771,
+            "mape": 51.57300591053041,
+            "mape_n": 21,
+            "ceros_excluidos_mape": 38
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 1.1224406779661016,
+            "rmse": 1.3667495523990674,
+            "mape": 69.34367546916037,
+            "mape_n": 21,
+            "ceros_excluidos_mape": 38
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0003",
+      "insumo": "Azúcar",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 1.2954,
+      "mae_test": 0.961,
+      "mape_test": 78.38,
+      "rmse_base": 1.7007,
+      "mae_base": 1.3604,
+      "mejora_rmse_pct": 23.83,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.6819489797586092,
+            "rmse": 0.9149603232770838,
+            "mape": 34.710491244298865,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.6737566353901446,
+            "rmse": 0.8997218240218285,
+            "mape": 34.850790123597,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.7822853484681521,
+            "rmse": 0.9937047408220425,
+            "mape": 37.761397680733964,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 1.1374997578692498,
+            "rmse": 1.3610269155619676,
+            "mape": 40.885511887980016,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0004",
+      "insumo": "Mantequilla",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "Holt-Winters",
+      "rmse_test": 0.9969,
+      "mae_test": 0.7367,
+      "mape_test": 43.4,
+      "rmse_base": 1.394,
+      "mae_base": 1.0983,
+      "mejora_rmse_pct": 28.49,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.4875405318796393,
+            "rmse": 0.6714475948456889,
+            "mape": 25.543023632057793,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.5250918929154765,
+            "rmse": 0.6929483234045947,
+            "mape": 26.566892605661906,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.5372454836360687,
+            "rmse": 0.7153566299015683,
+            "mape": 25.79720000189894,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.8797932203389831,
+            "rmse": 1.1300589936694883,
+            "mape": 29.01244971751621,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0005",
+      "insumo": "Cacao en polvo",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "Random Forest",
+      "rmse_test": 0.3993,
+      "mae_test": 0.3052,
+      "mape_test": 25.2,
+      "rmse_base": 0.4025,
+      "mae_base": 0.371,
+      "mejora_rmse_pct": 0.79,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.3519536467153414,
+            "rmse": 0.4507679689186691,
+            "mape": 58.60380295081662,
+            "mape_n": 32,
+            "ceros_excluidos_mape": 27
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.3376751261865059,
+            "rmse": 0.4298202208074783,
+            "mape": 51.65732881515874,
+            "mape_n": 32,
+            "ceros_excluidos_mape": 27
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.30847044320365885,
+            "rmse": 0.39928201742167885,
+            "mape": 34.90414816039522,
+            "mape_n": 32,
+            "ceros_excluidos_mape": 27
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.3830677966101695,
+            "rmse": 0.4449370742026338,
+            "mape": 53.79400227187753,
+            "mape_n": 32,
+            "ceros_excluidos_mape": 27
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0006",
+      "insumo": "Leche en polvo",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "Holt-Winters",
+      "rmse_test": 0.4859,
+      "mae_test": 0.3456,
+      "mape_test": 87.05,
+      "rmse_base": 0.6228,
+      "mae_base": 0.4783,
+      "mejora_rmse_pct": 21.98,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.2618220619398687,
+            "rmse": 0.3389700279026989,
+            "mape": 52.051791735218565,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.28483022801251523,
+            "rmse": 0.3516661755241635,
+            "mape": 55.47824560769003,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.26006301105474106,
+            "rmse": 0.34515117865624195,
+            "mape": 45.976951250432805,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.40042397094431,
+            "rmse": 0.48630022377937754,
+            "mape": 57.569578458795746,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0007",
+      "insumo": "Avena",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "Random Forest",
+      "rmse_test": 1.7026,
+      "mae_test": 1.2597,
+      "mape_test": 30.87,
+      "rmse_base": 1.7307,
+      "mae_base": 1.473,
+      "mejora_rmse_pct": 1.62,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 1.3254601075699008,
+            "rmse": 1.759938602422794,
+            "mape": 32.164577032217956,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 1.3060893790647046,
+            "rmse": 1.7234833083883183,
+            "mape": 35.560129089988216,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 1.1727253129624964,
+            "rmse": 1.6194719123435266,
+            "mape": 31.305297671090027,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 1.4786777239709439,
+            "rmse": 1.7854242912548368,
+            "mape": 31.32814933245087,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0008",
+      "insumo": "Maní triturado",
+      "dias": 363,
+      "train_dias": 290,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 0.8169,
+      "mae_test": 0.6462,
+      "mape_test": 41.68,
+      "rmse_base": 0.8622,
+      "mae_base": 0.7257,
+      "mejora_rmse_pct": 5.25,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.6316039649415588,
+            "rmse": 0.8319683804962059,
+            "mape": 46.37516117501206,
+            "mape_n": 27,
+            "ceros_excluidos_mape": 31
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.6639008338567024,
+            "rmse": 0.80445232607998,
+            "mape": 41.56056377282976,
+            "mape_n": 27,
+            "ceros_excluidos_mape": 31
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.6956657871573597,
+            "rmse": 0.8504310362532067,
+            "mape": 44.28460530089053,
+            "mape_n": 27,
+            "ceros_excluidos_mape": 31
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.7588300492610839,
+            "rmse": 0.8786903817746176,
+            "mape": 47.5992811718636,
+            "mape_n": 27,
+            "ceros_excluidos_mape": 31
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0009",
+      "insumo": "Miel",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 0.8833,
+      "mae_test": 0.7275,
+      "mape_test": 49.11,
+      "rmse_base": 0.9472,
+      "mae_base": 0.8375,
+      "mejora_rmse_pct": 6.74,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.953036769564412,
+            "rmse": 1.0887362044903728,
+            "mape": 102.77119803917569,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.8638522405400465,
+            "rmse": 1.0449931543024655,
+            "mape": 80.34430294603503,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.9042481641771024,
+            "rmse": 1.0765381028102934,
+            "mape": 108.63176632356905,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 1.0631169491525423,
+            "rmse": 1.1758179365150492,
+            "mape": 102.9220861442399,
+            "mape_n": 36,
+            "ceros_excluidos_mape": 23
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0010",
+      "insumo": "Sal",
+      "dias": 365,
+      "train_dias": 292,
+      "test_dias": 73,
+      "modelo_elegido_solo_en_train": "Holt-Winters",
+      "rmse_test": 0.1226,
+      "mae_test": 0.0892,
+      "mape_test": 30.65,
+      "rmse_base": 0.1823,
+      "mae_base": 0.141,
+      "mejora_rmse_pct": 32.77,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.06811226760885795,
+            "rmse": 0.09769605159908294,
+            "mape": 22.354812508326205,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.07540788915838818,
+            "rmse": 0.10148042304848663,
+            "mape": 24.131964392099885,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.07804029985541186,
+            "rmse": 0.10785123323928086,
+            "mape": 26.50156202210582,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.12470847457627118,
+            "rmse": 0.16264298220647871,
+            "mape": 25.63320134570768,
+            "mape_n": 49,
+            "ceros_excluidos_mape": 10
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0011",
+      "insumo": "Coco rallado",
+      "dias": 208,
+      "train_dias": 166,
+      "test_dias": 42,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 0.6091,
+      "mae_test": 0.4998,
+      "mape_test": 60.64,
+      "rmse_base": 0.7222,
+      "mae_base": 0.7032,
+      "mejora_rmse_pct": 15.66,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.5194064451064451,
+            "rmse": 0.8460527487464266,
+            "mape": 76.04405872902116,
+            "mape_n": 9,
+            "ceros_excluidos_mape": 25
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.5462053659634449,
+            "rmse": 0.7662476903136228,
+            "mape": 75.87861838300921,
+            "mape_n": 9,
+            "ceros_excluidos_mape": 25
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.7083107661064426,
+            "rmse": 0.8221496060895221,
+            "mape": 49.23942413572311,
+            "mape_n": 9,
+            "ceros_excluidos_mape": 25
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.6717025210084033,
+            "rmse": 0.8159169307516266,
+            "mape": 73.05476624928681,
+            "mape_n": 9,
+            "ceros_excluidos_mape": 25
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0012",
+      "insumo": "Pasas",
+      "dias": 210,
+      "train_dias": 168,
+      "test_dias": 42,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 0.6238,
+      "mae_test": 0.5175,
+      "mape_test": 76.67,
+      "rmse_base": 0.6577,
+      "mae_base": 0.6412,
+      "mejora_rmse_pct": 5.15,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.4160319122715401,
+            "rmse": 0.583307810575041,
+            "mape": 80.8586534671889,
+            "mape_n": 8,
+            "ceros_excluidos_mape": 26
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.4591300367481696,
+            "rmse": 0.5642830916938402,
+            "mape": 75.19520791870022,
+            "mape_n": 8,
+            "ceros_excluidos_mape": 26
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.5719223469145235,
+            "rmse": 0.6062077892423509,
+            "mape": 64.85115434029214,
+            "mape_n": 8,
+            "ceros_excluidos_mape": 26
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.7401344537815127,
+            "rmse": 0.7661219565714954,
+            "mape": 33.56575874413525,
+            "mape_n": 8,
+            "ceros_excluidos_mape": 26
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0013",
+      "insumo": "Canela molida",
+      "dias": 215,
+      "train_dias": 172,
+      "test_dias": 43,
+      "modelo_elegido_solo_en_train": "SARIMA",
+      "rmse_test": 0.1248,
+      "mae_test": 0.0905,
+      "mape_test": 83.52,
+      "rmse_base": 0.123,
+      "mae_base": 0.1081,
+      "mejora_rmse_pct": -1.45,
+      "inner": [
+        {
+          "modelo": "Holt-Winters",
+          "metricas": {
+            "mae": 0.0741238252968926,
+            "rmse": 0.11291689187439245,
+            "mape": 87.37541459187076,
+            "mape_n": 6,
+            "ceros_excluidos_mape": 29
+          }
+        },
+        {
+          "modelo": "SARIMA",
+          "metricas": {
+            "mae": 0.07843466292842073,
+            "rmse": 0.11257362836751843,
+            "mape": 84.27916135949359,
+            "mape_n": 6,
+            "ceros_excluidos_mape": 29
+          }
+        },
+        {
+          "modelo": "Random Forest",
+          "metricas": {
+            "mae": 0.09661756244200244,
+            "rmse": 0.11457305661312406,
+            "mape": 67.9554871045537,
+            "mape_n": 6,
+            "ceros_excluidos_mape": 29
+          }
+        },
+        {
+          "modelo": "Promedio móvil",
+          "metricas": {
+            "mae": 0.04861714285714286,
+            "rmse": 0.12127871088647717,
+            "mape": 100.0,
+            "mape_n": 6,
+            "ceros_excluidos_mape": 29
+          }
+        }
+      ]
+    }
+  ]
+}
