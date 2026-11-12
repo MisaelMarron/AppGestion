@@ -88,7 +88,7 @@ Abrir en el navegador: [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
 ### Validación para la tesis
 
-La suite completa se ejecuta con `python evidencia_tesis/ejecutar.py` y conserva el registro de las 38 pruebas en `evidencia_tesis/resultados/ejecucion.txt`. Las evidencias, los casos y el informe de alcance están en `evidencia_tesis/`.
+La suite completa se ejecuta con `python evidencia_tesis/ejecutar.py` y conserva el registro de las 41 pruebas en `evidencia_tesis/resultados/ejecucion.txt`. Las evidencias, los casos y el informe de alcance están en `evidencia_tesis/`.
 
 Para crear un historial sintético de **120 días** sin modificar la base habitual, configure `OPERA_DB_PATH` con una ruta nueva, ejecute `python manage.py migrate`, `python scripts/01_cargar_datos_iniciales.py` y `python scripts/02_generar_producciones.py --dias 120`. El script `evidencia_tesis/verificar_demo_120.py` comprueba el periodo y los conteos. Use esta base solo para demostración y pruebas; las métricas operativas de una empresa requieren datos reales.
 

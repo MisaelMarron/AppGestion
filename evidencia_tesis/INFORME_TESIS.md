@@ -4,7 +4,7 @@
 
 ## Resultado reproducible
 
-`python evidencia_tesis/ejecutar.py` ejecuta `python manage.py test --verbosity 2` y conserva la salida completa en `resultados/ejecucion.txt`. La ejecución final contiene **38 pruebas satisfactorias, cero fallos y cero errores**. El código está en `tests.py`, `test_casos_integrales.py` e `inventario/tests.py`. Las láminas `captura_01_resumen.png` a `captura_04_cp09_cp12.png` se generan únicamente a partir de ese registro mediante `generar_capturas.py`; no son fotografías de la consola.
+`python evidencia_tesis/ejecutar.py` ejecuta `python manage.py test --verbosity 2` y conserva la salida completa en `resultados/ejecucion.txt`. La ejecución final contiene **41 pruebas satisfactorias, cero fallos y cero errores**. El código está en `tests.py`, `test_ampliacion.py`, `test_casos_integrales.py` e `inventario/tests.py`. Las láminas `captura_01_resumen.png` a `captura_04_cp09_cp12.png` se generan únicamente a partir de ese registro mediante `generar_capturas.py`; no son fotografías de la consola.
 
 Los 12 casos CP-01 a CP-12 tienen pasos, entradas y resultados esperados y observados en el capítulo IV de la tesis. CP-09 a CP-12 están incorporados a las tablas de casos y de estado. Las capturas reales de las interfaces IU01–IU17 están en `interfaces/`. Las cinco láminas de resultados se incorporaron al apartado de anexos **Evidencia de casos de pruebas**.
 
