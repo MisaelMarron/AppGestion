@@ -16,6 +16,12 @@ Para reproducirlo, cree una base de prueba separada mediante `OPERA_DB_PATH`, ap
 
 El evaluador reserva el 20 % final de cada serie para prueba externa. Dentro del 80 % anterior divide de nuevo cronológicamente para elegir entre Holt-Winters, SARIMA, Random Forest y promedio móvil, reajusta el ganador solo con el tramo de entrenamiento externo y lo contrasta con el promedio móvil sobre los mismos días finales. En el escenario registrado, los 13 insumos fueron evaluables: 11 obtuvieron menor RMSE que la referencia y dos, mayor. La media de RMSE fue 0,8856 kg frente a 1,0510 kg. Se preservan los casos desfavorables y el desglose por insumo.
 
+## Indicadores complementarios del pronóstico
+
+Con la misma base aislada, ejecute `OPERA_DB_PATH=/ruta/a/tesis_demo_365.sqlite3 python evidencia_tesis/medir_indicadores.py`. El script usa los modelos seleccionados en `resultados/evaluacion_365.json`, recorta la serie al 4 de noviembre de 2026 para conservar la ventana evaluada y escribe `resultados/indicadores_365.json`. Reajusta cada ganador en el 80 % inicial, calcula R² sobre el 20 % final y mide el tiempo de un ajuste y de tres pronósticos consecutivos de 60 días. Informa la mediana de esos tres pronósticos para cada insumo.
+
+En esta ejecución (Python 3.12.14, scikit-learn 1.9.1 y statsmodels 0.15.0), la mediana de R² externo fue 0,0048; cuatro de 13 valores fueron negativos y el rango fue −0,0473 a 0,5336. La mediana del tiempo de ajuste fue 99,83 ms (50,75 a 269,19 ms); la mediana de tiempo de pronóstico entre insumos fue 1,09 ms (0,84 a 305,27 ms). Los tiempos describen solo el cálculo local de esta ejecución; no incluyen red ni renderizado y pueden variar en otro equipo. El archivo JSON conserva los 13 resultados individuales y las tres repeticiones de pronóstico.
+
 ## Hallazgo corregido
 
 La prueba `test_cp04_excluido_no_borra_consumo_valido_del_mismo_dia` reprodujo un defecto de preparación: al excluir un consumo, el proceso sustituía también el consumo válido del mismo día por una media. Se corrigió `preparar_filas` para sumar solo registros válidos e imputar únicamente días que contienen exclusivamente registros excluidos. La prueba pasó tras la corrección.

@@ -1,0 +1,203 @@
+{
+  "protocolo": "Selección interna previa; ajuste del ganador en el 80 % inicial; R² sobre el 20 % final; tiempo de ajuste de una ejecución; mediana de tres pronósticos de 60 días consecutivos por insumo.",
+  "entorno": {
+    "python": "3.12.14",
+    "sistema": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "sklearn": "1.9.1",
+    "statsmodels": "0.15.0"
+  },
+  "insumos": 13,
+  "r2_mediana": 0.0048,
+  "r2_minimo": -0.0473,
+  "r2_maximo": 0.5336,
+  "ajuste_mediana_ms": 99.83,
+  "ajuste_minimo_ms": 50.75,
+  "ajuste_maximo_ms": 269.19,
+  "pronostico_60d_mediana_ms": 1.09,
+  "pronostico_60d_minimo_ms": 0.84,
+  "pronostico_60d_maximo_ms": 305.27,
+  "filas": [
+    {
+      "codigo": "INS0001",
+      "modelo": "Random Forest",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.4192,
+      "ajuste_ms": 87.14,
+      "pronostico_60d_mediana_ms": 301.73,
+      "pronostico_60d_repeticiones_ms": [
+        303.84,
+        301.73,
+        293.62
+      ]
+    },
+    {
+      "codigo": "INS0002",
+      "modelo": "SARIMA",
+      "dias_ajuste": 291,
+      "dias_prueba": 73,
+      "r2_externo": -0.0143,
+      "ajuste_ms": 118.61,
+      "pronostico_60d_mediana_ms": 0.86,
+      "pronostico_60d_repeticiones_ms": [
+        0.97,
+        0.86,
+        0.84
+      ]
+    },
+    {
+      "codigo": "INS0003",
+      "modelo": "SARIMA",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.3758,
+      "ajuste_ms": 269.19,
+      "pronostico_60d_mediana_ms": 1.09,
+      "pronostico_60d_repeticiones_ms": [
+        1.2,
+        1.09,
+        1.07
+      ]
+    },
+    {
+      "codigo": "INS0004",
+      "modelo": "Holt-Winters",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.4513,
+      "ajuste_ms": 75.51,
+      "pronostico_60d_mediana_ms": 1.42,
+      "pronostico_60d_repeticiones_ms": [
+        1.47,
+        1.42,
+        1.41
+      ]
+    },
+    {
+      "codigo": "INS0005",
+      "modelo": "Random Forest",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.0031,
+      "ajuste_ms": 99.83,
+      "pronostico_60d_mediana_ms": 301.06,
+      "pronostico_60d_repeticiones_ms": [
+        297.6,
+        301.06,
+        304.31
+      ]
+    },
+    {
+      "codigo": "INS0006",
+      "modelo": "Holt-Winters",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.3266,
+      "ajuste_ms": 52.43,
+      "pronostico_60d_mediana_ms": 1.42,
+      "pronostico_60d_repeticiones_ms": [
+        1.46,
+        1.4,
+        1.42
+      ]
+    },
+    {
+      "codigo": "INS0007",
+      "modelo": "Random Forest",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.0048,
+      "ajuste_ms": 89.91,
+      "pronostico_60d_mediana_ms": 305.27,
+      "pronostico_60d_repeticiones_ms": [
+        307.03,
+        304.74,
+        305.27
+      ]
+    },
+    {
+      "codigo": "INS0008",
+      "modelo": "SARIMA",
+      "dias_ajuste": 290,
+      "dias_prueba": 73,
+      "r2_externo": -0.0135,
+      "ajuste_ms": 77.46,
+      "pronostico_60d_mediana_ms": 0.88,
+      "pronostico_60d_repeticiones_ms": [
+        0.91,
+        0.86,
+        0.88
+      ]
+    },
+    {
+      "codigo": "INS0009",
+      "modelo": "SARIMA",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.1303,
+      "ajuste_ms": 131.58,
+      "pronostico_60d_mediana_ms": 0.84,
+      "pronostico_60d_repeticiones_ms": [
+        0.9,
+        0.84,
+        0.78
+      ]
+    },
+    {
+      "codigo": "INS0010",
+      "modelo": "Holt-Winters",
+      "dias_ajuste": 292,
+      "dias_prueba": 73,
+      "r2_externo": 0.5336,
+      "ajuste_ms": 50.75,
+      "pronostico_60d_mediana_ms": 1.43,
+      "pronostico_60d_repeticiones_ms": [
+        1.44,
+        1.36,
+        1.43
+      ]
+    },
+    {
+      "codigo": "INS0011",
+      "modelo": "SARIMA",
+      "dias_ajuste": 166,
+      "dias_prueba": 42,
+      "r2_externo": 0.0042,
+      "ajuste_ms": 127.68,
+      "pronostico_60d_mediana_ms": 0.85,
+      "pronostico_60d_repeticiones_ms": [
+        0.91,
+        0.85,
+        0.81
+      ]
+    },
+    {
+      "codigo": "INS0012",
+      "modelo": "SARIMA",
+      "dias_ajuste": 168,
+      "dias_prueba": 42,
+      "r2_externo": -0.0457,
+      "ajuste_ms": 108.08,
+      "pronostico_60d_mediana_ms": 0.86,
+      "pronostico_60d_repeticiones_ms": [
+        0.87,
+        0.83,
+        0.86
+      ]
+    },
+    {
+      "codigo": "INS0013",
+      "modelo": "SARIMA",
+      "dias_ajuste": 172,
+      "dias_prueba": 43,
+      "r2_externo": -0.0473,
+      "ajuste_ms": 102.71,
+      "pronostico_60d_mediana_ms": 0.86,
+      "pronostico_60d_repeticiones_ms": [
+        0.86,
+        0.96,
+        0.84
+      ]
+    }
+  ]
+}
