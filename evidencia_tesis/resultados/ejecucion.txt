@@ -1,5 +1,6 @@
 Creating test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
-Found 18 test(s).
+
+Found 38 test(s).
 Operations to perform:
   Synchronize unmigrated apps: evidencia_tesis, messages, staticfiles
   Apply all migrations: accounts, admin, auth, contenttypes, inventario, produccion, sessions
@@ -47,8 +48,24 @@ Running migrations:
   Applying produccion.0006_produccion_clave_operacion... OK
   Applying produccion.0007_entrenamiento_obsoleto_produccion_anulada_and_more... OK
   Applying produccion.0008_produccion_unidades_producidas_and_more... OK
-  Applying sessions.0001_initial...test_cp10_reposicion_con_referencia_independiente (evidencia_tesis.test_ampliacion.FlujosAmpliadosTest.test_cp10_reposicion_con_referencia_independiente) ... ok
-test_cp11_cierre_administrativo_invalida_sesion (evidencia_tesis.test_ampliacion.FlujosAmpliadosTest.test_cp11_cierre_administrativo_invalida_sesion) ... ok
+  Applying sessions.0001_initial...test_cp01_cambio_rol_y_bloqueo_operador (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp01_cambio_rol_y_bloqueo_operador) ... ok
+test_cp01_catalogos_proveedor_y_producto_por_http (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp01_catalogos_proveedor_y_producto_por_http) ... ok
+test_cp01_existencia_inicial_trazable_por_entrada (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp01_existencia_inicial_trazable_por_entrada) ... ok
+test_cp01_registro_login_rol_y_cierre (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp01_registro_login_rol_y_cierre) ... ok
+test_cp02_previsualizacion_y_confirmacion_http (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp02_previsualizacion_y_confirmacion_http) ... ok
+test_cp03_ajuste_de_stock_deja_historial (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp03_ajuste_de_stock_deja_historial) ... ok
+test_cp03_reserva_ejecucion_y_lote_vencido (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp03_reserva_ejecucion_y_lote_vencido) ... ok
+test_cp05_entrenamiento_y_pronostico_real_con_40_dias (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp05_entrenamiento_y_pronostico_real_con_40_dias) ... ok
+test_cp05_horizonte_y_artefacto_invalido (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp05_horizonte_y_artefacto_invalido) ... ok
+test_cp06_estados_de_riesgo_siguen_stock_y_cobertura (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp06_estados_de_riesgo_siguen_stock_y_cobertura) ... ok
+test_cp06_sin_pronostico_no_inventa_riesgo (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp06_sin_pronostico_no_inventa_riesgo) ... ok
+test_cp07_recepcion_registra_plazo_real (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp07_recepcion_registra_plazo_real) ... ok
+test_cp07_reserva_y_llegada_tardia_no_reducen_compra (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp07_reserva_y_llegada_tardia_no_reducen_compra) ... ok
+test_cp08_navegacion_basica_y_acceso_administrativo (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp08_navegacion_basica_y_acceso_administrativo) ... ok
+test_cp08_panel_cuenta_registros_y_operador_no_entrena (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp08_panel_cuenta_registros_y_operador_no_entrena) ... ok
+test_cp10_reposicion_manual_ss_rop_objetivo_y_fecha (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp10_reposicion_manual_ss_rop_objetivo_y_fecha) ... ok
+test_cp11_cierre_administrativo_invalida_sesion (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp11_cierre_administrativo_invalida_sesion) ... ok
+test_cp11_operador_no_cierra_sesion_ajena (evidencia_tesis.test_casos_integrales.FlujosIntegralesTest.test_cp11_operador_no_cierra_sesion_ajena) ... ok
 test_cp02_consumo_receta_y_prevencion_duplicado (evidencia_tesis.tests.FlujosTesisTest.test_cp02_consumo_receta_y_prevencion_duplicado) ... ok
 test_cp02_stock_insuficiente_no_deja_consumo_parcial (evidencia_tesis.tests.FlujosTesisTest.test_cp02_stock_insuficiente_no_deja_consumo_parcial) ... ok
 test_cp03_entrada_y_salida_trazables (evidencia_tesis.tests.FlujosTesisTest.test_cp03_entrada_y_salida_trazables) ... ok
@@ -60,17 +77,22 @@ test_cp07_recepcion_unica (evidencia_tesis.tests.FlujosTesisTest.test_cp07_recep
 test_cp07_rechazo_conserva_trazabilidad (evidencia_tesis.tests.FlujosTesisTest.test_cp07_rechazo_conserva_trazabilidad) ... ok
 test_cp08_operador_no_puede_rechazar_sugerencia (evidencia_tesis.tests.FlujosTesisTest.test_cp08_operador_no_puede_rechazar_sugerencia) ... ok
 test_seed_crea_productos_y_formulas (inventario.tests.SeedProductosDemoTest.test_seed_crea_productos_y_formulas) ... ok
-test_cp09_cambiar_futuro_no_altera_pasado (evidencia_tesis.test_ampliacion.CorteTemporalAmpliadoTest.test_cp09_cambiar_futuro_no_altera_pasado) ... ok
+test_cp04_excluido_no_borra_consumo_valido_del_mismo_dia (evidencia_tesis.test_casos_integrales.SerieTemporalIntegralTest.test_cp04_excluido_no_borra_consumo_valido_del_mismo_dia) ... ok
+test_cp04_exclusion_y_registro_invalido_no_contaminan_serie (evidencia_tesis.test_casos_integrales.SerieTemporalIntegralTest.test_cp04_exclusion_y_registro_invalido_no_contaminan_serie) ... ok
+test_cp09_cambio_futuro_no_altera_pasado (evidencia_tesis.test_casos_integrales.SerieTemporalIntegralTest.test_cp09_cambio_futuro_no_altera_pasado) ... ok
+test_cp10_redondeo_moq_y_multiplo (evidencia_tesis.test_casos_integrales.SerieTemporalIntegralTest.test_cp10_redondeo_moq_y_multiplo) ... ok
+test_cp12_simulacion_usa_demanda_y_costos_iguales (evidencia_tesis.test_casos_integrales.SerieTemporalIntegralTest.test_cp12_simulacion_usa_demanda_y_costos_iguales) ... ok
 test_cp04_corte_temporal_y_dias_vacios (evidencia_tesis.tests.CalculosTesisTest.test_cp04_corte_temporal_y_dias_vacios) ... ok
 test_cp04_metricas_con_cero (evidencia_tesis.tests.CalculosTesisTest.test_cp04_metricas_con_cero) ... ok
 test_cp04_seleccion_por_rmse_y_mae (evidencia_tesis.tests.CalculosTesisTest.test_cp04_seleccion_por_rmse_y_mae) ... ok
 test_cp05_historial_sintetico_120_dias (evidencia_tesis.tests.CalculosTesisTest.test_cp05_historial_sintetico_120_dias) ... ok
 
 ----------------------------------------------------------------------
-Ran 18 tests in 0.912s
+Ran 38 tests in 3.415s
 
 OK
 Destroying test database for alias 'default' ('file:memorydb_default?mode=memory&cache=shared')...
+
  OK
 System check identified no issues (0 silenced).
 Productos de prueba creados correctamente.

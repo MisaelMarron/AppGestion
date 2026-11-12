@@ -18,8 +18,11 @@ from django.utils import timezone
 from produccion.models import ConsumoMateriaPrima, Entrenamiento, Produccion, Pronostico
 from inventario.models import MateriaPrima
 
-hoy = timezone.localdate()
-inicio, fin = hoy - timedelta(days=120), hoy - timedelta(days=1)
+ultima = Produccion.objects.filter(sintetica=True).order_by('-fecha').first()
+if not ultima:
+    raise SystemExit('La base aislada no contiene producciones sintéticas.')
+fin = timezone.localtime(ultima.fecha).date()
+inicio = fin - timedelta(days=119)
 producciones = Produccion.objects.filter(fecha__date__range=(inicio, fin))
 observado = {
     'inicio': inicio.isoformat(), 'fin': fin.isoformat(), 'dias_calendario': 120,

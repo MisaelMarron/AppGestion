@@ -1,0 +1,431 @@
+{
+  "fuente": "tesis_demo_120.sqlite3",
+  "corte": "2026-11-04",
+  "metodo": "120 días sintéticos; último 20 % externo; elección dentro del 80 % previo; pronóstico fijado antes de prueba; mismos supuestos",
+  "limite": "Contrafactual sintético sin costos reales ni ejecución de compras de la empresa.",
+  "resumen": {
+    "insumos": 10,
+    "dias_prueba_por_insumo": [
+      23,
+      24
+    ],
+    "sistema_dias_quiebre": 1,
+    "referencia_dias_quiebre": 1,
+    "sistema_costo_simulado": 4671.829574857143,
+    "referencia_costo_simulado": 4747.149574857143,
+    "sistema_atencion_media_pct": 99.33284841431481,
+    "referencia_atencion_media_pct": 99.33284841431481
+  },
+  "por_insumo": [
+    {
+      "insumo": "INS0001",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 2.1403062864080082,
+      "rmse_promedio_movil": 2.404468568017335,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 10.357757142857142,
+        "precio_unitario": 3.2,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 78.2917,
+        "atendida": 78.2917,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 93.76091964285715,
+        "compras": 184.0,
+        "ordenes": 21,
+        "costo_simulado": 633.8052414285714
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 78.2917,
+        "atendida": 78.2917,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 84.09425297619048,
+        "compras": 173.0,
+        "ordenes": 20,
+        "costo_simulado": 593.9652414285714
+      }
+    },
+    {
+      "insumo": "INS0002",
+      "dias_entrenamiento": 94,
+      "dias_prueba": 23,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 1.1867346291883787,
+      "rmse_promedio_movil": 1.233256483692526,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 2.724857142857143,
+        "precio_unitario": 3.0,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 1,
+        "demanda_total": 9.82,
+        "atendida": 9.164857142857143,
+        "faltante": 0.655142857142857,
+        "nivel_atencion_pct": 93.3284841431481,
+        "inventario_medio": 30.999689440993787,
+        "compras": 42.0,
+        "ordenes": 7,
+        "costo_simulado": 143.53557142857142
+      },
+      "promedio_movil": {
+        "dias_quiebre": 1,
+        "demanda_total": 9.82,
+        "atendida": 9.164857142857143,
+        "faltante": 0.655142857142857,
+        "nivel_atencion_pct": 93.3284841431481,
+        "inventario_medio": 34.086645962732916,
+        "compras": 47.0,
+        "ordenes": 5,
+        "costo_simulado": 159.95557142857143
+      }
+    },
+    {
+      "insumo": "INS0003",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 1.2124628628816398,
+      "rmse_promedio_movil": 1.3386237297266979,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 5.583878571428571,
+        "precio_unitario": 2.8,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 41.3251,
+        "atendida": 41.3251,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 54.1407619047619,
+        "compras": 103.0,
+        "ordenes": 19,
+        "costo_simulado": 314.3875657142857
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 41.3251,
+        "atendida": 41.3251,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 44.807428571428574,
+        "compras": 92.0,
+        "ordenes": 18,
+        "costo_simulado": 279.1075657142857
+      }
+    },
+    {
+      "insumo": "INS0004",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 0.9761696753741819,
+      "rmse_promedio_movil": 1.1175769731134109,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 5.145150000000001,
+        "precio_unitario": 12.0,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 38.6872,
+        "atendida": 38.6872,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 47.13597083333333,
+        "compras": 92.0,
+        "ordenes": 20,
+        "costo_simulado": 1126.625266
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 38.6872,
+        "atendida": 38.6872,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 43.96930416666667,
+        "compras": 88.0,
+        "ordenes": 19,
+        "costo_simulado": 1077.105266
+      }
+    },
+    {
+      "insumo": "INS0005",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 23,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 0.3911061251065004,
+      "rmse_promedio_movil": 0.39793570597139993,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 1,
+        "precio_unitario": 15.0,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 8.32,
+        "atendida": 8.32,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 4.566826086956522,
+        "compras": 13.0,
+        "ordenes": 8,
+        "costo_simulado": 197.10074
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 8.32,
+        "atendida": 8.32,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 7.4363913043478265,
+        "compras": 17.0,
+        "ordenes": 9,
+        "costo_simulado": 258.42074
+      }
+    },
+    {
+      "insumo": "INS0006",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 0.47329867430450984,
+      "rmse_promedio_movil": 0.5024564566963493,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 1.9180714285714282,
+        "precio_unitario": 18.0,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 14.1103,
+        "atendida": 14.1103,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 17.945888095238097,
+        "compras": 34.0,
+        "ordenes": 14,
+        "costo_simulado": 620.6140262857143
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 14.1103,
+        "atendida": 14.1103,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 15.320888095238095,
+        "compras": 31.0,
+        "ordenes": 13,
+        "costo_simulado": 565.3540262857143
+      }
+    },
+    {
+      "insumo": "INS0007",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 2.2628539968043433,
+      "rmse_promedio_movil": 2.1913214355931756,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 4.252178571428571,
+        "precio_unitario": 4.5,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 47.8173,
+        "atendida": 47.8173,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 36.62909523809524,
+        "compras": 91.0,
+        "ordenes": 15,
+        "costo_simulado": 427.08196571428573
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 47.8173,
+        "atendida": 47.8173,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 45.46242857142857,
+        "compras": 101.0,
+        "ordenes": 15,
+        "costo_simulado": 476.32196571428574
+      }
+    },
+    {
+      "insumo": "INS0008",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "Holt-Winters",
+      "rmse_sistema": 0.9127179209571121,
+      "rmse_promedio_movil": 0.8473181541258423,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 1.2773571428571429,
+        "precio_unitario": 9.0,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 17.1041,
+        "atendida": 17.1041,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 12.952065476190477,
+        "compras": 32.0,
+        "ordenes": 11,
+        "costo_simulado": 294.2169914285714
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 17.1041,
+        "atendida": 17.1041,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 9.577065476190477,
+        "compras": 29.0,
+        "ordenes": 13,
+        "costo_simulado": 265.5969914285714
+      }
+    },
+    {
+      "insumo": "INS0009",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "SARIMA",
+      "rmse_sistema": 1.2184293820630512,
+      "rmse_promedio_movil": 1.2414730705522623,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 2.6646642857142853,
+        "precio_unitario": 17.0,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 27.2715,
+        "atendida": 27.2715,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 21.56582261904762,
+        "compras": 52.0,
+        "ordenes": 15,
+        "costo_simulado": 894.3515948571429
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 27.2715,
+        "atendida": 27.2715,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 29.39915595238095,
+        "compras": 61.0,
+        "ordenes": 13,
+        "costo_simulado": 1051.1115948571428
+      }
+    },
+    {
+      "insumo": "INS0010",
+      "dias_entrenamiento": 96,
+      "dias_prueba": 24,
+      "modelo_seleccionado": "Random Forest",
+      "rmse_sistema": 0.14172855506329562,
+      "rmse_promedio_movil": 0.16764480977619903,
+      "supuestos": {
+        "plazo_dias": 3,
+        "cobertura_dias": 30,
+        "inventario_inicial": 1,
+        "precio_unitario": 1.2,
+        "moq": 0.0,
+        "multiplo": 1.0,
+        "costo_pedido": 0,
+        "costo_mantenimiento_por_unidad_dia": 0.02,
+        "costo_faltante_por_unidad": 5
+      },
+      "sistema": {
+        "dias_quiebre": 0,
+        "demanda_total": 6.032,
+        "atendida": 6.032,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 6.897108333333334,
+        "compras": 14.0,
+        "ordenes": 7,
+        "costo_simulado": 20.110612
+      },
+      "promedio_movil": {
+        "dias_quiebre": 0,
+        "demanda_total": 6.032,
+        "atendida": 6.032,
+        "faltante": 0.0,
+        "nivel_atencion_pct": 100.0,
+        "inventario_medio": 7.105441666666667,
+        "compras": 14.0,
+        "ordenes": 7,
+        "costo_simulado": 20.210612
+      }
+    }
+  ]
+}

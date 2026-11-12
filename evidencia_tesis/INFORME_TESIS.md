@@ -1,18 +1,12 @@
-# Evidencia de validación de OperaStock
+# Evidencia de casos de pruebas de OperaStock
 
-**Fecha de corte:** 5 de noviembre de 2026. **Entorno:** Django, Python y SQLite aislada. Los datos de producción se generan para las pruebas y no son registros operativos de una empresa.
+**Ejecución:** 12 de noviembre de 2026. **Entorno:** Python 3.13, Django 5.2.5 y SQLite temporal. **Datos de demostración:** base aislada con historial sintético de 120 días, del 7 de julio al 3 de noviembre de 2026.
 
-## Suite automatizada
+## Resultado reproducible
 
-Ejecute `python manage.py test --verbosity 2` desde la raíz del repositorio. La suite incluye 18 pruebas y las 18 fueron satisfactorias en la revisión de este informe. `tests.py` conserva los casos originales y `test_ampliacion.py` añade tres verificaciones:
+`python evidencia_tesis/ejecutar.py` ejecuta `python manage.py test --verbosity 2` y conserva la salida completa en `resultados/ejecucion.txt`. La ejecución final contiene **38 pruebas satisfactorias, cero fallos y cero errores**. El código está en `tests.py`, `test_casos_integrales.py` e `inventario/tests.py`. Las láminas `captura_01_resumen.png` a `captura_04_cp09_cp12.png` se generan únicamente a partir de ese registro mediante `generar_capturas.py`; no son fotografías de la consola.
 
-| Caso | Entrada y resultado esperado | Resultado observado |
-| --- | --- | --- |
-| CP-09, fuga temporal | Alterar el consumo del día 26 de una serie de 30 días; los 25 valores anteriores deben ser idénticos. | Los 25 valores previos no cambiaron; el valor del día 26 sí cambió. |
-| CP-10, reposición | Stock 5 kg, 1 kg/día, plazo 3 días, cobertura 7, MOQ 5 y múltiplo 4: SS 0, ROP 3, objetivo 10, compra 8, pedido al día siguiente. | El cálculo del sistema coincidió con los valores independientes. |
-| CP-11, sesión | El administrador cierra una sesión de operador; la siguiente solicitud protegida debe exigir autenticación. | Sesión inactiva y redirección HTTP 302. |
-
-Estas pruebas se ejecutan en la base temporal que crea Django. El recorrido visual de las interfaces fue informado por el autor de la tesis y no forma parte de la suite automatizada.
+Los 12 casos CP-01 a CP-12 tienen pasos, entradas y resultados esperados y observados en el capítulo IV de la tesis. CP-09 a CP-12 están incorporados a las tablas de casos y de estado. Las capturas reales de las interfaces IU01–IU17 están en `interfaces/`. Las cinco láminas de resultados se incorporaron al apartado de anexos **Evidencia de casos de pruebas**.
 
 ## Evaluación de pronósticos en 365 días
 
@@ -22,6 +16,14 @@ Para reproducirlo, cree una base de prueba separada mediante `OPERA_DB_PATH`, ap
 
 El evaluador reserva el 20 % final de cada serie para prueba externa. Dentro del 80 % anterior divide de nuevo cronológicamente para elegir entre Holt-Winters, SARIMA, Random Forest y promedio móvil, reajusta el ganador solo con el tramo de entrenamiento externo y lo contrasta con el promedio móvil sobre los mismos días finales. En el escenario registrado, los 13 insumos fueron evaluables: 11 obtuvieron menor RMSE que la referencia y dos, mayor. La media de RMSE fue 0,8856 kg frente a 1,0510 kg. Se preservan los casos desfavorables y el desglose por insumo.
 
-## Alcance
+## Hallazgo corregido
 
-La suite y los recorridos HTTP verifican reglas y flujos bajo las entradas ensayadas. La evaluación cronológica mide error retrospectivo en el escenario de prueba. La comparación de políticas de compra CP-12 tiene un protocolo diseñado, pero aún no se ha ejecutado ni medido una reducción de faltantes, inventario o costos en operación.
+La prueba `test_cp04_excluido_no_borra_consumo_valido_del_mismo_dia` reprodujo un defecto de preparación: al excluir un consumo, el proceso sustituía también el consumo válido del mismo día por una media. Se corrigió `preparar_filas` para sumar solo registros válidos e imputar únicamente días que contienen exclusivamente registros excluidos. La prueba pasó tras la corrección.
+
+## CP-12: comparación de políticas
+
+`evaluar_politicas_120.py` separa el último 20 % de cada serie como prueba externa y elige el método usando solo el tramo anterior. `politicas.py` reproduce la misma política objetivo de compra bajo dos pronósticos: el modelo elegido y el promedio móvil. En ambos se usan las mismas observaciones, inventario inicial, oferta, plazo, cobertura, MOQ, múltiplo y supuestos de costo. La evaluación **no modifica compras ni inventario** de la base.
+
+El archivo `resultados/cp12_politicas_120.json` conserva supuestos y resultados por insumo. Diez insumos reunieron las condiciones de evaluación; el tramo externo tuvo 23 o 24 días por serie. Se obtuvo **1 día de quiebre frente a 1** y una atención media de **99,33 %** para ambas políticas. El costo total *simulado* fue **S/ 4 671,83** con el método elegido frente a **S/ 4 747,15** con el promedio móvil. Cinco insumos fueron más baratos y cinco más caros con el primero. `captura_05_cp12_comparacion.png` representa estos datos.
+
+Los costos de pedido, mantenimiento y faltante son supuestos de prueba; no se han medido costos ni reducción de faltantes en una empresa. La conclusión de CP-12 se limita al contrafactual sintético. Para validar un impacto empresarial hacen falta datos operativos reales y observar la política durante su uso.

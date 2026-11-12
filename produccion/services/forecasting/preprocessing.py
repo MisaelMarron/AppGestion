@@ -18,7 +18,7 @@ def preparar_filas(rows, corte, frecuencia='D'):
     if frecuencia not in ['D','W','MS']:
         raise ValueError('Frecuencia no permitida.')
     log = {'originales':len(rows), 'duplicados_id':0, 'invalidos':0, 'excluidos':0,
-           'dias_completados':0, 'politica':'Fechas sin operaciones = 0; excluidos = ausente; atípicos conservados.'}
+           'dias_completados':0, 'politica':'Fechas sin operaciones = 0; registros excluidos no suman; días solo excluidos se imputan con hasta 7 días previos; atípicos conservados.'}
     if not rows:
         return pd.Series(dtype=float), log
     df = pd.DataFrame(rows)
@@ -33,10 +33,11 @@ def preparar_filas(rows, corte, frecuencia='D'):
         return pd.Series(dtype=float), log
     log['excluidos'] = int(df['excluido_entrenamiento'].sum())
     index = pd.date_range(df['fecha'].min(),pd.Timestamp(corte)-pd.Timedelta(days=1),freq='D')
-    series = df.groupby('fecha')['valor'].sum().reindex(index, fill_value=0.).astype(float)
+    validos = df[~df['excluido_entrenamiento']]
+    series = validos.groupby('fecha')['valor'].sum().reindex(index, fill_value=0.).astype(float)
     log['dias_completados'] = len(index)-df['fecha'].nunique()
     # An excluded day is unknown, not zero. Causal imputation uses only earlier days.
-    excluded_days = df.loc[df['excluido_entrenamiento'],'fecha'].unique()
+    excluded_days = sorted(set(df.loc[df['excluido_entrenamiento'],'fecha']) - set(validos['fecha']))
     for day in sorted(excluded_days):
         previous = series.loc[series.index < day].tail(7)
         series.loc[day] = previous.mean() if len(previous) else np.nan
