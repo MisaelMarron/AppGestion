@@ -20,7 +20,7 @@ Ejecutar desde la raíz del proyecto:
 """
 import argparse, os, sys, random, uuid
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
 # ── Forzar salida UTF-8 en Windows ──
@@ -32,6 +32,8 @@ if hasattr(sys.stdout, 'reconfigure'):
 BASE_DIR = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description='Generar historial sintético reproducible.')
 parser.add_argument('--dias', type=int, default=365, help='Días calendario de historial (mínimo 60).')
+parser.add_argument('--fecha-fin', type=date.fromisoformat, default=None,
+                    help='Último día del historial en formato AAAA-MM-DD; por defecto, ayer.')
 args = parser.parse_args()
 if args.dias < 60:
     parser.error('El historial debe abarcar al menos 60 días.')
@@ -92,9 +94,9 @@ PESOS_PRODUCTO = {pt.pk: {1: 25, 2: 22, 3: 20, 4: 18, 5: 15,
                   for pt in productos if pt.pk in recetas}
 
 # ── Historial solicitado: se conservan los días ya registrados ──
-hoy = timezone.localdate()
+fecha_fin = args.fecha_fin or (timezone.localdate() - timedelta(days=1))
+hoy = fecha_fin + timedelta(days=1)
 fecha_inicio = hoy - timedelta(days=args.dias)
-fecha_fin = hoy - timedelta(days=1)  # hasta ayer
 fechas_existentes = set(Produccion.objects.filter(fecha__date__range=(fecha_inicio, fecha_fin))
                         .values_list('fecha__date', flat=True))
 print(f'\n═══ Completando historial del {fecha_inicio} al {fecha_fin} ({args.dias} días) ═══')
