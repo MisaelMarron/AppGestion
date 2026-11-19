@@ -1,0 +1,881 @@
+{
+  "corte_exclusivo": "2026-11-05",
+  "protocolo_principal": "Primer 80 % para ajuste, último 20 % como prueba multihorizonte, idéntico para los cuatro métodos.",
+  "protocolo_sensibilidad": "Tres orígenes no superpuestos de 28 días al final de cada serie; los modelos se reajustan con todos los días anteriores a cada origen.",
+  "parametros": {
+    "Holt-Winters": {
+      "trend": "add",
+      "seasonal": "add",
+      "seasonal_periods": 7
+    },
+    "Random Forest": {
+      "n_estimators": 100,
+      "max_depth": 8,
+      "min_samples_leaf": 2,
+      "random_state": 42,
+      "n_jobs": 1
+    },
+    "Promedio móvil": {
+      "ventana": 7
+    }
+  },
+  "insumos": 13,
+  "rmse_medio": {
+    "Holt-Winters": 0.8794,
+    "Random Forest": 0.9043,
+    "Promedio móvil": 1.051,
+    "Ingenuo estacional": 1.1152
+  },
+  "mae_medio": {
+    "Holt-Winters": 0.6672,
+    "Random Forest": 0.7072,
+    "Promedio móvil": 0.8825,
+    "Ingenuo estacional": 0.8004
+  },
+  "victorias_hw_vs_rf": 8,
+  "victorias_rf_vs_hw": 5,
+  "mejora_frente_pm": {
+    "Holt-Winters": 11,
+    "Random Forest": 9
+  },
+  "mejora_frente_estacional": {
+    "Holt-Winters": 13,
+    "Random Forest": 13
+  },
+  "diferencia_media_hw_menos_rf": -0.0249,
+  "ic_bootstrap_95_diferencia_media": [
+    -0.0729,
+    0.0176
+  ],
+  "bootstrap": "Remuestreo de 13 diferencias por insumo, 10 000 repeticiones, semilla 42; intervalo descriptivo del escenario.",
+  "origenes_28d": [
+    {
+      "origen": 1,
+      "victorias_hw": 6,
+      "victorias_rf": 7,
+      "rmse_medio": {
+        "Holt-Winters": 0.795,
+        "Random Forest": 0.7783,
+        "Promedio móvil": 0.957,
+        "Ingenuo estacional": 1.0784
+      }
+    },
+    {
+      "origen": 2,
+      "victorias_hw": 6,
+      "victorias_rf": 7,
+      "rmse_medio": {
+        "Holt-Winters": 0.8812,
+        "Random Forest": 0.8551,
+        "Promedio móvil": 1.0732,
+        "Ingenuo estacional": 1.1051
+      }
+    },
+    {
+      "origen": 3,
+      "victorias_hw": 12,
+      "victorias_rf": 1,
+      "rmse_medio": {
+        "Holt-Winters": 0.8701,
+        "Random Forest": 0.9519,
+        "Promedio móvil": 1.0752,
+        "Ingenuo estacional": 1.1237
+      }
+    }
+  ],
+  "filas": [
+    {
+      "codigo": "INS0001",
+      "insumo": "Harina de trigo",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 17.81,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 2.326535,
+          "mae": 1.679307
+        },
+        "Random Forest": {
+          "rmse": 2.20421,
+          "mae": 1.639214
+        },
+        "Promedio móvil": {
+          "rmse": 3.077693,
+          "mae": 2.449402
+        },
+        "Ingenuo estacional": {
+          "rmse": 2.787747,
+          "mae": 2.048436
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 2.277321,
+            "Random Forest": 2.000277,
+            "Promedio móvil": 2.991512,
+            "Ingenuo estacional": 2.60435
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 2.21438,
+            "Random Forest": 1.895472,
+            "Promedio móvil": 2.957714,
+            "Ingenuo estacional": 3.27505
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 1.940412,
+            "Random Forest": 2.151325,
+            "Promedio móvil": 2.885048,
+            "Ingenuo estacional": 2.648911
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0002",
+      "insumo": "Harina de maíz",
+      "dias": 364,
+      "dias_entrenamiento": 291,
+      "dias_prueba": 73,
+      "ceros_pct": 59.62,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 1.281975,
+          "mae": 0.967698
+        },
+        "Random Forest": {
+          "rmse": 1.28215,
+          "mae": 1.088399
+        },
+        "Promedio móvil": {
+          "rmse": 1.239641,
+          "mae": 1.084924
+        },
+        "Ingenuo estacional": {
+          "rmse": 1.499377,
+          "mae": 1.013589
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.890616,
+            "Random Forest": 1.096561,
+            "Promedio móvil": 1.06734,
+            "Ingenuo estacional": 1.607434
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 1.263237,
+            "Random Forest": 1.164959,
+            "Promedio móvil": 1.088903,
+            "Ingenuo estacional": 1.546237
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 1.463707,
+            "Random Forest": 1.483545,
+            "Promedio móvil": 1.499898,
+            "Ingenuo estacional": 1.809573
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0003",
+      "insumo": "Azúcar",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 17.81,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 1.286632,
+          "mae": 0.960991
+        },
+        "Random Forest": {
+          "rmse": 1.268152,
+          "mae": 0.97997
+        },
+        "Promedio móvil": {
+          "rmse": 1.700699,
+          "mae": 1.360445
+        },
+        "Ingenuo estacional": {
+          "rmse": 1.713438,
+          "mae": 1.248188
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 1.163432,
+            "Random Forest": 1.017629,
+            "Promedio móvil": 1.525192,
+            "Ingenuo estacional": 1.472535
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 1.249761,
+            "Random Forest": 1.130869,
+            "Promedio móvil": 1.68255,
+            "Ingenuo estacional": 1.782426
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 1.283032,
+            "Random Forest": 1.40757,
+            "Promedio móvil": 1.715199,
+            "Ingenuo estacional": 1.556109
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0004",
+      "insumo": "Mantequilla",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 17.26,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.996871,
+          "mae": 0.736731
+        },
+        "Random Forest": {
+          "rmse": 0.936401,
+          "mae": 0.692628
+        },
+        "Promedio móvil": {
+          "rmse": 1.394019,
+          "mae": 1.09829
+        },
+        "Ingenuo estacional": {
+          "rmse": 1.222403,
+          "mae": 0.877868
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.900308,
+            "Random Forest": 0.742801,
+            "Promedio móvil": 1.289962,
+            "Ingenuo estacional": 1.096354
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 1.014011,
+            "Random Forest": 0.890635,
+            "Promedio móvil": 1.412687,
+            "Ingenuo estacional": 1.404538
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.91197,
+            "Random Forest": 1.032637,
+            "Promedio móvil": 1.38531,
+            "Ingenuo estacional": 1.085928
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0005",
+      "insumo": "Cacao en polvo",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 40.55,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.364888,
+          "mae": 0.301524
+        },
+        "Random Forest": {
+          "rmse": 0.399306,
+          "mae": 0.305235
+        },
+        "Promedio móvil": {
+          "rmse": 0.402467,
+          "mae": 0.370951
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.474568,
+          "mae": 0.35174
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.282826,
+            "Random Forest": 0.329548,
+            "Promedio móvil": 0.36362,
+            "Ingenuo estacional": 0.58801
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.416589,
+            "Random Forest": 0.476998,
+            "Promedio móvil": 0.461505,
+            "Ingenuo estacional": 0.437475
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.336826,
+            "Random Forest": 0.325541,
+            "Promedio móvil": 0.450748,
+            "Ingenuo estacional": 0.595915
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0006",
+      "insumo": "Leche en polvo",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 17.81,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.485908,
+          "mae": 0.345584
+        },
+        "Random Forest": {
+          "rmse": 0.483876,
+          "mae": 0.349649
+        },
+        "Promedio móvil": {
+          "rmse": 0.622767,
+          "mae": 0.478321
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.586886,
+          "mae": 0.410881
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.418639,
+            "Random Forest": 0.389146,
+            "Promedio móvil": 0.566,
+            "Ingenuo estacional": 0.502554
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.477716,
+            "Random Forest": 0.475905,
+            "Promedio móvil": 0.599969,
+            "Ingenuo estacional": 0.711356
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.472004,
+            "Random Forest": 0.542886,
+            "Promedio móvil": 0.605471,
+            "Ingenuo estacional": 0.593625
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0007",
+      "insumo": "Avena",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 37.26,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 1.556325,
+          "mae": 1.215172
+        },
+        "Random Forest": {
+          "rmse": 1.702634,
+          "mae": 1.259673
+        },
+        "Promedio móvil": {
+          "rmse": 1.730712,
+          "mae": 1.472988
+        },
+        "Ingenuo estacional": {
+          "rmse": 1.878921,
+          "mae": 1.416696
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 1.298084,
+            "Random Forest": 1.483565,
+            "Promedio móvil": 1.486481,
+            "Ingenuo estacional": 1.768641
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 1.419589,
+            "Random Forest": 1.490459,
+            "Promedio móvil": 1.670416,
+            "Ingenuo estacional": 1.225293
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 1.801949,
+            "Random Forest": 1.916285,
+            "Promedio móvil": 1.938156,
+            "Ingenuo estacional": 2.258172
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0008",
+      "insumo": "Maní triturado",
+      "dias": 363,
+      "dias_entrenamiento": 290,
+      "dias_prueba": 73,
+      "ceros_pct": 57.58,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.781768,
+          "mae": 0.590318
+        },
+        "Random Forest": {
+          "rmse": 0.814497,
+          "mae": 0.631242
+        },
+        "Promedio móvil": {
+          "rmse": 0.862206,
+          "mae": 0.725699
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.93898,
+          "mae": 0.693195
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.601153,
+            "Random Forest": 0.641001,
+            "Promedio móvil": 0.656218,
+            "Ingenuo estacional": 1.120249
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.949269,
+            "Random Forest": 1.008072,
+            "Promedio móvil": 1.31312,
+            "Ingenuo estacional": 1.31312
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.64262,
+            "Random Forest": 0.675142,
+            "Promedio móvil": 0.691965,
+            "Ingenuo estacional": 0.841989
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0009",
+      "insumo": "Miel",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 37.26,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.90315,
+          "mae": 0.736495
+        },
+        "Random Forest": {
+          "rmse": 0.964936,
+          "mae": 0.763619
+        },
+        "Promedio móvil": {
+          "rmse": 0.947173,
+          "mae": 0.837527
+        },
+        "Ingenuo estacional": {
+          "rmse": 1.231865,
+          "mae": 0.925948
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.814404,
+            "Random Forest": 0.916399,
+            "Promedio móvil": 0.904998,
+            "Ingenuo estacional": 1.1254
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.838911,
+            "Random Forest": 0.849671,
+            "Promedio móvil": 0.903628,
+            "Ingenuo estacional": 0.785702
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 1.004423,
+            "Random Forest": 1.10129,
+            "Promedio móvil": 1.08995,
+            "Ingenuo estacional": 1.263798
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0010",
+      "insumo": "Sal",
+      "dias": 365,
+      "dias_entrenamiento": 292,
+      "dias_prueba": 73,
+      "ceros_pct": 17.26,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.122579,
+          "mae": 0.089234
+        },
+        "Random Forest": {
+          "rmse": 0.115969,
+          "mae": 0.08438
+        },
+        "Promedio móvil": {
+          "rmse": 0.182333,
+          "mae": 0.141009
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.144212,
+          "mae": 0.104252
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.114392,
+            "Random Forest": 0.11202,
+            "Promedio móvil": 0.172447,
+            "Ingenuo estacional": 0.139266
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.139667,
+            "Random Forest": 0.136222,
+            "Promedio móvil": 0.201669,
+            "Ingenuo estacional": 0.169929
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.100722,
+            "Random Forest": 0.110692,
+            "Promedio móvil": 0.174519,
+            "Ingenuo estacional": 0.116963
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0011",
+      "insumo": "Coco rallado",
+      "dias": 208,
+      "dias_entrenamiento": 166,
+      "dias_prueba": 42,
+      "ceros_pct": 78.85,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.627379,
+          "mae": 0.498019
+        },
+        "Random Forest": {
+          "rmse": 0.851162,
+          "mae": 0.748433
+        },
+        "Promedio móvil": {
+          "rmse": 0.722234,
+          "mae": 0.703222
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.963997,
+          "mae": 0.621343
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.774703,
+            "Random Forest": 0.630268,
+            "Promedio móvil": 0.633642,
+            "Ingenuo estacional": 0.971577
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.731798,
+            "Random Forest": 0.856772,
+            "Promedio móvil": 0.786593,
+            "Ingenuo estacional": 0.769485
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.702371,
+            "Random Forest": 0.891883,
+            "Promedio móvil": 0.836097,
+            "Ingenuo estacional": 0.836097
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0012",
+      "insumo": "Pasas",
+      "dias": 210,
+      "dias_entrenamiento": 168,
+      "dias_prueba": 42,
+      "ceros_pct": 74.76,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.571479,
+          "mae": 0.464113
+        },
+        "Random Forest": {
+          "rmse": 0.603014,
+          "mae": 0.545371
+        },
+        "Promedio móvil": {
+          "rmse": 0.657655,
+          "mae": 0.641224
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.86912,
+          "mae": 0.573143
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.69226,
+            "Random Forest": 0.643497,
+            "Promedio móvil": 0.672924,
+            "Ingenuo estacional": 0.840449
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.60777,
+            "Random Forest": 0.611309,
+            "Promedio móvil": 0.741031,
+            "Ingenuo estacional": 0.741031
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.544945,
+            "Random Forest": 0.617638,
+            "Promedio móvil": 0.588596,
+            "Ingenuo estacional": 0.806238
+          }
+        }
+      ]
+    },
+    {
+      "codigo": "INS0013",
+      "insumo": "Canela molida",
+      "dias": 215,
+      "dias_entrenamiento": 172,
+      "dias_prueba": 43,
+      "ceros_pct": 80.93,
+      "principal": {
+        "Holt-Winters": {
+          "rmse": 0.12665,
+          "mae": 0.088859
+        },
+        "Random Forest": {
+          "rmse": 0.129815,
+          "mae": 0.105751
+        },
+        "Promedio móvil": {
+          "rmse": 0.123009,
+          "mae": 0.108082
+        },
+        "Ingenuo estacional": {
+          "rmse": 0.185763,
+          "mae": 0.120549
+        }
+      },
+      "origenes_28d": [
+        {
+          "fin_entrenamiento": "2026-08-12",
+          "inicio_prueba": "2026-08-13",
+          "fin_prueba": "2026-09-09",
+          "rmse": {
+            "Holt-Winters": 0.106488,
+            "Random Forest": 0.115563,
+            "Promedio móvil": 0.110882,
+            "Ingenuo estacional": 0.18203
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-09-09",
+          "inicio_prueba": "2026-09-10",
+          "fin_prueba": "2026-10-07",
+          "rmse": {
+            "Holt-Winters": 0.133235,
+            "Random Forest": 0.129448,
+            "Promedio móvil": 0.132114,
+            "Ingenuo estacional": 0.204979
+          }
+        },
+        {
+          "fin_entrenamiento": "2026-10-07",
+          "inicio_prueba": "2026-10-08",
+          "fin_prueba": "2026-11-04",
+          "rmse": {
+            "Holt-Winters": 0.106275,
+            "Random Forest": 0.118821,
+            "Promedio móvil": 0.116276,
+            "Ingenuo estacional": 0.1945
+          }
+        }
+      ]
+    }
+  ]
+}

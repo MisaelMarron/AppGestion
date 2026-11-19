@@ -22,6 +22,12 @@ Con la misma base aislada, ejecute `OPERA_DB_PATH=/ruta/a/tesis_demo_365.sqlite3
 
 En esta ejecución (Python 3.12.14, scikit-learn 1.9.1 y statsmodels 0.15.0), la mediana de R² externo fue 0,0048; cuatro de 13 valores fueron negativos y el rango fue −0,0473 a 0,5336. La mediana del tiempo de ajuste fue 99,83 ms (50,75 a 269,19 ms); la mediana de tiempo de pronóstico entre insumos fue 1,09 ms (0,84 a 305,27 ms). Los tiempos describen solo el cálculo local de esta ejecución; no incluyen red ni renderizado y pueden variar en otro equipo. El archivo JSON conserva los 13 resultados individuales y las tres repeticiones de pronóstico.
 
+## Comparación reproducible para el artículo
+
+Ejecute `OPERA_DB_PATH=/ruta/tesis_demo_365.sqlite3 python evidencia_tesis/comparar_hw_rf_articulo.py`. El corte fijo excluye desde el 5 de noviembre de 2026. El archivo `resultados/comparacion_articulo_365.json` conserva por insumo el RMSE y MAE externos de Holt-Winters, Random Forest, promedio móvil de siete días y referencia estacional semanal. El experimento principal usa el 80 % inicial para ajuste y el 20 % final para prueba; la sensibilidad reajusta los modelos en tres orígenes no superpuestos de 28 días. Un bootstrap descriptivo de 10 000 remuestreos de las 13 diferencias HW−RF usa semilla 42.
+
+En la prueba principal, Holt-Winters obtuvo RMSE medio 0,8794 kg y Random Forest 0,9043 kg, con ocho y cinco victorias por insumo. Las ventanas de sensibilidad dieron 6–7, 6–7 y 12–1 victorias HW–RF. El intervalo bootstrap del promedio HW−RF fue [−0,0729; 0,0176] kg; incluye cero y no prueba superioridad estable ni generalización fuera del escenario generado.
+
 ## Hallazgo corregido
 
 La prueba `test_cp04_excluido_no_borra_consumo_valido_del_mismo_dia` reprodujo un defecto de preparación: al excluir un consumo, el proceso sustituía también el consumo válido del mismo día por una media. Se corrigió `preparar_filas` para sumar solo registros válidos e imputar únicamente días que contienen exclusivamente registros excluidos. La prueba pasó tras la corrección.
